@@ -1,9 +1,101 @@
 ﻿<Application x:Class="Genio.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:Genio"
              StartupUri="MainWindow.xaml">
+
     <Application.Resources>
-         
+        <ResourceDictionary>
+            <!-- ЦВЕТА -->
+            <SolidColorBrush x:Key="MenuBackgroundColor" Color="#FF303030"/>
+            <SolidColorBrush x:Key="MenuSelectedColor" Color="#FF787878"/>
+            <SolidColorBrush x:Key="MenuTextColor" Color="#FFFFFFFF"/>
+            <SolidColorBrush x:Key="WindowBackground" Color="#262626"/>
+            <SolidColorBrush x:Key="MenuItemHoverColor" Color="#FF404040"/>
+
+            <!-- ШРИФТЫ -->
+            <FontFamily x:Key="PrimaryFont">Segoe UI</FontFamily>
+
+            <!-- ПУТИ К ИКОНКАМ -->
+            <BitmapImage x:Key="AnalyticsIcon" UriSource="/Images/iconsMenu/analytics_icon.png"/>
+            <BitmapImage x:Key="ReportsIcon" UriSource="/Images/iconsMenu/reports_icon.png"/>
+            <BitmapImage x:Key="OlympiadsIcon" UriSource="/Images/iconsMenu/olympiads_icon.png"/>
+            <BitmapImage x:Key="HonorBoardIcon" UriSource="/Images/iconsMenu/honorboard_icon.png"/>
+            <BitmapImage x:Key="SettingsIcon" UriSource="/Images/iconsMenu/settings_icon.png"/>
+
+            <!-- ПУНКТ МЕНЮ -->
+            <Style x:Key="MenuButtonStyle" TargetType="RadioButton">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Foreground" Value="{StaticResource MenuTextColor}"/>
+                <Setter Property="FontFamily" Value="{StaticResource PrimaryFont}"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="IsChecked" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="menuItemBorder"
+                                    CornerRadius="10"
+                                    Background="Transparent"
+                                    Padding="15,6,15,6" 
+                                Margin="0,3">
+                                <StackPanel Orientation="Horizontal"
+                                            VerticalAlignment="Center">
+                                    <Image x:Name="menuIcon"
+                                           Width="24"
+                                           Height="24"
+                                           Source="{TemplateBinding Tag}"
+                                           Margin="0,0,10,0"
+                                           Stretch="Uniform"/>
+                                    <TextBlock x:Name="menuText"
+                                               Text="{TemplateBinding Content}"
+                                               VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <!-- ВЫБОР ПУНКТА МЕНЮ -->
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="menuItemBorder" 
+                                            Property="Background" 
+                                            Value="{StaticResource MenuSelectedColor}"/>
+                                    <Setter TargetName="menuText" 
+                                            Property="FontWeight" 
+                                            Value="SemiBold"/>
+                                    <Setter TargetName="menuItemBorder" 
+                                            Property="Padding" 
+                                            Value="15,6,15,6"/>
+                                </Trigger>
+
+                                <!-- ПРИ НАВЕДЕНИИ МЫШИ -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="menuItemBorder" 
+                                            Property="Background" 
+                                            Value="{StaticResource MenuItemHoverColor}"/>
+                                    <Setter TargetName="menuItemBorder" 
+                                            Property="Padding" 
+                                            Value="15,6,15,6"/>
+                                </Trigger>
+
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsChecked" Value="True"/>
+                                        <Condition Property="IsMouseOver" Value="True"/>
+                                    </MultiTrigger.Conditions>
+                                    <Setter TargetName="menuItemBorder" 
+                                            Property="Padding" 
+                                            Value="15,6,15,6"/>
+                                    <Setter TargetName="menuItemBorder" 
+                                            Property="Background" 
+                                            Value="#FF686868"/>
+                                </MultiTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

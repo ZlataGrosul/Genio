@@ -94,5 +94,25 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\logoGenio.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\iconsMenu\analytics_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\iconsMenu\reports_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\iconsMenu\olympiads_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\iconsMenu\honorboard_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\iconsMenu\settings_icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

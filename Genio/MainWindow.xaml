@@ -3,10 +3,112 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Genio"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Width="1175"
+        Height="680"
+        MinWidth="800"
+        MinHeight="500"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource WindowBackground}">
+
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="199"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="15"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ФРЕЙМ ЛОГОТИПА -->
+        <Border Grid.Row="0"
+                Grid.Column="0"
+                CornerRadius="25"
+                Background="{StaticResource MenuBackgroundColor}"
+                Margin="15,15,0,0"
+                Height="121">
+
+            <Border Width="169"
+                    Height="61"
+                    Margin="24,30,15,30"
+                    Background="Transparent">
+                <Image Source="/Images/logoGenio.png"
+                       Stretch="Uniform"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"/>
+            </Border>
+        </Border>
+
+        <Border Grid.Row="1"
+                Grid.Column="0"
+                Background="Transparent"/>
+
+        <!-- ФРЕЙМ МЕНЮ -->
+        <Border Grid.Row="2"
+                Grid.Column="0"
+                CornerRadius="25"
+                Background="{StaticResource MenuBackgroundColor}"
+                Margin="15,0,0,15"
+                VerticalAlignment="Stretch">
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Padding="0,15,0,15">
+
+                <StackPanel Margin="15,0,15,0">
+                    <RadioButton x:Name="AnalyticsBtn"
+                                 Content="Аналитика"
+                                 Style="{StaticResource MenuButtonStyle}"
+                                 GroupName="MenuGroup"
+                                 IsChecked="True"
+                                 Tag="{StaticResource AnalyticsIcon}"
+                                 Margin="0,0,0,5"/>
+
+                    <RadioButton x:Name="ReportsBtn"
+                                 Content="Отчеты"
+                                 Style="{StaticResource MenuButtonStyle}"
+                                 GroupName="MenuGroup"
+                                 Tag="{StaticResource ReportsIcon}"
+                                 Margin="0,0,0,5"/>
+
+                    <RadioButton x:Name="OlympiadsBtn"
+                                 Content="Олимпиады"
+                                 Style="{StaticResource MenuButtonStyle}"
+                                 GroupName="MenuGroup"
+                                 Tag="{StaticResource OlympiadsIcon}"
+                                 Margin="0,0,0,5"/>
+
+                    <RadioButton x:Name="HonorBoardBtn"
+                                 Content="Доска почета"
+                                 Style="{StaticResource MenuButtonStyle}"
+                                 GroupName="MenuGroup"
+                                 Tag="{StaticResource HonorBoardIcon}"
+                                 Margin="0,0,0,5"/>
+
+                    <RadioButton x:Name="SettingsBtn"
+                                 Content="Настройки"
+                                 Style="{StaticResource MenuButtonStyle}"
+                                 GroupName="MenuGroup"
+                                 Tag="{StaticResource SettingsIcon}"
+                                 Margin="0,0,0,5"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ДЛЯ СТРАНИЦ -->
+        <Border Grid.Row="0"
+                Grid.RowSpan="3"
+                Grid.Column="1"
+                Margin="15,15,15,15"
+                Background="{StaticResource WindowBackground}">
+
+            <Grid>
+                
+            </Grid>
+        </Border>
+
     </Grid>
 </Window>
