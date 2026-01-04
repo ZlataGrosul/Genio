@@ -1,0 +1,722 @@
+﻿<Page x:Class="Genio.OlimpPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d" 
+      Title="OlimpPage"
+      Background="{StaticResource WindowBackground}">
+
+    <Page.Resources>
+        <!-- СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ ФИЛЬТРОВ -->
+        <Style x:Key="FiltersButtonActiveStyle" TargetType="Button" BasedOn="{StaticResource FiltersButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF5045D5"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#FF4035C5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ШАПКА -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2"
+                Background="Transparent"
+                Margin="20,10,20,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ПОЛЕ ПОИСКА -->
+                <Border Grid.Column="0"
+                        Background="{StaticResource ReportFrameColor}"
+                        CornerRadius="12"
+                        Width="318"
+                        Height="38"
+                        Margin="0,0,15,0">
+                    <Grid>
+                        <TextBox x:Name="SearchTextBox"
+                                 Style="{StaticResource SearchTextBoxStyle}"
+                                 Padding="38,0,10,0"
+                                 VerticalAlignment="Center"
+                                 Text="Поиск..."
+                                 GotFocus="SearchTextBox_GotFocus"
+                                 LostFocus="SearchTextBox_LostFocus"/>
+                        <Image Source="/Images/searchIcon.png"
+                               Width="20"
+                               Height="20"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center"
+                               Margin="12,0,0,0"
+                               Stretch="Uniform"/>
+                    </Grid>
+                </Border>
+
+                <!-- КНОПКА ФИЛЬТРОВ -->
+                <Button x:Name="FiltersBtn"
+                        Grid.Column="1"
+                        Style="{StaticResource FiltersButtonStyle}"
+                        Width="56"
+                        Height="38"
+                        HorizontalAlignment="Left"
+                        Click="FiltersBtn_Click">
+                    <Image Source="/Images/filterIcon.png"
+                           Width="20"
+                           Height="20"
+                           Stretch="Uniform"/>
+                </Button>
+
+                <!-- ПЕРЕКЛЮЧАТЕЛЬ УЧАЩИЕСЯ/МЕРОПРИЯТИЯ -->
+                <Border Grid.Column="1"
+                        Background="{StaticResource ReportFrameColor}"
+                        CornerRadius="12"
+                        Width="251"
+                        Height="38"
+                        Margin="80,0,15,0"
+                        HorizontalAlignment="Left" Cursor="">
+                    <Grid>
+                        <!-- Сначала фиолетовый фрейм -->
+                        <Border x:Name="ModeSelector"
+            Background="{StaticResource AccentColor}"
+            CornerRadius="8"
+            Width="121"
+            Height="28"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Left"
+            Margin="2,0,0,0"/>
+
+                        <!-- Потом кнопки (они будут сверху) -->
+                        <RadioButton x:Name="StudentsModeBtn"
+                 Content="Учащиеся"
+                 GroupName="ViewMode"
+                 IsChecked="True"
+                 Style="{StaticResource ModeToggleButtonStyle}"
+                 HorizontalAlignment="Left"
+                 Width="121"
+                 Click="ViewMode_Checked"/>
+                        <RadioButton x:Name="EventsModeBtn"
+                 Content="Мероприятия"
+                 GroupName="ViewMode"
+                 Style="{StaticResource ModeToggleButtonStyle}"
+                 HorizontalAlignment="Right"
+                 Width="121"
+                 Click="ViewMode_Checked"/>
+                    </Grid>
+                </Border>
+
+                <!-- КНОПКА ОТЧЕТ -->
+                <Button x:Name="ReportBtn"
+                        Grid.Column="2"
+                        Style="{StaticResource ReportButtonStyle}"
+                        Width="120"
+                        Height="38"
+                        HorizontalAlignment="Right"
+                        Click="ReportBtn_Click">
+                    <TextBlock Text="Отчет"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- МЕСТО ПОД ШАПКОЙ -->
+        <Border Grid.Row="1" Grid.ColumnSpan="2"
+                Height="15"
+                Background="Transparent"/>
+
+        <!-- ЗАГОЛОВКИ РАЗДЕЛОВ -->
+        <TextBlock Grid.Row="2" Grid.Column="0"
+                   Text="Мероприятия"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource LightTextColor}"
+                   Margin="30,0,20,10"
+                   HorizontalAlignment="Left"/>
+
+        <TextBlock x:Name="RightSectionTitle"
+                   Grid.Row="2" Grid.Column="1"
+                   Text="Учащиеся"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource LightTextColor}"
+                   Margin="20,0,20,10"
+                   HorizontalAlignment="Left"/>
+
+        <!-- РАЗДЕЛ МЕРОПРИЯТИЙ -->
+        <Border Grid.Row="3" Grid.Column="0"
+                Background="{StaticResource ReportFrameColor}"
+                CornerRadius="8"
+                Margin="20,0,10,15"
+                x:Name="EventsSection"
+                Style="{StaticResource HoverFrameStyle}">
+            <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}"
+                          Padding="15">
+                <StackPanel x:Name="EventsList">
+                    <!-- ТЕСТОВЫЕ ДАННЫЕ МЕРОПРИЯТИЙ -->
+                    <Border x:Name="Event1"
+                            Background="{StaticResource AccentColor}"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5"
+                            Cursor="Hand"
+                            Tag="1"
+                            MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
+                            Style="{StaticResource HoverFrameStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Виртуальный бизнес-банк"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="01.03.2024"
+                                       Foreground="{StaticResource WindowBackground}"
+                                       FontSize="11"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border x:Name="Event2"
+                            Background="{StaticResource CheckBoxBorder}"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5"
+                            Cursor="Hand"
+                            Tag="2"
+                            MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
+                            Style="{StaticResource HoverFrameStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Молодежь 21 века"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="20.10.2025"
+                                       Foreground="{StaticResource WindowBackground}"
+                                       FontSize="11"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border x:Name="Event3"
+                            Background="{StaticResource CheckBoxBorder}"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5"
+                            Cursor="Hand"
+                            Tag="3"
+                            MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
+                            Style="{StaticResource HoverFrameStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Экономика XXI века"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="24.12.2024"
+                                       Foreground="{StaticResource WindowBackground}"
+                                       FontSize="11"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- ДОБАВИМ ЕЩЕ НЕСКОЛЬКО МЕРОПРИЯТИЙ ДЛЯ ПРОКРУТКИ -->
+                    <Border Background="{StaticResource CheckBoxBorder}"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5"
+                            Cursor="Hand"
+                            Style="{StaticResource HoverFrameStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="IT-Планета 2030/2021"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="24.05.2025"
+                                       Foreground="{StaticResource WindowBackground}"
+                                       FontSize="11"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Background="{StaticResource CheckBoxBorder}"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5"
+                            Cursor="Hand"
+                            Style="{StaticResource HoverFrameStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="BIT-CUP 2021"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="30.11.2025"
+                                       Foreground="{StaticResource WindowBackground}"
+                                       FontSize="11"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- РАЗДЕЛ УЧАЩИХСЯ -->
+        <Border x:Name="StudentsSection"
+                Grid.Row="3" Grid.Column="1"
+                Background="{StaticResource ReportFrameColor}"
+                CornerRadius="8"
+                Margin="10,0,20,15"
+                Style="{StaticResource HoverFrameStyle}">
+            <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}"
+                          Padding="15">
+                <StackPanel x:Name="StudentsList">
+                    <!-- ТЕСТОВЫЕ ДАННЫЕ УЧАЩИХСЯ -->
+                    <Border Background="{StaticResource AccentColor}"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5">
+                        <Grid>
+                            <TextBlock Text="Грекул Злата Анатольевна • 1-291"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Background="#FF978FFF"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5">
+                        <Grid>
+                            <TextBlock Text="Мотелек Маргарита Михайловна • 1-292"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Background="#FF4F47B7"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5">
+                        <Grid>
+                            <TextBlock Text="Садковская Валерия Викторовна • 1-291"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- ДОБАВИМ ЕЩЕ НЕСКОЛЬКО ЭЛЕМЕНТОВ ДЛЯ ПРОКРУТКИ -->
+                    <Border Background="{StaticResource AccentColor}"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5">
+                        <Grid>
+                            <TextBlock Text="Иванов Иван Иванович • 1-341"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Background="#FF978FFF"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5">
+                        <Grid>
+                            <TextBlock Text="Петров Петр Петрович • 1-292"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Background="#FF4F47B7"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5">
+                        <Grid>
+                            <TextBlock Text="Сидорова Анна Михайловна • 1-291"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Background="{StaticResource AccentColor}"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5">
+                        <Grid>
+                            <TextBlock Text="Кузнецова Елена Викторовна • 1-341"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Background="#FF978FFF"
+                            CornerRadius="4"
+                            Height="27"
+                            Margin="0,0,0,5">
+                        <Grid>
+                            <TextBlock Text="Смирнов Алексей Дмитриевич • 1-292"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       FontSize="13"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ПАНЕЛЬ ФИЛЬТРОВ (ПОЯВЛЯЕТСЯ ПРИ НАЖАТИИ КНОПКИ ФИЛЬТРОВ) -->
+        <Border x:Name="FiltersPanel"
+                Grid.Row="3" Grid.Column="1"
+                Background="{StaticResource ReportFrameColor}"
+                CornerRadius="10"
+                Margin="10,0,20,15"
+                Height="205"
+                VerticalAlignment="Bottom"
+                Visibility="Collapsed"
+                Style="{StaticResource HoverFrameStyle}">
+
+            <StackPanel Margin="15">
+                <!-- ЗАГОЛОВОК ФИЛЬТРОВ -->
+                <StackPanel Orientation="Horizontal"
+                                Margin="0,0,0,15">
+                    <Image Source="/Images/filterIcon.png"
+                               Width="20"
+                               Height="20"
+                               Stretch="Uniform"
+                               Margin="0,0,10,0"/>
+                    <TextBlock Text="Фильтры"
+                                   Foreground="{StaticResource LightTextColor}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- COMBOBOX ДЛЯ ФИЛЬТРОВ -->
+                <ComboBox x:Name="FiltersComboBox"
+                              Style="{StaticResource CustomComboBoxStyle}"
+                              ItemContainerStyle="{StaticResource CustomComboBoxItemStyle}"
+                              SelectedIndex="0"
+                              Height="40"
+                              FontSize="13"
+                              Margin="0,0,0,15">
+                    <ComboBoxItem Content="Все мероприятия" IsSelected="True"/>
+                    <ComboBoxItem Content="Олимпиады"/>
+                    <ComboBoxItem Content="Чемпионаты"/>
+                    <ComboBoxItem Content="Конкурсы"/>
+                </ComboBox>
+
+                <!-- ПЕРИОД -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Период"
+                                   Grid.Column="0"
+                                   FontSize="13"
+                                   Foreground="{StaticResource LightTextColor}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+
+                    <Border x:Name="FilterDateFromBorder"
+                                Grid.Column="1"
+                                Background="{StaticResource WindowBackground}"
+                                CornerRadius="8"
+                                Height="40"
+                                Margin="0,0,15,0">
+                        <Grid>
+                            <TextBox x:Name="FilterDateFromText"
+                                         Background="Transparent"
+                                         Foreground="{StaticResource LightTextColor}"
+                                         BorderThickness="0"
+                                         Padding="12,0,35,0"
+                                         VerticalAlignment="Center"
+                                         FontSize="13"
+                                         Text="01.09.2024"
+                                         IsReadOnly="True"/>
+                            <Button x:Name="FilterDateFromButton"
+                                        Style="{StaticResource DatePickerButtonStyle}" 
+                                        HorizontalAlignment="Right"
+                                        Width="35"
+                                        Height="40"
+                                        Click="FilterDateFromButton_Click">
+                                <Image Source="{StaticResource DatePickerIcon}"
+                                           Width="18"
+                                           Height="18"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <Border x:Name="FilterDateToBorder"
+                                Grid.Column="3"
+                                Background="{StaticResource WindowBackground}"
+                                CornerRadius="8"
+                                Height="40">
+                        <Grid>
+                            <TextBox x:Name="FilterDateToText"
+                                         Background="Transparent"
+                                         Foreground="{StaticResource LightTextColor}"
+                                         BorderThickness="0"
+                                         Padding="12,0,35,0"
+                                         VerticalAlignment="Center"
+                                         FontSize="13"
+                                         Text="31.12.2024"
+                                         IsReadOnly="True"/>
+                            <Button x:Name="FilterDateToButton"
+                                        Style="{StaticResource DatePickerButtonStyle}"
+                                        HorizontalAlignment="Right"
+                                        Width="35"
+                                        Height="40"
+                                        Click="FilterDateToButton_Click">
+                                <Image Source="{StaticResource DatePickerIcon}"
+                                           Width="18"
+                                           Height="18"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- РАЗДЕЛ ИНФОРМАЦИИ О МЕРОПРИЯТИИ (ПОЯВЛЯЕТСЯ ПРИ ДВОЙНОМ КЛИКЕ) -->
+        <Border x:Name="EventInfoSection"
+        Grid.Row="3" Grid.Column="1"
+        Background="{StaticResource ReportFrameColor}"
+        CornerRadius="8"
+        Margin="10,0,20,15"
+        Visibility="Collapsed"
+        Style="{StaticResource HoverFrameStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- ИНФОРМАЦИЯ О МЕРОПРИЯТИИ -->
+                <ScrollViewer Grid.Row="1"
+                      Style="{StaticResource CustomScrollViewerStyle}"
+                      Padding="15,0,15,15">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <!-- Фиксированная ширина для меток (самой длинной) -->
+                            <ColumnDefinition Width="Auto"/>
+                            <!-- Оставшееся пространство для значений -->
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- ЛЕВАЯ КОЛОНКА - МЕТКИ -->
+                        <StackPanel Grid.Column="0" Margin="10,20,30,0">
+                            <TextBlock Text="Дата:"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource LightTextColor}"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="Название:"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource LightTextColor}"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="Уровень:"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource LightTextColor}"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="Вид:"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource LightTextColor}"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="Результат:"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource LightTextColor}"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="Номинации:"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource LightTextColor}"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="Место проведения:"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource LightTextColor}"
+                               Margin="0,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- ПРАВАЯ КОЛОНКА - ЗНАЧЕНИЯ -->
+                        <StackPanel Grid.Column="1" Margin="20">
+                            <TextBlock Text="01.03.2024"
+                               FontSize="14"
+                               Foreground="#FFCCCCCC"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="Зимний Чемпионат по управлению бизнесом среди молодёжи &quot;Виртуальный бизнес-комп&quot;"
+                               FontSize="14"
+                               Foreground="#FFCCCCCC"
+                               Margin="0,0,0,15"
+                               TextWrapping="Wrap"/>
+                            <TextBlock Text="Город"
+                               FontSize="14"
+                               Foreground="#FFCCCCCC"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="Чемпионат"
+                               FontSize="14"
+                               Foreground="#FFCCCCCC"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="2 место"
+                               FontSize="14"
+                               Foreground="#FFCCCCCC"
+                               Margin="0,0,0,15"/>
+                            <TextBlock Text="&quot;Моделирование экономики&quot; группа &quot;Лидер&quot;"
+                               FontSize="14"
+                               Foreground="#FFCCCCCC"
+                               Margin="0,0,0,15"
+                               TextWrapping="Wrap"/>
+                            <TextBlock Text="Центр поддержки и развития юношеского предпринимательства"
+                               FontSize="14"
+                               Foreground="#FFCCCCCC"
+                               Margin="0,0,0,0"
+                               TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+
+                <!-- КНОПКА НАЗАД -->
+                <Button Grid.Row="2"
+                Style="{StaticResource CircleButtonStyle}"
+                Width="40"
+                Height="40"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,15,15"
+                Click="BackButton_Click">
+                    <Image Source="/Images/backIcon.png"
+                   Width="24"
+                   Height="24"
+                   Stretch="Uniform"/>
+                </Button>
+            </Grid>
+        </Border>
+        <!-- ПОДВАЛ С КНОПКАМИ (СЛЕВА) -->
+        <Border Grid.Row="4" Grid.Column="0"
+                Background="Transparent"
+                Margin="20,0,20,20"
+                Height="60">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Left">
+                <!-- КНОПКА ДОБАВИТЬ -->
+                <Button Style="{StaticResource PurpleCircleButtonStyle}"
+                        Width="35"
+                        Height="35"
+                        Margin="0,0,10,0"
+                        Click="AddButton_Click">
+                    <Image Source="/Images/addIcon.png"
+                           Width="24"
+                           Height="24"
+                           Stretch="Uniform"/>
+                </Button>
+
+                <!-- КНОПКА РЕДАКТИРОВАТЬ -->
+                <Button Style="{StaticResource PurpleCircleButtonStyle}"
+                        Width="35"
+                        Height="35"
+                        Click="EditButton_Click">
+                    <Image Source="/Images/editIcon.png"
+                           Width="17"
+                           Height="17"
+                           Stretch="Uniform"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- КАЛЕНДАРЬ ДЛЯ ДАТЫ -->
+        <Popup x:Name="DatePickerPopup"
+               Placement="Bottom"
+               StaysOpen="False"
+               AllowsTransparency="True"
+               PopupAnimation="Slide"
+               VerticalOffset="5">
+            <Border Background="{StaticResource CalendarBackground}"
+                    BorderBrush="{StaticResource AccentColor}"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Padding="8">
+                <Calendar x:Name="DatePickerCalendar"
+                          Style="{StaticResource CustomCalendarStyle}"
+                          SelectionMode="SingleDate"
+                          SelectedDatesChanged="DatePickerCalendar_SelectedDatesChanged"/>
+            </Border>
+        </Popup>
+    </Grid>
+</Page>

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Genio
@@ -13,22 +14,35 @@ namespace Genio
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // Подписка на события кнопок меню
+            // подписка на события кнопок меню
+            SubscribeMenuEvents();
+
+            // по умолчанию открываем страницу по умолчанию
+            LoadPage("Analytics");
+        }
+
+        private void SubscribeMenuEvents()
+        {
             AnalyticsBtn.Checked += MenuButton_Checked;
             ReportsBtn.Checked += MenuButton_Checked;
             OlympiadsBtn.Checked += MenuButton_Checked;
             HonorBoardBtn.Checked += MenuButton_Checked;
             SettingsBtn.Checked += MenuButton_Checked;
+        }
 
-            // По умолчанию открываем страницу по умолчанию
-            AnalyticsBtn.IsChecked = true;
-            LoadPage("Analytics");
+        private void UnsubscribeMenuEvents()
+        {
+            AnalyticsBtn.Checked -= MenuButton_Checked;
+            ReportsBtn.Checked -= MenuButton_Checked;
+            OlympiadsBtn.Checked -= MenuButton_Checked;
+            HonorBoardBtn.Checked -= MenuButton_Checked;
+            SettingsBtn.Checked -= MenuButton_Checked;
         }
 
         private void MenuButton_Checked(object sender, RoutedEventArgs e)
         {
             var button = sender as RadioButton;
-            if (button == null) return;
+            if (button == null || !button.IsChecked.HasValue || !button.IsChecked.Value) return;
 
             switch (button.Name)
             {
@@ -50,23 +64,73 @@ namespace Genio
             }
         }
 
-        private void LoadPage(string pageName)
+        public void LoadPage(string pageName)
         {
+            // отписываемся от событий перед изменением состояния кнопок
+            UnsubscribeMenuEvents();
+
+            try
+            {
+                // блокируем меню для страницы редактирования
+                if (pageName == "AddEditOlimp")
+                {
+                    LockMenu(true);
+                }
+                else
+                {
+                    LockMenu(false);
+                }
+
+                // унимаем выделение со всех кнопок
+                AnalyticsBtn.IsChecked = false;
+                ReportsBtn.IsChecked = false;
+                OlympiadsBtn.IsChecked = false;
+                HonorBoardBtn.IsChecked = false;
+                SettingsBtn.IsChecked = false;
+
+                // устанавливаем выделение на нужной кнопке
+                switch (pageName)
+                {
+                    case "Analytics":
+                        AnalyticsBtn.IsChecked = true;
+                        break;
+                    case "Reports":
+                        ReportsBtn.IsChecked = true;
+                        break;
+                    case "Olympiads":
+                        OlympiadsBtn.IsChecked = true;
+                        break;
+                    case "HonorBoard":
+                        HonorBoardBtn.IsChecked = true;
+                        break;
+                    case "Settings":
+                        SettingsBtn.IsChecked = true;
+                        break;
+                }
+            }
+            finally
+            {
+                // подписываемся обратно
+                SubscribeMenuEvents();
+            }
+
             switch (pageName)
             {
                 case "Analytics":
-                    // Показываем простую страницу аналитики
+                    // показываем простую страницу аналитики
                     ShowSimplePage("Аналитика", "Страница аналитики находится в разработке");
                     break;
 
                 case "Reports":
-                    // Загружаем страницу отчетов
+                    // загружаем страницу отчетов
                     var reportsPage = new ReportsPage();
                     MainFrame.Navigate(reportsPage);
                     break;
 
                 case "Olympiads":
-                    ShowSimplePage("Олимпиады", "Страница олимпиад находится в разработке");
+                    // загружаем страницу олимпиад
+                    var olimpPage = new OlimpPage();
+                    MainFrame.Navigate(olimpPage);
                     break;
 
                 case "HonorBoard":
@@ -76,12 +140,18 @@ namespace Genio
                 case "Settings":
                     ShowSimplePage("Настройки", "Страница настроек находится в разработке");
                     break;
+
+                case "AddEditOlimp":
+                    // загружаем страницу добавления/редактирования олимпиад
+                    var addEditPage = new AddEditOlimpPage();
+                    MainFrame.Navigate(addEditPage);
+                    break;
             }
         }
 
         private void ShowSimplePage(string title, string content)
         {
-            // Создаем простую страницу для временного отображения
+            // создаем простую страницу для временного отображения
             var page = new Page
             {
                 Background = (System.Windows.Media.Brush)FindResource("WindowBackground")
@@ -116,6 +186,15 @@ namespace Genio
             page.Content = stackPanel;
 
             MainFrame.Navigate(page);
+        }
+
+        public void LockMenu(bool isLocked)
+        {
+            AnalyticsBtn.IsEnabled = !isLocked;
+            ReportsBtn.IsEnabled = !isLocked;
+            OlympiadsBtn.IsEnabled = !isLocked;
+            HonorBoardBtn.IsEnabled = !isLocked;
+            SettingsBtn.IsEnabled = !isLocked;
         }
     }
 }

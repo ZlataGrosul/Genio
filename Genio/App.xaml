@@ -494,6 +494,240 @@
                 </Setter>
             </Style>
 
+            <!-- СТИЛЬ ДЛЯ КНОПОК ПЕРЕКЛЮЧАТЕЛЯ РЕЖИМА -->
+            <Style x:Key="ModeToggleButtonStyle" TargetType="RadioButton">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="border"
+                        Background="Transparent"
+                        Padding="0,5">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ ПОИСКОВОГО ПОЛЯ -->
+            <Style x:Key="SearchTextBoxStyle" TargetType="TextBox">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="12">
+                                <ScrollViewer x:Name="PART_ContentHost"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ КНОПКИ ФИЛЬТРОВ -->
+            <Style x:Key="FiltersButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource MenuItemHoverColor}"/>
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        BorderThickness="0"
+                        CornerRadius="12">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                                    <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF505050"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ ФИОЛЕТОВЫХ КРУГЛЫХ КНОПОК -->
+            <Style x:Key="PurpleCircleButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid>
+                                <Ellipse x:Name="ellipse"
+                             Fill="{TemplateBinding Background}"/>
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ellipse" Property="Fill" Value="#FF5045D5"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="ellipse" Property="Fill" Value="#FF4035C5"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ КНОПКИ ОТЧЕТ -->
+            <Style x:Key="ReportButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="15">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Margin="10,8"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF5045D5"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF4035C5"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ КАСТОМНОГО SCROLLVIEWER -->
+            <Style x:Key="CustomScrollViewerStyle" TargetType="ScrollViewer">
+                <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollViewer">
+                            <Grid x:Name="Grid" Background="{TemplateBinding Background}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- ОСНОВНОЙ КОНТЕНТ -->
+                                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                Grid.Column="0"
+                                Margin="{TemplateBinding Padding}"
+                                CanContentScroll="{TemplateBinding CanContentScroll}"/>
+
+                                <!-- ВЕРТИКАЛЬНЫЙ СКРОЛЛБАР -->
+                                <ScrollBar x:Name="PART_VerticalScrollBar"
+                               Grid.Column="1"
+                               Orientation="Vertical"
+                               Minimum="0"
+                               Maximum="{TemplateBinding ScrollableHeight}"
+                               ViewportSize="{TemplateBinding ViewportHeight}"
+                               Value="{TemplateBinding VerticalOffset}"
+                               Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                               Width="5"
+                               Margin="-14,0,0,0">
+                                    <ScrollBar.Template>
+                                        <ControlTemplate TargetType="ScrollBar">
+                                            <Grid>
+                                                <!-- ТРЕК (серый фон полосы прокрутки) -->
+                                                <Border x:Name="TrackBorder"
+                                            CornerRadius="9"
+                                            Background="{StaticResource CheckBoxBorder}"
+                                            Opacity="0.3"
+                                            Margin="0,10,0,10"/>
+
+                                                <!-- Трек с ползунком -->
+                                                <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                                    <Track.Thumb>
+                                                        <Thumb x:Name="Thumb" 
+                                                   Background="{StaticResource AccentColor}"
+                                                   Width="6"
+                                                               MaxHeight="220"
+                                                            Margin="2,0,2,0">
+                                                            <Thumb.Template>
+                                                                <ControlTemplate TargetType="Thumb">
+                                                                    <Border CornerRadius="4"
+                                                                        Background="{TemplateBinding Background}"
+                                                                Margin="0,4,0,4"/>
+                                                                </ControlTemplate>
+                                                            </Thumb.Template>
+                                                        </Thumb>
+                                                    </Track.Thumb>
+                                                </Track>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Thumb" Property="Background" Value="#FF5045D5"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ScrollBar.Template>
+                                </ScrollBar>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Стиль для кнопки выбора учащегося -->
+            <Style x:Key="StudentSelectionButtonStyle" TargetType="Button" BasedOn="{StaticResource DatePickerButtonStyle}">
+                <Setter Property="Width" Value="27"/>
+                <Setter Property="Height" Value="27"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+
+            <!-- Стиль для выбранного учащегося -->
+            <Style x:Key="SelectedStudentItemStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="Height" Value="27"/>
+                <Setter Property="Margin" Value="0,0,0,5"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+
+            <!-- Стиль для не выбранного учащегося -->
+            <Style x:Key="UnselectedStudentItemStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource CheckBoxBorder}"/>
+                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="Height" Value="27"/>
+                <Setter Property="Margin" Value="0,0,0,5"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+            
+            <Style x:Key="WrappingTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource SearchTextBoxStyle}">
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="AcceptsReturn" Value="True"/>
+                <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="VerticalContentAlignment" Value="Top"/>
+            </Style>
+            
         </ResourceDictionary>
     </Application.Resources>
 </Application>
