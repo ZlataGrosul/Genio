@@ -1,0 +1,437 @@
+﻿<Page x:Class="Genio.ReportsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
+      mc:Ignorable="d" 
+      Title="ReportsPage"
+      Background="{StaticResource WindowBackground}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="486*"/>
+            <ColumnDefinition Width="439*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ШАПКА -->
+        <Border Grid.Row="0" Grid.ColumnSpan="2"
+                Background="Transparent"
+                Margin="20,10,20,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ЗАГОЛОВОК -->
+                <TextBlock Text="Параметры отчета"
+                           Grid.Column="0"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource LightTextColor}"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"/>
+
+                <!-- КНОПКИ -->
+                <WrapPanel Grid.Column="2"
+                           Orientation="Horizontal"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           MaxWidth="500" Cursor="">
+
+                    <Button x:Name="GenerateBtn"
+                            Style="{StaticResource AccentButtonStyle}"
+                            MinWidth="120"
+                            Height="38"
+                            Margin="5,0"
+                            Click="GenerateBtn_Click">
+                        <TextBlock Text="Сформировать" 
+                            FontSize="13"/>
+                    </Button>
+
+                    <Button x:Name="ExportPdfBtn"
+                            Style="{StaticResource DisabledButtonStyle}"
+                            MinWidth="110"
+                            Height="38"
+                            Margin="5,0"
+                            Click="ExportPdfBtn_Click"
+                            IsEnabled="False">
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="📄" 
+                                       FontSize="13"
+                                       Margin="0,0,5,0"/>
+                            <TextBlock Text="PDF" 
+                                       FontSize="13"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="ExportWordBtn"
+                            Style="{StaticResource DisabledButtonStyle}"
+                            MinWidth="110"
+                            Height="38"
+                            Margin="5,0"
+                            Click="ExportWordBtn_Click"
+                            IsEnabled="False">
+                        <StackPanel Orientation="Horizontal" 
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="📝" 
+                                       FontSize="13"
+                                       Margin="0,0,5,0"/>
+                            <TextBlock Text="Word" 
+                                       FontSize="13"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="ClearBtn"
+                        Style="{StaticResource CircleButtonStyle}"
+                        Width="38"
+                        Height="38"
+                        Margin="5,0"
+                        Click="ClearBtn_Click">
+                        <Image Source="/Images/iconRemove.png"
+                            Width="15"
+                            Height="15"
+                            RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Button>
+                </WrapPanel>
+            </Grid>
+        </Border>
+
+        <!-- ПАРАМЕТРЫ -->
+        <ScrollViewer Grid.Row="1" Grid.Column="0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Margin="20,0,10,15">
+            <StackPanel>
+
+                <!-- ФРЕЙМ ТИП ОТЧЕТА -->
+                <Border Background="{StaticResource ReportFrameColor}"
+                        CornerRadius="8"
+                        Padding="18"
+                        Margin="0,0,0,12"
+                        Style="{StaticResource HoverFrameStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Тип отчета"
+                                   Grid.Row="0"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource LightTextColor}"
+                                   Margin="0,0,0,10"/>
+
+                        <ComboBox x:Name="ReportTypeComboBox"
+                                  Grid.Row="1"
+                                  Style="{StaticResource CustomComboBoxStyle}"
+                                  ItemContainerStyle="{StaticResource CustomComboBoxItemStyle}"
+                                  SelectedIndex="0"
+                                  Height="40"
+                                  FontSize="13"
+                                  SelectionChanged="ReportTypeComboBox_SelectionChanged">
+                            <ComboBoxItem Content="Сводный по олимпиадам" IsSelected="True"/>
+                            <ComboBoxItem Content="По специальностям"/>
+                            <ComboBoxItem Content="По курсам"/>
+                            <ComboBoxItem Content="Детализированный"/>
+                        </ComboBox>
+                    </Grid>
+                </Border>
+
+                <!-- ФРЕЙМ ПЕРИОД -->
+                <Border Background="{StaticResource ReportFrameColor}"
+                        CornerRadius="8"
+                        Padding="18"
+                        Margin="0,0,0,12"
+                        Style="{StaticResource HoverFrameStyle}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Text="Период"
+                                   Grid.Row="0"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource LightTextColor}"
+                                   Margin="0,0,0,10"/>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="С"
+                                       Grid.Column="0"
+                                       FontSize="13"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"/>
+
+                            <Border x:Name="DateFromBorder"
+                                Grid.Column="1"
+                                Background="{StaticResource ReportFrameColor}"
+                                CornerRadius="8"
+                                Height="40"
+                                Margin="0,0,15,0">
+                                <Grid>
+                                    <TextBox x:Name="DateFromText"
+                                        Background="Transparent"
+                                        Foreground="{StaticResource LightTextColor}"
+                                        BorderThickness="0"
+                                        Padding="12,0,35,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="13"
+                                        Text="01.09.2024"
+                                        IsReadOnly="True"/>
+                                    <Button x:Name="DateFromButton"
+                                        Style="{StaticResource DatePickerButtonStyle}" 
+                                        HorizontalAlignment="Right"
+                                        Width="35"
+                                        Height="40"
+                                        Click="DateFromButton_Click">
+                                        <Image Source="{StaticResource DatePickerIcon}"
+                                            Width="18"
+                                            Height="18"
+                                            RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <Border x:Name="DateToBorder"
+                                    Grid.Column="3"
+                                    Background="{StaticResource ReportFrameColor}"
+                                    CornerRadius="8"
+                                    Height="40">
+                                <Grid>
+                                    <TextBox x:Name="DateToText"
+                                        Background="Transparent"
+                                        Foreground="{StaticResource LightTextColor}"
+                                        BorderThickness="0"
+                                        Padding="12,0,35,0"
+                                        VerticalAlignment="Center"
+                                        FontSize="13"
+                                        Text="31.12.2024"
+                                        IsReadOnly="True"/>
+                                    <Button x:Name="DateToButton"
+                                            Style="{StaticResource DatePickerButtonStyle}"
+                                            HorizontalAlignment="Right"
+                                            Width="35"
+                                            Height="40"
+                                            Click="DateToButton_Click">
+                                        <Image Source="{StaticResource DatePickerIcon}"
+                                                Width="18"
+                                                Height="18"
+                                                RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <!-- СПЕЦИАЛЬНОСТИ + КУРСЫ -->
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="280"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" MinWidth="160"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ФРЕЙМ СПЕЦИАЛЬНОСТИ -->
+                    <Border Grid.Column="0"
+                            Background="{StaticResource ReportFrameColor}"
+                            CornerRadius="8"
+                            Padding="18"
+                            Margin="0,0,8,0"
+                            Style="{StaticResource HoverFrameStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="Специальности"
+                                       Grid.Row="0"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       Margin="0,0,0,10"/>
+
+                            <StackPanel Grid.Row="1">
+                                <CheckBox x:Name="Spec1" Content="Планово-экономическая" 
+                                          Margin="0,0,0,6"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="SpecialtyCheckBox_Changed"
+                                          Unchecked="SpecialtyCheckBox_Changed"/>
+                                <CheckBox x:Name="Spec2" Content="ПОИТ" 
+                                          Margin="0,0,0,6"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="SpecialtyCheckBox_Changed"
+                                          Unchecked="SpecialtyCheckBox_Changed"/>
+                                <CheckBox x:Name="Spec3" Content="Бухгалтерский учет" 
+                                          Margin="0,0,0,6"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="SpecialtyCheckBox_Changed"
+                                          Unchecked="SpecialtyCheckBox_Changed"/>
+                                <CheckBox x:Name="Spec4" Content="Банковское дело" 
+                                          Margin="0,0,0,6"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="SpecialtyCheckBox_Changed"
+                                          Unchecked="SpecialtyCheckBox_Changed"/>
+                                <CheckBox x:Name="Spec5" Content="Правоведение" 
+                                          Margin="0,0,0,6"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="SpecialtyCheckBox_Changed"
+                                          Unchecked="SpecialtyCheckBox_Changed"/>
+                                <CheckBox x:Name="Spec6" Content="Торговая деятельность" 
+                                          Margin="0,0,0,6"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="SpecialtyCheckBox_Changed"
+                                          Unchecked="SpecialtyCheckBox_Changed"/>
+                                <CheckBox x:Name="Spec7" Content="Операционная деятельность в логистике"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="SpecialtyCheckBox_Changed"
+                                          Unchecked="SpecialtyCheckBox_Changed"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Rectangle Grid.Column="1" Width="1" Fill="#444" Margin="8,20" VerticalAlignment="Stretch"/>
+
+                    <!-- ФРЕЙМ КУРСЫ -->
+                    <Border Grid.Column="2"
+                            Background="{StaticResource ReportFrameColor}"
+                            CornerRadius="8"
+                            Padding="18"
+                            Margin="8,0,0,0"
+                            Style="{StaticResource HoverFrameStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="Курс"
+                                       Grid.Row="0"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       Margin="0,0,0,10"/>
+
+                            <StackPanel Grid.Row="1">
+                                <CheckBox x:Name="Course1" Content="1 курс" 
+                                          Margin="0,0,0,10"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="CourseCheckBox_Changed"
+                                          Unchecked="CourseCheckBox_Changed"/>
+                                <CheckBox x:Name="Course2" Content="2 курс" 
+                                          Margin="0,0,0,10"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="CourseCheckBox_Changed"
+                                          Unchecked="CourseCheckBox_Changed"/>
+                                <CheckBox x:Name="Course3" Content="3 курс" 
+                                          Margin="0,0,0,10"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="CourseCheckBox_Changed"
+                                          Unchecked="CourseCheckBox_Changed"/>
+                                <CheckBox x:Name="Course4" Content="4 курс"
+                                          Style="{StaticResource ReportCheckBoxStyle}"
+                                          FontSize="12"
+                                          Checked="CourseCheckBox_Changed"
+                                          Unchecked="CourseCheckBox_Changed"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ПРЕДВАРИТЕЛЬНЫЙ ПРОСМОТР -->
+        <Border Grid.Row="1" Grid.Column="1"
+                Background="{StaticResource ReportFrameColor}"
+                CornerRadius="8"
+                Padding="15"
+                Margin="10,0,20,15"
+                Style="{StaticResource HoverFrameStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="1"
+                        Background="White"
+                        CornerRadius="6"
+                        BorderThickness="2"
+                        BorderBrush="#FF505050"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+                    <Grid Width="370" Height="515" 
+                        MinWidth="250" MinHeight="350">
+                        <FlowDocumentScrollViewer x:Name="ReportViewer"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Auto"
+                                                  Background="White">
+                            <FlowDocument x:Name="ReportDocument"
+                                          PageWidth="350"
+                                          PageHeight="495"
+                                          PagePadding="25,30,25,30"
+                                          FontFamily="Segoe UI"
+                                          FontSize="12"
+                                          ColumnWidth="300">
+                            </FlowDocument>
+                        </FlowDocumentScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- КАЛЕНДАРЬ ДЛЯ ДАТЫ -->
+        <Popup x:Name="DatePickerPopup"
+               Placement="Bottom"
+               StaysOpen="False"
+               AllowsTransparency="True"
+               PopupAnimation="Slide"
+               VerticalOffset="5">
+            <Border Background="{StaticResource CalendarBackground}"
+                    BorderBrush="{StaticResource AccentColor}"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Padding="8">
+                <Calendar x:Name="DatePickerCalendar"
+                          Style="{StaticResource CustomCalendarStyle}"
+                          SelectionMode="SingleDate"/>
+            </Border>
+        </Popup>
+
+    </Grid>
+</Page>

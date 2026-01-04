@@ -4,12 +4,13 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Width="1175"
-        Height="680"
-        MinWidth="800"
-        MinHeight="500"
+        Width="1280"
+        MinWidth="1280"
+        MinHeight="768"
+        Height="768"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource WindowBackground}">
+        Background="{StaticResource WindowBackground}"
+        Icon="Images\app_icon.png">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -33,12 +34,13 @@
 
             <Border Width="169"
                     Height="61"
-                    Margin="24,30,15,30"
+                    Margin="1,30,0,30"
                     Background="Transparent">
                 <Image Source="/Images/logoGenio.png"
                        Stretch="Uniform"
                        HorizontalAlignment="Center"
-                       VerticalAlignment="Center"/>
+                       VerticalAlignment="Center"
+                       Height="50"/>
             </Border>
         </Border>
 
@@ -98,17 +100,14 @@
             </ScrollViewer>
         </Border>
 
-        <!-- ДЛЯ СТРАНИЦ -->
-        <Border Grid.Row="0"
-                Grid.RowSpan="3"
-                Grid.Column="1"
-                Margin="15,15,15,15"
-                Background="{StaticResource WindowBackground}">
-
-            <Grid>
-                
-            </Grid>
-        </Border>
-
+        <!-- КОНТЕЙНЕР ДЛЯ СТРАНИЦ (используем Frame вместо Border) -->
+        <Frame x:Name="MainFrame"
+               Grid.Row="0"
+               Grid.RowSpan="3"
+               Grid.Column="1"
+               Margin="15,15,15,15"
+               Background="{StaticResource WindowBackground}"
+               NavigationUIVisibility="Hidden"
+               BorderThickness="0"/>
     </Grid>
 </Window>
