@@ -72,7 +72,7 @@ namespace Genio
             try
             {
                 // блокируем меню для страницы редактирования
-                if (pageName == "AddEditOlimp")
+                if (pageName == "AddEditOlimp" || pageName == "AddEditStud")
                 {
                     LockMenu(true);
                 }
@@ -145,6 +145,18 @@ namespace Genio
                     // загружаем страницу добавления/редактирования олимпиад
                     var addEditPage = new AddEditOlimpPage();
                     MainFrame.Navigate(addEditPage);
+                    break;
+
+                case "AddEditStud":
+                    // загружаем страницу добавления учащегося
+                    var addEditStudPage = new AddEditStudPage(false);
+                    MainFrame.Navigate(addEditStudPage);
+                    break;
+
+                case "AddEditStudEdit":
+                    // загружаем страницу редактирования учащегося
+                    var addEditStudPageEdit = new AddEditStudPage(true);
+                    MainFrame.Navigate(addEditStudPageEdit);
                     break;
             }
         }

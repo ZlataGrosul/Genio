@@ -300,7 +300,9 @@
                         <Button Grid.Column="1"
                                 Style="{StaticResource FiltersButtonStyle}"
                                 Width="56"
-                                Height="35">
+                                Height="35"
+                                x:Name="AddStudentButton"
+                                Click="AddStudentButton_Click">
                             <Image Source="/Images/addIcon.png"
                                    Width="20"
                                    Height="20"

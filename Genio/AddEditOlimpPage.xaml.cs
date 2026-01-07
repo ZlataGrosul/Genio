@@ -353,5 +353,20 @@ namespace Genio
                 }
             }
         }
+
+        // Обработчик для кнопки добавления учащегося
+        private void AddStudentButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Переход на страницу добавления учащегося
+            var mainWindow = Window.GetWindow(this) as MainWindow;
+            if (mainWindow != null)
+            {
+                // Передаем false для режима добавления
+                var page = new AddEditStudPage(false);
+                mainWindow.MainFrame.Navigate(page);
+                // Блокируем меню
+                mainWindow.LockMenu(true);
+            }
+        }
     }
 }

@@ -283,6 +283,68 @@
                 </Setter>
             </Style>
 
+            <!-- СТИЛЬ ДЛЯ РАДИО-КНОПОК -->
+            <Style x:Key="CourseRadioButtonStyle" TargetType="RadioButton">
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="0,0,20,0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- ВНЕШНИЙ КРУГ -->
+                                <Ellipse x:Name="outerEllipse"
+                            Grid.Column="0"
+                            Width="20"
+                            Height="20"
+                            Stroke="{StaticResource CheckBoxBorder}"
+                            StrokeThickness="2"
+                            Fill="Transparent"
+                            Margin="0,0,10,0"/>
+
+                                <!-- ВНУТРЕННИЙ КРУГ -->
+                                <Ellipse x:Name="innerEllipse"
+                            Grid.Column="0"
+                            Width="10"
+                            Height="10"
+                            Fill="Transparent"
+                            Margin="5,5,15,5"/>
+
+                                <TextBlock Grid.Column="1"
+                            Text="{TemplateBinding Content}"
+                            Foreground="{TemplateBinding Foreground}"
+                            VerticalAlignment="Center"
+                            TextTrimming="CharacterEllipsis"/>
+                            </Grid>
+
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="innerEllipse" 
+                            Property="Fill" 
+                            Value="{StaticResource CheckBoxChecked}"/>
+                                    <Setter TargetName="outerEllipse" 
+                            Property="Stroke" 
+                            Value="{StaticResource CheckBoxChecked}"/>
+                                </Trigger>
+
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="outerEllipse" 
+                            Property="Stroke" 
+                            Value="{StaticResource CheckBoxChecked}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <!-- СТИЛЬ ДЛЯ COMBOBOX ITEM -->
             <Style x:Key="CustomComboBoxItemStyle" TargetType="ComboBoxItem">
                 <Setter Property="Background" Value="{StaticResource ComboBoxInnerColor}"/>
@@ -706,18 +768,18 @@
             <!-- Стиль для выбранного учащегося -->
             <Style x:Key="SelectedStudentItemStyle" TargetType="Border">
                 <Setter Property="Background" Value="{StaticResource AccentColor}"/>
-                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="CornerRadius" Value="9"/>
                 <Setter Property="Height" Value="27"/>
-                <Setter Property="Margin" Value="0,0,0,5"/>
+                <Setter Property="Margin" Value="0,0,0,7"/>
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
 
             <!-- Стиль для не выбранного учащегося -->
             <Style x:Key="UnselectedStudentItemStyle" TargetType="Border">
-                <Setter Property="Background" Value="{StaticResource CheckBoxBorder}"/>
-                <Setter Property="CornerRadius" Value="4"/>
+                <Setter Property="Background" Value="{StaticResource CalendarDayHover}"/>
+                <Setter Property="CornerRadius" Value="9"/>
                 <Setter Property="Height" Value="27"/>
-                <Setter Property="Margin" Value="0,0,0,5"/>
+                <Setter Property="Margin" Value="0,0,0,7"/>
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
             

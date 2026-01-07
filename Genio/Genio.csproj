@@ -93,6 +93,9 @@
     <Compile Include="AddEditOlimpPage.xaml.cs">
       <DependentUpon>AddEditOlimpPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AddEditStudPage.xaml.cs">
+      <DependentUpon>AddEditStudPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="OlimpPage.xaml.cs">
       <DependentUpon>OlimpPage.xaml</DependentUpon>
     </Compile>
@@ -100,6 +103,10 @@
       <DependentUpon>ReportsPage.xaml</DependentUpon>
     </Compile>
     <Page Include="AddEditOlimpPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AddEditStudPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -197,6 +204,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\saveIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cleanicon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\SkiaSharp.NativeAssets.macOS.3.119.1\build\net462\SkiaSharp.NativeAssets.macOS.targets" Condition="Exists('..\packages\SkiaSharp.NativeAssets.macOS.3.119.1\build\net462\SkiaSharp.NativeAssets.macOS.targets')" />

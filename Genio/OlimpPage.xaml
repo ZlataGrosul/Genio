@@ -172,9 +172,9 @@
                     <!-- ТЕСТОВЫЕ ДАННЫЕ МЕРОПРИЯТИЙ -->
                     <Border x:Name="Event1"
                             Background="{StaticResource AccentColor}"
-                            CornerRadius="4"
+                            CornerRadius="9"
                             Height="27"
-                            Margin="0,0,0,5"
+                            Margin="0,0,0,7"
                             Cursor="Hand"
                             Tag="1"
                             MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
@@ -199,10 +199,10 @@
                     </Border>
 
                     <Border x:Name="Event2"
-                            Background="{StaticResource CheckBoxBorder}"
-                            CornerRadius="4"
+                            Background="{StaticResource CalendarDayHover}"
+                            CornerRadius="9"
                             Height="27"
-                            Margin="0,0,0,5"
+                            Margin="0,0,0,7"
                             Cursor="Hand"
                             Tag="2"
                             MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
@@ -227,10 +227,10 @@
                     </Border>
 
                     <Border x:Name="Event3"
-                            Background="{StaticResource CheckBoxBorder}"
-                            CornerRadius="4"
+                            Background="{StaticResource CalendarDayHover}"
+                            CornerRadius="9"
                             Height="27"
-                            Margin="0,0,0,5"
+                            Margin="0,0,0,7"
                             Cursor="Hand"
                             Tag="3"
                             MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
@@ -254,56 +254,6 @@
                         </Grid>
                     </Border>
 
-                    <!-- ДОБАВИМ ЕЩЕ НЕСКОЛЬКО МЕРОПРИЯТИЙ ДЛЯ ПРОКРУТКИ -->
-                    <Border Background="{StaticResource CheckBoxBorder}"
-                            CornerRadius="4"
-                            Height="27"
-                            Margin="0,0,0,5"
-                            Cursor="Hand"
-                            Style="{StaticResource HoverFrameStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="IT-Планета 2030/2021"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="24.05.2025"
-                                       Foreground="{StaticResource WindowBackground}"
-                                       FontSize="11"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Background="{StaticResource CheckBoxBorder}"
-                            CornerRadius="4"
-                            Height="27"
-                            Margin="0,0,0,5"
-                            Cursor="Hand"
-                            Style="{StaticResource HoverFrameStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="BIT-CUP 2021"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="30.11.2025"
-                                       Foreground="{StaticResource WindowBackground}"
-                                       FontSize="11"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                        </Grid>
-                    </Border>
                 </StackPanel>
             </ScrollViewer>
         </Border>
@@ -317,12 +267,12 @@
                 Style="{StaticResource HoverFrameStyle}">
             <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}"
                           Padding="15">
-                <StackPanel x:Name="StudentsList">
+                <StackPanel x:Name="StudentsList" Cursor="">
                     <!-- ТЕСТОВЫЕ ДАННЫЕ УЧАЩИХСЯ -->
                     <Border Background="{StaticResource AccentColor}"
-                            CornerRadius="4"
+                            CornerRadius="9"
                             Height="27"
-                            Margin="0,0,0,5">
+                            Margin="0,0,0,7">
                         <Grid>
                             <TextBlock Text="Грекул Злата Анатольевна • 1-291"
                                        Foreground="{StaticResource LightTextColor}"
@@ -333,9 +283,9 @@
                     </Border>
 
                     <Border Background="#FF978FFF"
-                            CornerRadius="4"
+                            CornerRadius="9"
                             Height="27"
-                            Margin="0,0,0,5">
+                            Margin="0,0,0,7">
                         <Grid>
                             <TextBlock Text="Мотелек Маргарита Михайловна • 1-292"
                                        Foreground="{StaticResource LightTextColor}"
@@ -346,77 +296,11 @@
                     </Border>
 
                     <Border Background="#FF4F47B7"
-                            CornerRadius="4"
+                            CornerRadius="9"
                             Height="27"
-                            Margin="0,0,0,5">
+                            Margin="0,0,0,7">
                         <Grid>
                             <TextBlock Text="Садковская Валерия Викторовна • 1-291"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- ДОБАВИМ ЕЩЕ НЕСКОЛЬКО ЭЛЕМЕНТОВ ДЛЯ ПРОКРУТКИ -->
-                    <Border Background="{StaticResource AccentColor}"
-                            CornerRadius="4"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Иванов Иван Иванович • 1-341"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Background="#FF978FFF"
-                            CornerRadius="4"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Петров Петр Петрович • 1-292"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Background="#FF4F47B7"
-                            CornerRadius="4"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Сидорова Анна Михайловна • 1-291"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Background="{StaticResource AccentColor}"
-                            CornerRadius="4"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Кузнецова Елена Викторовна • 1-341"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Background="#FF978FFF"
-                            CornerRadius="4"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Смирнов Алексей Дмитриевич • 1-292"
                                        Foreground="{StaticResource LightTextColor}"
                                        FontSize="13"
                                        VerticalAlignment="Center"
