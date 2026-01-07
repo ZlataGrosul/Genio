@@ -56,24 +56,6 @@
                             FontSize="13"/>
                     </Button>
 
-                    <Button x:Name="ExportPdfBtn"
-                            Style="{StaticResource DisabledButtonStyle}"
-                            MinWidth="110"
-                            Height="38"
-                            Margin="5,0"
-                            Click="ExportPdfBtn_Click"
-                            IsEnabled="False">
-                        <StackPanel Orientation="Horizontal" 
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="📄" 
-                                       FontSize="13"
-                                       Margin="0,0,5,0"/>
-                            <TextBlock Text="PDF" 
-                                       FontSize="13"/>
-                        </StackPanel>
-                    </Button>
-
                     <Button x:Name="ExportWordBtn"
                             Style="{StaticResource DisabledButtonStyle}"
                             MinWidth="110"
@@ -113,41 +95,6 @@
                       HorizontalScrollBarVisibility="Disabled"
                       Margin="20,0,10,15">
             <StackPanel>
-
-                <!-- ФРЕЙМ ТИП ОТЧЕТА -->
-                <Border Background="{StaticResource ReportFrameColor}"
-                        CornerRadius="8"
-                        Padding="18"
-                        Margin="0,0,0,12"
-                        Style="{StaticResource HoverFrameStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Text="Тип отчета"
-                                   Grid.Row="0"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Foreground="{StaticResource LightTextColor}"
-                                   Margin="0,0,0,10"/>
-
-                        <ComboBox x:Name="ReportTypeComboBox"
-                                  Grid.Row="1"
-                                  Style="{StaticResource CustomComboBoxStyle}"
-                                  ItemContainerStyle="{StaticResource CustomComboBoxItemStyle}"
-                                  SelectedIndex="0"
-                                  Height="40"
-                                  FontSize="13"
-                                  SelectionChanged="ReportTypeComboBox_SelectionChanged">
-                            <ComboBoxItem Content="Сводный по олимпиадам" IsSelected="True"/>
-                            <ComboBoxItem Content="По специальностям"/>
-                            <ComboBoxItem Content="По курсам"/>
-                            <ComboBoxItem Content="Детализированный"/>
-                        </ComboBox>
-                    </Grid>
-                </Border>
 
                 <!-- ФРЕЙМ ПЕРИОД -->
                 <Border Background="{StaticResource ReportFrameColor}"
@@ -229,7 +176,7 @@
                                         Padding="12,0,35,0"
                                         VerticalAlignment="Center"
                                         FontSize="13"
-                                        Text="31.12.2024"
+                                        Text="15.05.2025"
                                         IsReadOnly="True"/>
                                     <Button x:Name="DateToButton"
                                             Style="{StaticResource DatePickerButtonStyle}"
@@ -276,7 +223,7 @@
                                        Foreground="{StaticResource LightTextColor}"
                                        Margin="0,0,0,10"/>
 
-                            <StackPanel Grid.Row="1">
+                            <StackPanel Grid.Row="1" x:Name="SpecialtiesPanel">
                                 <CheckBox x:Name="Spec1" Content="Планово-экономическая" 
                                           Margin="0,0,0,6"
                                           Style="{StaticResource ReportCheckBoxStyle}"
@@ -379,7 +326,7 @@
         <Border Grid.Row="1" Grid.Column="1"
                 Background="{StaticResource ReportFrameColor}"
                 CornerRadius="8"
-                Padding="15"
+                Padding="0"
                 Margin="10,0,20,15"
                 Style="{StaticResource HoverFrameStyle}">
             <Grid>
@@ -395,19 +342,19 @@
                         BorderBrush="#FF505050"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center">
-                    <Grid Width="370" Height="515" 
+                    <Grid Width="550" Height="700" 
                         MinWidth="250" MinHeight="350">
                         <FlowDocumentScrollViewer x:Name="ReportViewer"
                                                   VerticalScrollBarVisibility="Auto"
                                                   HorizontalScrollBarVisibility="Auto"
                                                   Background="White">
                             <FlowDocument x:Name="ReportDocument"
-                                          PageWidth="350"
-                                          PageHeight="495"
-                                          PagePadding="25,30,25,30"
+                                          PageWidth="550"
+                                          PageHeight="700"
+                                          PagePadding="15,20,15,20"
                                           FontFamily="Segoe UI"
-                                          FontSize="12"
-                                          ColumnWidth="300">
+                                          FontSize="9"
+                                          ColumnWidth="550">
                             </FlowDocument>
                         </FlowDocumentScrollViewer>
                     </Grid>

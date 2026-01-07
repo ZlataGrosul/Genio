@@ -1,15 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 using Microsoft.Win32;
 using System.Collections.Generic;
-using System.Text;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using System.Windows.Controls.Primitives;
+using System.Data.Entity;
+using Word = Microsoft.Office.Interop.Word;
 
 namespace Genio
 {
@@ -18,9 +17,7 @@ namespace Genio
         private List<string> selectedSpecialties = new List<string>();
         private List<int> selectedCourses = new List<int>();
         private DateTime startDate = new DateTime(2024, 9, 1);
-        private DateTime endDate = new DateTime(2024, 12, 31);
-        private string reportType = "Сводный по олимпиадам";
-        private string generatedReportContent = string.Empty;
+        private DateTime endDate = new DateTime(2025, 5, 15);
         private bool isReportGenerated = false;
         private TextBox currentDateTextBox = null;
 
@@ -29,29 +26,25 @@ namespace Genio
             InitializeComponent();
             LoadDefaultSelections();
             UpdateExportButtonsState();
-            
-            // обработчик выбора даты в календаре
+
             DatePickerCalendar.SelectedDatesChanged += DatePickerCalendar_SelectedDatesChanged;
-            
-            // инициализация текстовых полей дат
             UpdateDateTexts();
         }
 
-        // установка параметров по умочлчанию (выделены все)
         private void LoadDefaultSelections()
         {
-            Spec1.IsChecked = true;
-            Spec2.IsChecked = true;
-            Spec3.IsChecked = true;
-            Spec4.IsChecked = true;
-            Spec5.IsChecked = true;
-            Spec6.IsChecked = true;
-            Spec7.IsChecked = true;
+            if (Spec1 != null) Spec1.IsChecked = true;
+            if (Spec2 != null) Spec2.IsChecked = true;
+            if (Spec3 != null) Spec3.IsChecked = true;
+            if (Spec4 != null) Spec4.IsChecked = true;
+            if (Spec5 != null) Spec5.IsChecked = true;
+            if (Spec6 != null) Spec6.IsChecked = true;
+            if (Spec7 != null) Spec7.IsChecked = true;
 
-            Course1.IsChecked = true;
-            Course2.IsChecked = true;
-            Course3.IsChecked = true;
-            Course4.IsChecked = true;
+            if (Course1 != null) Course1.IsChecked = true;
+            if (Course2 != null) Course2.IsChecked = true;
+            if (Course3 != null) Course3.IsChecked = true;
+            if (Course4 != null) Course4.IsChecked = true;
         }
 
         private void UpdateDateTexts()
@@ -60,21 +53,16 @@ namespace Genio
             DateToText.Text = endDate.ToString("dd.MM.yyyy");
         }
 
-        // логика доступности кнопок экспорта
         private void UpdateExportButtonsState()
         {
+            ExportWordBtn.IsEnabled = isReportGenerated;
+
             if (isReportGenerated)
             {
-                ExportPdfBtn.IsEnabled = true;
-                ExportWordBtn.IsEnabled = true;
-                ExportPdfBtn.Style = (Style)FindResource("AccentButtonStyle");
                 ExportWordBtn.Style = (Style)FindResource("AccentButtonStyle");
             }
             else
             {
-                ExportPdfBtn.IsEnabled = false;
-                ExportWordBtn.IsEnabled = false;
-                ExportPdfBtn.Style = (Style)FindResource("DisabledButtonStyle");
                 ExportWordBtn.Style = (Style)FindResource("DisabledButtonStyle");
             }
         }
@@ -86,55 +74,296 @@ namespace Genio
                 UpdateSelectedSpecialties();
                 UpdateSelectedCourses();
 
-                generatedReportContent = GenerateReportFromData();
                 DisplayReportInFlowDocument();
 
                 isReportGenerated = true;
                 UpdateExportButtonsState();
 
+                MessageBox.Show("Отчет успешно сформирован!", "Успех",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка формирования отчета: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void ExportPdfBtn_Click(object sender, RoutedEventArgs e)
+        private void DisplayReportInFlowDocument()
         {
-            if (string.IsNullOrEmpty(generatedReportContent))
+            if (ReportDocument == null) return;
+
+            ReportDocument.Blocks.Clear();
+
+            // Заголовок отчета
+            var title = new System.Windows.Documents.Paragraph
             {
-                MessageBox.Show("Сначала сформируйте отчет!", "Внимание",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            title.Inlines.Add(new Run("ОТЧЕТ ПО ОЛИМПИАДАМ"));
+            ReportDocument.Blocks.Add(title);
+
+            // Подзаголовок
+            var subtitle = new System.Windows.Documents.Paragraph
+            {
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            subtitle.Inlines.Add(new Run("Сводный по олимпиадам"));
+            ReportDocument.Blocks.Add(subtitle);
+
+            // Информация о периоде
+            var periodInfo = new System.Windows.Documents.Paragraph
+            {
+                FontSize = 12,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+            periodInfo.Inlines.Add(new Run($"Период: {startDate:dd.MM.yyyy} - {endDate:dd.MM.yyyy}"));
+            ReportDocument.Blocks.Add(periodInfo);
+
+            // Дата формирования
+            var dateGenerated = new System.Windows.Documents.Paragraph
+            {
+                FontSize = 11,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 20)
+            };
+            dateGenerated.Inlines.Add(new Run($"Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm}"));
+            ReportDocument.Blocks.Add(dateGenerated);
+
+            // Курсы и специальности
+            var coursesStr = selectedCourses.Any() ? string.Join(", ", selectedCourses) : "Все";
+            var specsStr = selectedSpecialties.Any() ? string.Join(", ", selectedSpecialties) : "Все";
+
+            var filtersInfo = new System.Windows.Documents.Paragraph
+            {
+                FontSize = 11,
+                TextAlignment = TextAlignment.Left,
+                Margin = new Thickness(0, 0, 0, 20)
+            };
+            filtersInfo.Inlines.Add(new Run($"Курсы: {coursesStr}"));
+            filtersInfo.Inlines.Add(new LineBreak());
+            filtersInfo.Inlines.Add(new Run($"Специальности: {specsStr}"));
+            ReportDocument.Blocks.Add(filtersInfo);
 
             try
             {
-                SaveFileDialog saveDialog = new SaveFileDialog
+                using (var db = new GenioAppEntities())
                 {
-                    Filter = "PDF файлы (*.pdf)|*.pdf|Все файлы (*.*)|*.*",
-                    FileName = $"Отчет_олимпиады_{DateTime.Now:yyyyMMdd_HHmm}.pdf",
-                    DefaultExt = ".pdf"
-                };
-
-                if (saveDialog.ShowDialog() == true)
-                {
-                    ExportToPdf(saveDialog.FileName, generatedReportContent);
-                    MessageBox.Show($"PDF-отчет успешно сохранен:\n{saveDialog.FileName}",
-                        "Экспорт завершен", MessageBoxButton.OK, MessageBoxImage.Information);
+                    var participations = GetFilteredParticipations(db);
+                    DisplayOlympiadTableInFlowDocument(participations);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при экспорте в PDF: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                var errorPara = new System.Windows.Documents.Paragraph
+                {
+                    FontSize = 10,
+                    Margin = new Thickness(0, 10, 0, 5),
+                    Foreground = Brushes.Red
+                };
+                errorPara.Inlines.Add(new Run($"Ошибка при формировании отчета: {ex.Message}"));
+                ReportDocument.Blocks.Add(errorPara);
             }
+        }
+
+        private void DisplayOlympiadTableInFlowDocument(List<StudentOlimp> participations)
+        {
+            // Таблица для предварительного просмотра
+            var table = new System.Windows.Documents.Table();
+            table.CellSpacing = 0;
+            table.Background = Brushes.White;
+            table.Margin = new Thickness(0, 10, 0, 20);
+
+            // Колонки
+            table.Columns.Add(new System.Windows.Documents.TableColumn { Width = new GridLength(150, GridUnitType.Pixel) });
+            table.Columns.Add(new System.Windows.Documents.TableColumn { Width = new GridLength(100, GridUnitType.Pixel) });
+            table.Columns.Add(new System.Windows.Documents.TableColumn { Width = new GridLength(80, GridUnitType.Pixel) });
+            table.Columns.Add(new System.Windows.Documents.TableColumn { Width = new GridLength(120, GridUnitType.Pixel) });
+
+            // Заголовки столбцов
+            var headerRowGroup = new System.Windows.Documents.TableRowGroup();
+            var headerRow = new System.Windows.Documents.TableRow();
+            headerRow.Background = Brushes.LightGray;
+
+            string[] headers = { "Название", "Учащиеся", "Результат", "Номинация" };
+            foreach (var header in headers)
+            {
+                var headerCell = new System.Windows.Documents.TableCell(new System.Windows.Documents.Paragraph(
+                    new Run(header)));
+                headerCell.FontWeight = FontWeights.Bold;
+                headerCell.TextAlignment = TextAlignment.Center;
+                headerCell.Padding = new Thickness(5);
+                headerCell.BorderBrush = Brushes.Black;
+                headerCell.BorderThickness = new Thickness(1);
+                headerRow.Cells.Add(headerCell);
+            }
+            headerRowGroup.Rows.Add(headerRow);
+
+            // Данные таблицы
+            var dataRowGroup = new System.Windows.Documents.TableRowGroup();
+
+            if (!participations.Any())
+            {
+                var emptyRow = new System.Windows.Documents.TableRow();
+                var emptyCell = new System.Windows.Documents.TableCell(new System.Windows.Documents.Paragraph(
+                    new Run("Нет данных по выбранным критериям")));
+                emptyCell.ColumnSpan = 4;
+                emptyCell.TextAlignment = TextAlignment.Center;
+                emptyCell.Padding = new Thickness(5);
+                emptyCell.FontStyle = FontStyles.Italic;
+                emptyRow.Cells.Add(emptyCell);
+                dataRowGroup.Rows.Add(emptyRow);
+            }
+            else
+            {
+                // Группировка по олимпиадам
+                var groupedByOlympiad = participations
+                    .GroupBy(p => p.Olimp)
+                    .OrderByDescending(g => g.Key.olimp_date)
+                    .ToList();
+
+                foreach (var group in groupedByOlympiad)
+                {
+                    var olimp = group.Key;
+                    var students = group.ToList();
+
+                    // Строки с данными для каждого студента
+                    bool isFirstStudent = true;
+                    foreach (var participation in students)
+                    {
+                        var dataRow = new System.Windows.Documents.TableRow();
+
+                        // Название олимпиады
+                        var nameCell = new System.Windows.Documents.TableCell(new System.Windows.Documents.Paragraph(
+                            new Run(isFirstStudent ? olimp.olimp_name : ""))); // Run (пробег/кусок текста)
+                        nameCell.Padding = new Thickness(5);
+                        nameCell.BorderBrush = Brushes.Black;
+                        nameCell.BorderThickness = new Thickness(1);
+                        if (isFirstStudent)
+                        {
+                            nameCell.FontWeight = FontWeights.Bold;
+                            nameCell.Background = Brushes.LightYellow;
+                        }
+                        dataRow.Cells.Add(nameCell);
+
+                        // Учащийся
+                        var studentName = $"{participation.Student.last_name} {participation.Student.first_name}";
+                        var studentCell = new System.Windows.Documents.TableCell(new System.Windows.Documents.Paragraph(
+                            new Run(studentName)));
+                        studentCell.Padding = new Thickness(5);
+                        studentCell.BorderBrush = Brushes.Black;
+                        studentCell.BorderThickness = new Thickness(1);
+                        dataRow.Cells.Add(studentCell);
+
+                        // Результат
+                        var resultCell = new System.Windows.Documents.TableCell(new System.Windows.Documents.Paragraph(
+                            new Run(participation.result)));
+                        resultCell.Padding = new Thickness(5);
+                        resultCell.BorderBrush = Brushes.Black;
+                        resultCell.BorderThickness = new Thickness(1);
+                        resultCell.TextAlignment = TextAlignment.Center;
+
+                        // Цвет для призовых мест
+                        if (participation.result.Contains("1 место") ||
+                            participation.result.Contains("2 место") ||
+                            participation.result.Contains("3 место") ||
+                            participation.result.Contains("Победитель"))
+                        {
+                            resultCell.Background = Brushes.LightGreen;
+                        }
+                        dataRow.Cells.Add(resultCell);
+
+                        // Номинация
+                        var nominations = olimp.nominations ?? "";
+                        var firstNomination = nominations.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                            .FirstOrDefault() ?? "";
+                        var nominationCell = new System.Windows.Documents.TableCell(new System.Windows.Documents.Paragraph(
+                            new Run(firstNomination.Trim())));
+                        nominationCell.Padding = new Thickness(5);
+                        nominationCell.BorderBrush = Brushes.Black;
+                        nominationCell.BorderThickness = new Thickness(1);
+                        dataRow.Cells.Add(nominationCell);
+
+                        dataRowGroup.Rows.Add(dataRow);
+                        isFirstStudent = false;
+                    }
+                }
+            }
+
+            // Добавляем группы строк в таблицу
+            table.RowGroups.Add(headerRowGroup);
+            table.RowGroups.Add(dataRowGroup);
+
+            ReportDocument.Blocks.Add(table);
+
+            // Статистика в конце
+            var totalOlimps = participations.Select(p => p.olimp_id).Distinct().Count();
+            var totalStudents = participations.Select(p => p.student_id).Distinct().Count();
+            var prizePlaces = participations.Count(p =>
+                p.result.Contains("1 место") ||
+                p.result.Contains("2 место") ||
+                p.result.Contains("3 место") ||
+                p.result.Contains("Победитель"));
+
+            var stats = new System.Windows.Documents.Paragraph
+            {
+                FontSize = 11,
+                FontWeight = FontWeights.Bold,
+                Margin = new Thickness(0, 20, 0, 5)
+            };
+            stats.Inlines.Add(new Run("СТАТИСТИКА:"));
+            ReportDocument.Blocks.Add(stats);
+
+            var statsList = new System.Windows.Documents.List
+            {
+                MarkerStyle = TextMarkerStyle.Disc,
+                Margin = new Thickness(20, 0, 0, 10)
+            };
+
+            statsList.ListItems.Add(new System.Windows.Documents.ListItem(
+                new System.Windows.Documents.Paragraph(new Run($"Количество олимпиад в период: {totalOlimps}"))));
+            statsList.ListItems.Add(new System.Windows.Documents.ListItem(
+                new System.Windows.Documents.Paragraph(new Run($"Количество учащихся: {totalStudents}"))));
+            statsList.ListItems.Add(new System.Windows.Documents.ListItem(
+                new System.Windows.Documents.Paragraph(new Run($"Количество призовых мест: {prizePlaces}"))));
+
+            ReportDocument.Blocks.Add(statsList);
+        }
+
+        private List<StudentOlimp> GetFilteredParticipations(GenioAppEntities db)
+        {
+            var query = db.StudentOlimps
+                .Include("Student")
+                .Include("Olimp")
+                .Include("Student.Specialization")
+                .Where(so => so.Olimp.olimp_date >= startDate && so.Olimp.olimp_date <= endDate)
+                .AsQueryable();
+
+            // Фильтруем по курсам
+            if (selectedCourses.Any())
+            {
+                query = query.Where(so => selectedCourses.Contains(so.Student.course_number));
+            }
+
+            // Фильтруем по специальностям
+            if (selectedSpecialties.Any())
+            {
+                query = query.Where(so => selectedSpecialties.Contains(so.Student.Specialization.spec_name));
+            }
+
+            return query.OrderByDescending(so => so.Olimp.olimp_date).ToList();
         }
 
         private void ExportWordBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (string.IsNullOrEmpty(generatedReportContent))
+            if (!isReportGenerated)
             {
                 MessageBox.Show("Сначала сформируйте отчет!", "Внимание",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -143,18 +372,18 @@ namespace Genio
 
             try
             {
-                SaveFileDialog saveDialog = new SaveFileDialog
+                SaveFileDialog dialog = new SaveFileDialog
                 {
-                    Filter = "Word файлы (*.docx)|*.docx|Все файлы (*.*)|*.*",
+                    Filter = "Word документы (*.docx)|*.docx",
                     FileName = $"Отчет_олимпиады_{DateTime.Now:yyyyMMdd_HHmm}.docx",
                     DefaultExt = ".docx"
                 };
 
-                if (saveDialog.ShowDialog() == true)
+                if (dialog.ShowDialog() == true)
                 {
-                    ExportToWord(saveDialog.FileName, generatedReportContent);
-                    MessageBox.Show($"Word-отчет успешно сохранен:\n{saveDialog.FileName}",
-                        "Экспорт завершен", MessageBoxButton.OK, MessageBoxImage.Information);
+                    ExportToWordDocument(dialog.FileName);
+                    MessageBox.Show($"Word отчет успешно сохранен!", "Успех",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
@@ -164,47 +393,270 @@ namespace Genio
             }
         }
 
+        private void ExportToWordDocument(string filePath)
+        {
+            Word.Application wordApp = null;
+            Word.Document wordDoc = null;
+
+            try
+            {
+                wordApp = new Word.Application();
+                wordApp.Visible = false;
+
+                // Создаем новый документ
+                wordDoc = wordApp.Documents.Add();
+
+                // Устанавливаем поля (в сантиметрах)
+                wordDoc.PageSetup.LeftMargin = wordApp.CentimetersToPoints(2.5f);
+                wordDoc.PageSetup.RightMargin = wordApp.CentimetersToPoints(2.5f);
+                wordDoc.PageSetup.TopMargin = wordApp.CentimetersToPoints(2.5f);
+                wordDoc.PageSetup.BottomMargin = wordApp.CentimetersToPoints(2.5f);
+
+                // Получаем данные для отчета
+                using (var db = new GenioAppEntities())
+                {
+                    var participations = GetFilteredParticipations(db);
+
+                    // Заголовок отчета
+                    Word.Paragraph titlePara = wordDoc.Paragraphs.Add();
+                    titlePara.Range.Text = "ОТЧЕТ ПО ОЛИМПИАДАМ";
+                    titlePara.Range.Font.Size = 16;
+                    titlePara.Range.Font.Bold = 1;
+                    titlePara.Format.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                    titlePara.Range.InsertParagraphAfter();
+
+                    // Подзаголовок
+                    Word.Paragraph subtitlePara = wordDoc.Paragraphs.Add();
+                    subtitlePara.Range.Text = "Сводный по олимпиадам";
+                    subtitlePara.Range.Font.Size = 14;
+                    subtitlePara.Range.Font.Bold = 1;
+                    subtitlePara.Format.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                    subtitlePara.Range.InsertParagraphAfter();
+
+                    // Информация о периоде
+                    Word.Paragraph periodPara = wordDoc.Paragraphs.Add();
+                    periodPara.Range.Text = $"Период: {startDate:dd.MM.yyyy} - {endDate:dd.MM.yyyy}";
+                    periodPara.Range.Font.Size = 12;
+                    periodPara.Format.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                    periodPara.Range.InsertParagraphAfter();
+
+                    // Дата формирования
+                    Word.Paragraph datePara = wordDoc.Paragraphs.Add();
+                    datePara.Range.Text = $"Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm}";
+                    datePara.Range.Font.Size = 11;
+                    datePara.Format.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                    datePara.Range.InsertParagraphAfter();
+
+                    // Курсы и специальности
+                    var coursesStr = selectedCourses.Any() ? string.Join(", ", selectedCourses) : "Все";
+                    var specsStr = selectedSpecialties.Any() ? string.Join(", ", selectedSpecialties) : "Все";
+
+                    Word.Paragraph filtersPara = wordDoc.Paragraphs.Add();
+                    filtersPara.Range.Text = $"Курсы: {coursesStr}";
+                    filtersPara.Range.Font.Size = 11;
+                    filtersPara.Format.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                    filtersPara.Range.InsertParagraphAfter();
+
+                    Word.Paragraph specsPara = wordDoc.Paragraphs.Add();
+                    specsPara.Range.Text = $"Специальности: {specsStr}";
+                    specsPara.Range.Font.Size = 11;
+                    specsPara.Format.Alignment = Word.WdParagraphAlignment.wdAlignParagraphLeft;
+                    specsPara.Range.InsertParagraphAfter();
+
+                    // Пустая строка перед таблицей
+                    wordDoc.Paragraphs.Add().Range.InsertParagraphAfter();
+
+                    // Создаем таблицу в Word
+                    if (participations.Any())
+                    {
+                        // Группируем по олимпиадам
+                        var groupedByOlympiad = participations
+                            .GroupBy(p => p.Olimp)
+                            .OrderByDescending(g => g.Key.olimp_date)
+                            .ToList();
+
+                        // Определяем количество строк для таблицы
+                        int totalRows = 1; // Заголовок
+                        foreach (var group in groupedByOlympiad)
+                        {
+                            totalRows += group.Count(); // Строки для каждого студента
+                        }
+
+                        // Создаем таблицу
+                        Word.Table wordTable = wordDoc.Tables.Add(
+                            wordDoc.Range(wordDoc.Paragraphs.Last.Range.Start, wordDoc.Paragraphs.Last.Range.Start),
+                            totalRows,
+                            4);
+
+                        // Настраиваем таблицу
+                        wordTable.Borders.OutsideLineStyle = Word.WdLineStyle.wdLineStyleSingle;
+                        wordTable.Borders.OutsideLineWidth = Word.WdLineWidth.wdLineWidth050pt;
+                        wordTable.Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleSingle;
+                        wordTable.Borders.InsideLineWidth = Word.WdLineWidth.wdLineWidth025pt;
+
+                        // Заголовки столбцов
+                        string[] headers = { "Название", "Учащиеся", "Результат", "Номинация" };
+                        for (int i = 0; i < headers.Length; i++)
+                        {
+                            wordTable.Cell(1, i + 1).Range.Text = headers[i];
+                            wordTable.Cell(1, i + 1).Range.Font.Bold = 1;
+                            wordTable.Cell(1, i + 1).Range.Font.Size = 11;
+                            wordTable.Cell(1, i + 1).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+                            wordTable.Cell(1, i + 1).Shading.BackgroundPatternColor = Word.WdColor.wdColorGray15;
+                        }
+
+                        // Заполняем таблицу данными
+                        int currentRow = 2;
+                        foreach (var group in groupedByOlympiad)
+                        {
+                            var olimp = group.Key;
+                            var students = group.ToList();
+
+                            bool isFirstStudent = true;
+                            foreach (var participation in students)
+                            {
+                                var studentName = $"{participation.Student.last_name} {participation.Student.first_name}";
+
+                                // Название олимпиады
+                                wordTable.Cell(currentRow, 1).Range.Text = isFirstStudent ? olimp.olimp_name : "";
+                                if (isFirstStudent)
+                                {
+                                    wordTable.Cell(currentRow, 1).Range.Font.Bold = 1;
+                                    wordTable.Cell(currentRow, 1).Shading.BackgroundPatternColor = Word.WdColor.wdColorLightYellow;
+                                }
+
+                                // Учащийся
+                                wordTable.Cell(currentRow, 2).Range.Text = studentName;
+
+                                // Результат
+                                wordTable.Cell(currentRow, 3).Range.Text = participation.result;
+                                wordTable.Cell(currentRow, 3).Range.ParagraphFormat.Alignment = Word.WdParagraphAlignment.wdAlignParagraphCenter;
+
+                                // Цвет для призовых мест
+                                if (participation.result.Contains("1 место") ||
+                                    participation.result.Contains("2 место") ||
+                                    participation.result.Contains("3 место") ||
+                                    participation.result.Contains("Победитель"))
+                                {
+                                    wordTable.Cell(currentRow, 3).Shading.BackgroundPatternColor = Word.WdColor.wdColorBrightGreen;
+                                }
+
+                                // Номинация
+                                var nominations = olimp.nominations ?? "";
+                                var firstNomination = nominations.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                                    .FirstOrDefault() ?? "";
+                                wordTable.Cell(currentRow, 4).Range.Text = firstNomination.Trim();
+
+                                // Настройка всех ячеек в строке
+                                for (int i = 1; i <= 4; i++)
+                                {
+                                    wordTable.Cell(currentRow, i).Range.Font.Size = 10;
+                                    wordTable.Cell(currentRow, i).VerticalAlignment = Word.WdCellVerticalAlignment.wdCellAlignVerticalCenter;
+                                }
+
+                                currentRow++;
+                                isFirstStudent = false;
+                            }
+                        }
+
+                        // Автоподбор ширины столбцов
+                        wordTable.AutoFitBehavior(Word.WdAutoFitBehavior.wdAutoFitWindow);
+                    }
+
+                    // Пустая строка после таблицы
+                    wordDoc.Paragraphs.Add().Range.InsertParagraphAfter();
+
+                    // Статистика
+                    var totalOlimps = participations.Select(p => p.olimp_id).Distinct().Count();
+                    var totalStudents = participations.Select(p => p.student_id).Distinct().Count();
+                    var prizePlaces = participations.Count(p =>
+                        p.result.Contains("1 место") ||
+                        p.result.Contains("2 место") ||
+                        p.result.Contains("3 место") ||
+                        p.result.Contains("Победитель"));
+
+                    Word.Paragraph statsTitlePara = wordDoc.Paragraphs.Add();
+                    statsTitlePara.Range.Text = "СТАТИСТИКА:";
+                    statsTitlePara.Range.Font.Bold = 1;
+                    statsTitlePara.Range.Font.Size = 12;
+                    statsTitlePara.Range.InsertParagraphAfter();
+
+                    Word.Paragraph statsPara1 = wordDoc.Paragraphs.Add();
+                    statsPara1.Range.Text = $"• Количество олимпиад в период: {totalOlimps}";
+                    statsPara1.Format.LeftIndent = wordApp.CentimetersToPoints(0.5f);
+                    statsPara1.Range.Font.Size = 11;
+                    statsPara1.Range.InsertParagraphAfter();
+
+                    Word.Paragraph statsPara2 = wordDoc.Paragraphs.Add();
+                    statsPara2.Range.Text = $"• Количество учащихся: {totalStudents}";
+                    statsPara2.Format.LeftIndent = wordApp.CentimetersToPoints(0.5f);
+                    statsPara2.Range.Font.Size = 11;
+                    statsPara2.Range.InsertParagraphAfter();
+
+                    Word.Paragraph statsPara3 = wordDoc.Paragraphs.Add();
+                    statsPara3.Range.Text = $"• Количество призовых мест: {prizePlaces}";
+                    statsPara3.Format.LeftIndent = wordApp.CentimetersToPoints(0.5f);
+                    statsPara3.Range.Font.Size = 11;
+                    statsPara3.Range.InsertParagraphAfter();
+                }
+
+                // Сохраняем документ
+                object fileName = filePath;
+                wordDoc.SaveAs2(ref fileName);
+                wordDoc.Close();
+                wordApp.Quit();
+
+                // Освобождаем COM-объекты
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(wordDoc);
+                System.Runtime.InteropServices.Marshal.ReleaseComObject(wordApp);
+            }
+            catch (Exception ex)
+            {
+                // Закрываем документ и приложение в случае ошибки
+                if (wordDoc != null)
+                {
+                    wordDoc.Close(false);
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(wordDoc);
+                }
+                if (wordApp != null)
+                {
+                    wordApp.Quit();
+                    System.Runtime.InteropServices.Marshal.ReleaseComObject(wordApp);
+                }
+
+                throw new Exception($"Ошибка при создании Word документа: {ex.Message}");
+            }
+        }
+
         private void ClearBtn_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Очистить все параметры отчета?", "Подтверждение",
+            var result = MessageBox.Show("Очистить все параметры?", "Подтверждение",
                 MessageBoxButton.YesNo, MessageBoxImage.Question);
 
             if (result == MessageBoxResult.Yes)
             {
-                Spec1.IsChecked = false;
-                Spec2.IsChecked = false;
-                Spec3.IsChecked = false;
-                Spec4.IsChecked = false;
-                Spec5.IsChecked = false;
-                Spec6.IsChecked = false;
-                Spec7.IsChecked = false;
+                if (Spec1 != null) Spec1.IsChecked = false;
+                if (Spec2 != null) Spec2.IsChecked = false;
+                if (Spec3 != null) Spec3.IsChecked = false;
+                if (Spec4 != null) Spec4.IsChecked = false;
+                if (Spec5 != null) Spec5.IsChecked = false;
+                if (Spec6 != null) Spec6.IsChecked = false;
+                if (Spec7 != null) Spec7.IsChecked = false;
 
-                Course1.IsChecked = false;
-                Course2.IsChecked = false;
-                Course3.IsChecked = false;
-                Course4.IsChecked = false;
+                if (Course1 != null) Course1.IsChecked = false;
+                if (Course2 != null) Course2.IsChecked = false;
+                if (Course3 != null) Course3.IsChecked = false;
+                if (Course4 != null) Course4.IsChecked = false;
 
-                ReportTypeComboBox.SelectedIndex = 0;
-                
-                // сброс дат на текущие значения
-                startDate = DateTime.Now.AddMonths(-3);
-                endDate = DateTime.Now;
+                startDate = new DateTime(2024, 9, 1);
+                endDate = new DateTime(2025, 5, 15);
                 UpdateDateTexts();
 
                 isReportGenerated = false;
                 UpdateExportButtonsState();
 
-                ReportDocument.Blocks.Clear();
-                generatedReportContent = string.Empty;
-
-            }
-        }
-
-        private void ReportTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (ReportTypeComboBox.SelectedItem is ComboBoxItem selectedItem)
-            {
-                reportType = selectedItem.Content.ToString();
+                if (ReportDocument != null)
+                    ReportDocument.Blocks.Clear();
             }
         }
 
@@ -216,6 +668,36 @@ namespace Genio
         private void CourseCheckBox_Changed(object sender, RoutedEventArgs e)
         {
             UpdateSelectedCourses();
+        }
+
+        private void UpdateSelectedSpecialties()
+        {
+            selectedSpecialties.Clear();
+
+            if (Spec1 != null && Spec1.IsChecked == true)
+                selectedSpecialties.Add(Spec1.Content.ToString());
+            if (Spec2 != null && Spec2.IsChecked == true)
+                selectedSpecialties.Add(Spec2.Content.ToString());
+            if (Spec3 != null && Spec3.IsChecked == true)
+                selectedSpecialties.Add(Spec3.Content.ToString());
+            if (Spec4 != null && Spec4.IsChecked == true)
+                selectedSpecialties.Add(Spec4.Content.ToString());
+            if (Spec5 != null && Spec5.IsChecked == true)
+                selectedSpecialties.Add(Spec5.Content.ToString());
+            if (Spec6 != null && Spec6.IsChecked == true)
+                selectedSpecialties.Add(Spec6.Content.ToString());
+            if (Spec7 != null && Spec7.IsChecked == true)
+                selectedSpecialties.Add(Spec7.Content.ToString());
+        }
+
+        private void UpdateSelectedCourses()
+        {
+            selectedCourses.Clear();
+
+            if (Course1 != null && Course1.IsChecked == true) selectedCourses.Add(1);
+            if (Course2 != null && Course2.IsChecked == true) selectedCourses.Add(2);
+            if (Course3 != null && Course3.IsChecked == true) selectedCourses.Add(3);
+            if (Course4 != null && Course4.IsChecked == true) selectedCourses.Add(4);
         }
 
         private void DateFromButton_Click(object sender, RoutedEventArgs e)
@@ -234,8 +716,7 @@ namespace Genio
         {
             DatePickerCalendar.SelectedDate = initialDate;
             DatePickerCalendar.DisplayDate = initialDate;
-            
-            // настройка размещения popup
+
             if (currentDateTextBox == DateFromText)
             {
                 DatePickerPopup.PlacementTarget = DateFromButton;
@@ -244,7 +725,7 @@ namespace Genio
             {
                 DatePickerPopup.PlacementTarget = DateToButton;
             }
-            
+
             DatePickerPopup.IsOpen = true;
         }
 
@@ -266,240 +747,6 @@ namespace Genio
                 currentDateTextBox.Text = selectedDate.ToString("dd.MM.yyyy");
                 DatePickerPopup.IsOpen = false;
             }
-        }
-
-        private string GenerateReportFromData()
-        {
-            StringBuilder report = new StringBuilder();
-
-            report.AppendLine("=== ОТЧЕТ ПО ОЛИМПИАДАМ ===");
-            report.AppendLine($"Тип отчета: {reportType}");
-            report.AppendLine($"Период: {startDate:dd.MM.yyyy} - {endDate:dd.MM.yyyy}");
-            report.AppendLine();
-
-            report.AppendLine("=== ВЫБРАННЫЕ ПАРАМЕТРЫ ===");
-            report.AppendLine($"Специальности: {string.Join(", ", selectedSpecialties)}");
-            report.AppendLine($"Курсы: {string.Join(", ", selectedCourses)}");
-            report.AppendLine();
-
-            report.AppendLine("=== ДАННЫЕ ИЗ БАЗЫ ДАННЫХ ===");
-            report.AppendLine("(Здесь будут реальные данные после подключения БД)");
-            report.AppendLine();
-
-            report.AppendLine("Пример результатов:");
-            report.AppendLine("1. Математика: 42 награды");
-            report.AppendLine("2. Английский язык: 38 наград");
-            report.AppendLine("3. Информатика: 25 наград");
-            report.AppendLine("4. Физика: 18 наград");
-            report.AppendLine("5. Биология: 12 наград");
-            report.AppendLine();
-
-            report.AppendLine("=== ВЫВОДЫ ===");
-            report.AppendLine("• Отчет сформирован на основе выбранных фильтров");
-            report.AppendLine("• Данные будут загружаться из базы данных");
-            report.AppendLine($"• Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm}");
-
-            return report.ToString();
-        }
-
-        private void DisplayReportInFlowDocument()
-        {
-            ReportDocument.Blocks.Clear();
-
-            var title = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 18,
-                FontWeight = FontWeights.Bold,
-                TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 0, 0, 20)
-            };
-            title.Inlines.Add(new Run("ОТЧЕТ ПО ОЛИМПИАДАМ"));
-            ReportDocument.Blocks.Add(title);
-
-            var section1 = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 14,
-                FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(0, 15, 0, 10),
-                Foreground = Brushes.DarkBlue
-            };
-            section1.Inlines.Add(new Run("ПАРАМЕТРЫ ОТЧЕТА"));
-            ReportDocument.Blocks.Add(section1);
-
-            var param1 = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 12,
-                Margin = new Thickness(0, 5, 0, 5)
-            };
-            param1.Inlines.Add(new Run($"Тип: {reportType}"));
-            ReportDocument.Blocks.Add(param1);
-
-            var param2 = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 12,
-                Margin = new Thickness(0, 5, 0, 5)
-            };
-            param2.Inlines.Add(new Run($"Период: {startDate:dd.MM.yyyy} - {endDate:dd.MM.yyyy}"));
-            ReportDocument.Blocks.Add(param2);
-
-            var param3 = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 12,
-                Margin = new Thickness(0, 5, 0, 5)
-            };
-            param3.Inlines.Add(new Run($"Специальности: {string.Join(", ", selectedSpecialties)}"));
-            ReportDocument.Blocks.Add(param3);
-
-            var param4 = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 12,
-                Margin = new Thickness(0, 5, 0, 5)
-            };
-            param4.Inlines.Add(new Run($"Курсы: {string.Join(", ", selectedCourses)}"));
-            ReportDocument.Blocks.Add(param4);
-
-            var section2 = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 14,
-                FontWeight = FontWeights.SemiBold,
-                Margin = new Thickness(0, 15, 0, 10),
-                Foreground = Brushes.DarkBlue
-            };
-            section2.Inlines.Add(new Run("РЕЗУЛЬТАТЫ"));
-            ReportDocument.Blocks.Add(section2);
-
-            var resultText = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 12,
-                Margin = new Thickness(0, 5, 0, 5)
-            };
-            resultText.Inlines.Add(new Run("Данные будут загружены из базы данных после ее подключения."));
-            ReportDocument.Blocks.Add(resultText);
-
-            AddSampleTable();
-
-            var info = new System.Windows.Documents.Paragraph
-            {
-                FontSize = 12,
-                Margin = new Thickness(0, 5, 0, 5),
-                FontStyle = FontStyles.Italic
-            };
-            info.Inlines.Add(new Run($"Отчет сформирован: {DateTime.Now:dd.MM.yyyy HH:mm}"));
-            ReportDocument.Blocks.Add(info);
-        }
-
-        private void AddSampleTable()
-        {
-            var table = new System.Windows.Documents.Table
-            {
-                CellSpacing = 0,
-                Background = Brushes.White,
-                BorderBrush = Brushes.Gray,
-                BorderThickness = new Thickness(1)
-            };
-
-            table.Columns.Add(new System.Windows.Documents.TableColumn { Width = new GridLength(50) });
-            table.Columns.Add(new System.Windows.Documents.TableColumn { Width = new GridLength(150) });
-            table.Columns.Add(new System.Windows.Documents.TableColumn { Width = new GridLength(100) });
-            table.Columns.Add(new System.Windows.Documents.TableColumn { Width = new GridLength(120) });
-
-            var headerRow = new System.Windows.Documents.TableRow
-            {
-                Background = Brushes.LightBlue,
-                FontWeight = FontWeights.Bold
-            };
-
-            headerRow.Cells.Add(new System.Windows.Documents.TableCell(
-                new System.Windows.Documents.Paragraph(new Run("№"))));
-            headerRow.Cells.Add(new System.Windows.Documents.TableCell(
-                new System.Windows.Documents.Paragraph(new Run("Предмет"))));
-            headerRow.Cells.Add(new System.Windows.Documents.TableCell(
-                new System.Windows.Documents.Paragraph(new Run("Награды"))));
-            headerRow.Cells.Add(new System.Windows.Documents.TableCell(
-                new System.Windows.Documents.Paragraph(new Run("Статус"))));
-
-            var rowGroup = new System.Windows.Documents.TableRowGroup();
-            rowGroup.Rows.Add(headerRow);
-            table.RowGroups.Add(rowGroup);
-
-            var data = new[]
-            {
-                new { Num = "1", Subject = "Математика", Awards = "42", Status = "Лидер" },
-                new { Num = "2", Subject = "Английский язык", Awards = "38", Status = "Высокий" },
-                new { Num = "3", Subject = "Информатика", Awards = "25", Status = "Рост +15%" },
-                new { Num = "4", Subject = "Физика", Awards = "18", Status = "Стабильный" },
-                new { Num = "5", Subject = "Биология", Awards = "12", Status = "Развитие" }
-            };
-
-            foreach (var item in data)
-            {
-                var row = new System.Windows.Documents.TableRow();
-                row.Cells.Add(new System.Windows.Documents.TableCell(
-                    new System.Windows.Documents.Paragraph(new Run(item.Num))));
-                row.Cells.Add(new System.Windows.Documents.TableCell(
-                    new System.Windows.Documents.Paragraph(new Run(item.Subject))));
-                row.Cells.Add(new System.Windows.Documents.TableCell(
-                    new System.Windows.Documents.Paragraph(new Run(item.Awards))));
-                row.Cells.Add(new System.Windows.Documents.TableCell(
-                    new System.Windows.Documents.Paragraph(new Run(item.Status))));
-
-                rowGroup.Rows.Add(row);
-            }
-
-            ReportDocument.Blocks.Add(table);
-        }
-
-        private void ExportToPdf(string filePath, string content)
-        {
-            using (FileStream fs = new FileStream(filePath, FileMode.Create))
-            {
-                Document document = new Document(PageSize.A4);
-                PdfWriter writer = PdfWriter.GetInstance(document, fs);
-
-                document.Open();
-
-                var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
-                var normalFont = FontFactory.GetFont(FontFactory.HELVETICA, 12);
-
-                document.Add(new iTextSharp.text.Paragraph("ОТЧЕТ ПО ОЛИМПИАДАМ", titleFont));
-                document.Add(new iTextSharp.text.Paragraph(" "));
-                document.Add(new iTextSharp.text.Paragraph($"Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm}", normalFont));
-                document.Add(new iTextSharp.text.Paragraph(" "));
-
-                string[] lines = content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
-                foreach (string line in lines)
-                {
-                    document.Add(new iTextSharp.text.Paragraph(line, normalFont));
-                }
-
-                document.Close();
-            }
-        }
-
-        private void ExportToWord(string filePath, string content)
-        {
-            File.WriteAllText(filePath, content, Encoding.UTF8);
-        }
-
-        private void UpdateSelectedSpecialties()
-        {
-            selectedSpecialties.Clear();
-            if (Spec1.IsChecked == true) selectedSpecialties.Add("Планово-экономическая");
-            if (Spec2.IsChecked == true) selectedSpecialties.Add("ПОИТ");
-            if (Spec3.IsChecked == true) selectedSpecialties.Add("Бухгалтерский учет");
-            if (Spec4.IsChecked == true) selectedSpecialties.Add("Банковское дело");
-            if (Spec5.IsChecked == true) selectedSpecialties.Add("Правоведение");
-            if (Spec6.IsChecked == true) selectedSpecialties.Add("Торговая деятельность");
-            if (Spec7.IsChecked == true) selectedSpecialties.Add("Операционная деятельность в логистике");
-        }
-
-        private void UpdateSelectedCourses()
-        {
-            selectedCourses.Clear();
-            if (Course1.IsChecked == true) selectedCourses.Add(1);
-            if (Course2.IsChecked == true) selectedCourses.Add(2);
-            if (Course3.IsChecked == true) selectedCourses.Add(3);
-            if (Course4.IsChecked == true) selectedCourses.Add(4);
         }
     }
 }

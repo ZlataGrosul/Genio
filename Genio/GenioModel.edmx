@@ -1,0 +1,444 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="Хранилище GenioModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="EventTypes">
+          <Key>
+            <PropertyRef Name="event_type_id" />
+          </Key>
+          <Property Name="event_type_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="type_name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="created_date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="HonorBoard">
+          <Key>
+            <PropertyRef Name="honor_id" />
+          </Key>
+          <Property Name="honor_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="student_id" Type="int" Nullable="false" />
+          <Property Name="placement_date" Type="date" Nullable="false" />
+          <Property Name="created_date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Olimps">
+          <Key>
+            <PropertyRef Name="olimp_id" />
+          </Key>
+          <Property Name="olimp_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="olimp_name" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="olimp_date" Type="date" Nullable="false" />
+          <Property Name="event_type_id" Type="int" Nullable="false" />
+          <Property Name="olimp_level" Type="nvarchar" MaxLength="100" />
+          <Property Name="olimp_location" Type="nvarchar" MaxLength="200" />
+          <Property Name="nominations" Type="nvarchar" MaxLength="500" />
+          <Property Name="created_date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Specializations">
+          <Key>
+            <PropertyRef Name="specialization_id" />
+          </Key>
+          <Property Name="specialization_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="spec_name" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="created_date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="StudentOlimps">
+          <Key>
+            <PropertyRef Name="participation_id" />
+          </Key>
+          <Property Name="participation_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="student_id" Type="int" Nullable="false" />
+          <Property Name="olimp_id" Type="int" Nullable="false" />
+          <Property Name="result" Type="nvarchar" MaxLength="500" Nullable="false" />
+          <Property Name="created_date" Type="datetime" />
+        </EntityType>
+        <EntityType Name="Students">
+          <Key>
+            <PropertyRef Name="student_id" />
+          </Key>
+          <Property Name="student_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="last_name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="first_name" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="middle_name" Type="nvarchar" MaxLength="50" />
+          <Property Name="birth_date" Type="date" Nullable="false" />
+          <Property Name="phone" Type="nvarchar" MaxLength="20" />
+          <Property Name="home_phone" Type="nvarchar" MaxLength="20" />
+          <Property Name="admission_date" Type="date" Nullable="false" />
+          <Property Name="graduation_date" Type="date" />
+          <Property Name="course_number" Type="int" Nullable="false" />
+          <Property Name="group_name" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="specialization_id" Type="int" Nullable="false" />
+          <Property Name="created_date" Type="datetime" />
+        </EntityType>
+        <Association Name="FK__HonorBoar__stude__4CA06362">
+          <End Role="Students" Type="Self.Students" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="HonorBoard" Type="Self.HonorBoard" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Students">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="HonorBoard">
+              <PropertyRef Name="student_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Olimps__event_ty__440B1D61">
+          <End Role="EventTypes" Type="Self.EventTypes" Multiplicity="1" />
+          <End Role="Olimps" Type="Self.Olimps" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="EventTypes">
+              <PropertyRef Name="event_type_id" />
+            </Principal>
+            <Dependent Role="Olimps">
+              <PropertyRef Name="event_type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__StudentOl__olimp__48CFD27E">
+          <End Role="Olimps" Type="Self.Olimps" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="StudentOlimps" Type="Self.StudentOlimps" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Olimps">
+              <PropertyRef Name="olimp_id" />
+            </Principal>
+            <Dependent Role="StudentOlimps">
+              <PropertyRef Name="olimp_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__StudentOl__stude__47DBAE45">
+          <End Role="Students" Type="Self.Students" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="StudentOlimps" Type="Self.StudentOlimps" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Students">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="StudentOlimps">
+              <PropertyRef Name="student_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Students__specia__403A8C7D">
+          <End Role="Specializations" Type="Self.Specializations" Multiplicity="1" />
+          <End Role="Students" Type="Self.Students" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Specializations">
+              <PropertyRef Name="specialization_id" />
+            </Principal>
+            <Dependent Role="Students">
+              <PropertyRef Name="specialization_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Хранилище GenioModelContainer">
+          <EntitySet Name="EventTypes" EntityType="Self.EventTypes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="HonorBoard" EntityType="Self.HonorBoard" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Olimps" EntityType="Self.Olimps" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Specializations" EntityType="Self.Specializations" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="StudentOlimps" EntityType="Self.StudentOlimps" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Students" EntityType="Self.Students" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__HonorBoar__stude__4CA06362" Association="Self.FK__HonorBoar__stude__4CA06362">
+            <End Role="Students" EntitySet="Students" />
+            <End Role="HonorBoard" EntitySet="HonorBoard" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Olimps__event_ty__440B1D61" Association="Self.FK__Olimps__event_ty__440B1D61">
+            <End Role="EventTypes" EntitySet="EventTypes" />
+            <End Role="Olimps" EntitySet="Olimps" />
+          </AssociationSet>
+          <AssociationSet Name="FK__StudentOl__olimp__48CFD27E" Association="Self.FK__StudentOl__olimp__48CFD27E">
+            <End Role="Olimps" EntitySet="Olimps" />
+            <End Role="StudentOlimps" EntitySet="StudentOlimps" />
+          </AssociationSet>
+          <AssociationSet Name="FK__StudentOl__stude__47DBAE45" Association="Self.FK__StudentOl__stude__47DBAE45">
+            <End Role="Students" EntitySet="Students" />
+            <End Role="StudentOlimps" EntitySet="StudentOlimps" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Students__specia__403A8C7D" Association="Self.FK__Students__specia__403A8C7D">
+            <End Role="Specializations" EntitySet="Specializations" />
+            <End Role="Students" EntitySet="Students" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="GenioModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="EventType">
+          <Key>
+            <PropertyRef Name="event_type_id" />
+          </Key>
+          <Property Name="event_type_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="type_name" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Olimps" Relationship="Self.FK__Olimps__event_ty__440B1D61" FromRole="EventTypes" ToRole="Olimps" />
+        </EntityType>
+        <EntityType Name="HonorBoard">
+          <Key>
+            <PropertyRef Name="honor_id" />
+          </Key>
+          <Property Name="honor_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="student_id" Type="Int32" Nullable="false" />
+          <Property Name="placement_date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="created_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Student" Relationship="Self.FK__HonorBoar__stude__4CA06362" FromRole="HonorBoard" ToRole="Students" />
+        </EntityType>
+        <EntityType Name="Olimp">
+          <Key>
+            <PropertyRef Name="olimp_id" />
+          </Key>
+          <Property Name="olimp_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="olimp_name" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="olimp_date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="event_type_id" Type="Int32" Nullable="false" />
+          <Property Name="olimp_level" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="olimp_location" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="nominations" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="created_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="EventType" Relationship="Self.FK__Olimps__event_ty__440B1D61" FromRole="Olimps" ToRole="EventTypes" />
+          <NavigationProperty Name="StudentOlimps" Relationship="Self.FK__StudentOl__olimp__48CFD27E" FromRole="Olimps" ToRole="StudentOlimps" />
+        </EntityType>
+        <EntityType Name="Specialization">
+          <Key>
+            <PropertyRef Name="specialization_id" />
+          </Key>
+          <Property Name="specialization_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="spec_name" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Students" Relationship="Self.FK__Students__specia__403A8C7D" FromRole="Specializations" ToRole="Students" />
+        </EntityType>
+        <EntityType Name="StudentOlimp">
+          <Key>
+            <PropertyRef Name="participation_id" />
+          </Key>
+          <Property Name="participation_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="student_id" Type="Int32" Nullable="false" />
+          <Property Name="olimp_id" Type="Int32" Nullable="false" />
+          <Property Name="result" Type="String" MaxLength="500" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="Olimp" Relationship="Self.FK__StudentOl__olimp__48CFD27E" FromRole="StudentOlimps" ToRole="Olimps" />
+          <NavigationProperty Name="Student" Relationship="Self.FK__StudentOl__stude__47DBAE45" FromRole="StudentOlimps" ToRole="Students" />
+        </EntityType>
+        <EntityType Name="Student">
+          <Key>
+            <PropertyRef Name="student_id" />
+          </Key>
+          <Property Name="student_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="last_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="first_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="middle_name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="birth_date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="phone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="home_phone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="admission_date" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="graduation_date" Type="DateTime" Precision="0" />
+          <Property Name="course_number" Type="Int32" Nullable="false" />
+          <Property Name="group_name" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="specialization_id" Type="Int32" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="HonorBoards" Relationship="Self.FK__HonorBoar__stude__4CA06362" FromRole="Students" ToRole="HonorBoard" />
+          <NavigationProperty Name="Specialization" Relationship="Self.FK__Students__specia__403A8C7D" FromRole="Students" ToRole="Specializations" />
+          <NavigationProperty Name="StudentOlimps" Relationship="Self.FK__StudentOl__stude__47DBAE45" FromRole="Students" ToRole="StudentOlimps" />
+        </EntityType>
+        <Association Name="FK__Olimps__event_ty__440B1D61">
+          <End Role="EventTypes" Type="Self.EventType" Multiplicity="1" />
+          <End Role="Olimps" Type="Self.Olimp" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="EventTypes">
+              <PropertyRef Name="event_type_id" />
+            </Principal>
+            <Dependent Role="Olimps">
+              <PropertyRef Name="event_type_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__HonorBoar__stude__4CA06362">
+          <End Role="Students" Type="Self.Student" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="HonorBoard" Type="Self.HonorBoard" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Students">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="HonorBoard">
+              <PropertyRef Name="student_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__StudentOl__olimp__48CFD27E">
+          <End Role="Olimps" Type="Self.Olimp" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="StudentOlimps" Type="Self.StudentOlimp" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Olimps">
+              <PropertyRef Name="olimp_id" />
+            </Principal>
+            <Dependent Role="StudentOlimps">
+              <PropertyRef Name="olimp_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Students__specia__403A8C7D">
+          <End Role="Specializations" Type="Self.Specialization" Multiplicity="1" />
+          <End Role="Students" Type="Self.Student" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Specializations">
+              <PropertyRef Name="specialization_id" />
+            </Principal>
+            <Dependent Role="Students">
+              <PropertyRef Name="specialization_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__StudentOl__stude__47DBAE45">
+          <End Role="Students" Type="Self.Student" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="StudentOlimps" Type="Self.StudentOlimp" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Students">
+              <PropertyRef Name="student_id" />
+            </Principal>
+            <Dependent Role="StudentOlimps">
+              <PropertyRef Name="student_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="GenioAppEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="EventTypes" EntityType="Self.EventType" />
+          <EntitySet Name="HonorBoards" EntityType="Self.HonorBoard" />
+          <EntitySet Name="Olimps" EntityType="Self.Olimp" />
+          <EntitySet Name="Specializations" EntityType="Self.Specialization" />
+          <EntitySet Name="StudentOlimps" EntityType="Self.StudentOlimp" />
+          <EntitySet Name="Students" EntityType="Self.Student" />
+          <AssociationSet Name="FK__Olimps__event_ty__440B1D61" Association="Self.FK__Olimps__event_ty__440B1D61">
+            <End Role="EventTypes" EntitySet="EventTypes" />
+            <End Role="Olimps" EntitySet="Olimps" />
+          </AssociationSet>
+          <AssociationSet Name="FK__HonorBoar__stude__4CA06362" Association="Self.FK__HonorBoar__stude__4CA06362">
+            <End Role="Students" EntitySet="Students" />
+            <End Role="HonorBoard" EntitySet="HonorBoards" />
+          </AssociationSet>
+          <AssociationSet Name="FK__StudentOl__olimp__48CFD27E" Association="Self.FK__StudentOl__olimp__48CFD27E">
+            <End Role="Olimps" EntitySet="Olimps" />
+            <End Role="StudentOlimps" EntitySet="StudentOlimps" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Students__specia__403A8C7D" Association="Self.FK__Students__specia__403A8C7D">
+            <End Role="Specializations" EntitySet="Specializations" />
+            <End Role="Students" EntitySet="Students" />
+          </AssociationSet>
+          <AssociationSet Name="FK__StudentOl__stude__47DBAE45" Association="Self.FK__StudentOl__stude__47DBAE45">
+            <End Role="Students" EntitySet="Students" />
+            <End Role="StudentOlimps" EntitySet="StudentOlimps" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="Хранилище GenioModelContainer" CdmEntityContainer="GenioAppEntities">
+          <EntitySetMapping Name="EventTypes">
+            <EntityTypeMapping TypeName="GenioModel.EventType">
+              <MappingFragment StoreEntitySet="EventTypes">
+                <ScalarProperty Name="event_type_id" ColumnName="event_type_id" />
+                <ScalarProperty Name="type_name" ColumnName="type_name" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="HonorBoards">
+            <EntityTypeMapping TypeName="GenioModel.HonorBoard">
+              <MappingFragment StoreEntitySet="HonorBoard">
+                <ScalarProperty Name="honor_id" ColumnName="honor_id" />
+                <ScalarProperty Name="student_id" ColumnName="student_id" />
+                <ScalarProperty Name="placement_date" ColumnName="placement_date" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Olimps">
+            <EntityTypeMapping TypeName="GenioModel.Olimp">
+              <MappingFragment StoreEntitySet="Olimps">
+                <ScalarProperty Name="olimp_id" ColumnName="olimp_id" />
+                <ScalarProperty Name="olimp_name" ColumnName="olimp_name" />
+                <ScalarProperty Name="olimp_date" ColumnName="olimp_date" />
+                <ScalarProperty Name="event_type_id" ColumnName="event_type_id" />
+                <ScalarProperty Name="olimp_level" ColumnName="olimp_level" />
+                <ScalarProperty Name="olimp_location" ColumnName="olimp_location" />
+                <ScalarProperty Name="nominations" ColumnName="nominations" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Specializations">
+            <EntityTypeMapping TypeName="GenioModel.Specialization">
+              <MappingFragment StoreEntitySet="Specializations">
+                <ScalarProperty Name="specialization_id" ColumnName="specialization_id" />
+                <ScalarProperty Name="spec_name" ColumnName="spec_name" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="StudentOlimps">
+            <EntityTypeMapping TypeName="GenioModel.StudentOlimp">
+              <MappingFragment StoreEntitySet="StudentOlimps">
+                <ScalarProperty Name="participation_id" ColumnName="participation_id" />
+                <ScalarProperty Name="student_id" ColumnName="student_id" />
+                <ScalarProperty Name="olimp_id" ColumnName="olimp_id" />
+                <ScalarProperty Name="result" ColumnName="result" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Students">
+            <EntityTypeMapping TypeName="GenioModel.Student">
+              <MappingFragment StoreEntitySet="Students">
+                <ScalarProperty Name="student_id" ColumnName="student_id" />
+                <ScalarProperty Name="last_name" ColumnName="last_name" />
+                <ScalarProperty Name="first_name" ColumnName="first_name" />
+                <ScalarProperty Name="middle_name" ColumnName="middle_name" />
+                <ScalarProperty Name="birth_date" ColumnName="birth_date" />
+                <ScalarProperty Name="phone" ColumnName="phone" />
+                <ScalarProperty Name="home_phone" ColumnName="home_phone" />
+                <ScalarProperty Name="admission_date" ColumnName="admission_date" />
+                <ScalarProperty Name="graduation_date" ColumnName="graduation_date" />
+                <ScalarProperty Name="course_number" ColumnName="course_number" />
+                <ScalarProperty Name="group_name" ColumnName="group_name" />
+                <ScalarProperty Name="specialization_id" ColumnName="specialization_id" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Нет" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

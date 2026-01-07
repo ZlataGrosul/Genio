@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="9140eab26dd84751aafa6f31173c8862" Name="Diagram1">
+        <EntityTypeShape EntityType="GenioModel.EventType" Width="1.5" PointX="0.75" PointY="9.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="GenioModel.HonorBoard" Width="1.5" PointX="5.25" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="GenioModel.Olimp" Width="1.5" PointX="3" PointY="8.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="GenioModel.Specialization" Width="1.5" PointX="0.75" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="GenioModel.StudentOlimp" Width="1.5" PointX="5.25" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="GenioModel.Student" Width="1.5" PointX="3" PointY="2.875" IsExpanded="true" />
+        <AssociationConnector Association="GenioModel.FK__Olimps__event_ty__440B1D61" ManuallyRouted="false" />
+        <AssociationConnector Association="GenioModel.FK__HonorBoar__stude__4CA06362" ManuallyRouted="false" />
+        <AssociationConnector Association="GenioModel.FK__StudentOl__olimp__48CFD27E" ManuallyRouted="false" />
+        <AssociationConnector Association="GenioModel.FK__Students__specia__403A8C7D" ManuallyRouted="false" />
+        <AssociationConnector Association="GenioModel.FK__StudentOl__stude__47DBAE45" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>
