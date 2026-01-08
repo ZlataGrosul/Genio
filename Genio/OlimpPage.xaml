@@ -168,91 +168,8 @@
                 Style="{StaticResource HoverFrameStyle}">
             <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}"
                           Padding="15">
+                <!-- Список мероприятий будет заполняться динамически -->
                 <StackPanel x:Name="EventsList">
-                    <!-- ТЕСТОВЫЕ ДАННЫЕ МЕРОПРИЯТИЙ -->
-                    <Border x:Name="Event1"
-                            Background="{StaticResource AccentColor}"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,7"
-                            Cursor="Hand"
-                            Tag="1"
-                            MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
-                            Style="{StaticResource HoverFrameStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Виртуальный бизнес-банк"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="01.03.2024"
-                                       Foreground="{StaticResource WindowBackground}"
-                                       FontSize="11"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border x:Name="Event2"
-                            Background="{StaticResource CalendarDayHover}"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,7"
-                            Cursor="Hand"
-                            Tag="2"
-                            MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
-                            Style="{StaticResource HoverFrameStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Молодежь 21 века"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="20.10.2025"
-                                       Foreground="{StaticResource WindowBackground}"
-                                       FontSize="11"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border x:Name="Event3"
-                            Background="{StaticResource CalendarDayHover}"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,7"
-                            Cursor="Hand"
-                            Tag="3"
-                            MouseLeftButtonDown="EventItem_MouseLeftButtonDown"
-                            Style="{StaticResource HoverFrameStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="Экономика XXI века"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="24.12.2024"
-                                       Foreground="{StaticResource WindowBackground}"
-                                       FontSize="11"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                        </Grid>
-                    </Border>
 
                 </StackPanel>
             </ScrollViewer>
@@ -267,46 +184,9 @@
                 Style="{StaticResource HoverFrameStyle}">
             <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}"
                           Padding="15">
+                <!-- Список учащихся будет заполняться динамически -->
                 <StackPanel x:Name="StudentsList" Cursor="">
-                    <!-- ТЕСТОВЫЕ ДАННЫЕ УЧАЩИХСЯ -->
-                    <Border Background="{StaticResource AccentColor}"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,7">
-                        <Grid>
-                            <TextBlock Text="Грекул Злата Анатольевна • 1-291"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
 
-                    <Border Background="#FF978FFF"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,7">
-                        <Grid>
-                            <TextBlock Text="Мотелек Маргарита Михайловна • 1-292"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Background="#FF4F47B7"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,7">
-                        <Grid>
-                            <TextBlock Text="Садковская Валерия Викторовна • 1-291"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
                 </StackPanel>
             </ScrollViewer>
         </Border>
@@ -342,14 +222,10 @@
                 <ComboBox x:Name="FiltersComboBox"
                               Style="{StaticResource CustomComboBoxStyle}"
                               ItemContainerStyle="{StaticResource CustomComboBoxItemStyle}"
-                              SelectedIndex="0"
                               Height="40"
                               FontSize="13"
                               Margin="0,0,0,15">
-                    <ComboBoxItem Content="Все мероприятия" IsSelected="True"/>
-                    <ComboBoxItem Content="Олимпиады"/>
-                    <ComboBoxItem Content="Чемпионаты"/>
-                    <ComboBoxItem Content="Конкурсы"/>
+                    <!-- Заполняется динамически из БД -->
                 </ComboBox>
 
                 <!-- ПЕРИОД -->
@@ -385,7 +261,6 @@
                                          Padding="12,0,35,0"
                                          VerticalAlignment="Center"
                                          FontSize="13"
-                                         Text="01.09.2024"
                                          IsReadOnly="True"/>
                             <Button x:Name="FilterDateFromButton"
                                         Style="{StaticResource DatePickerButtonStyle}" 
@@ -414,7 +289,6 @@
                                          Padding="12,0,35,0"
                                          VerticalAlignment="Center"
                                          FontSize="13"
-                                         Text="31.12.2024"
                                          IsReadOnly="True"/>
                             <Button x:Name="FilterDateToButton"
                                         Style="{StaticResource DatePickerButtonStyle}"
@@ -501,33 +375,34 @@
 
                         <!-- ПРАВАЯ КОЛОНКА - ЗНАЧЕНИЯ -->
                         <StackPanel Grid.Column="1" Margin="20">
-                            <TextBlock Text="01.03.2024"
+                            <!-- Значения будут заполняться динамически -->
+                            <TextBlock x:Name="EventDateValue"
                                FontSize="14"
                                Foreground="#FFCCCCCC"
                                Margin="0,0,0,15"/>
-                            <TextBlock Text="Зимний Чемпионат по управлению бизнесом среди молодёжи &quot;Виртуальный бизнес-комп&quot;"
+                            <TextBlock x:Name="EventNameValue"
                                FontSize="14"
                                Foreground="#FFCCCCCC"
                                Margin="0,0,0,15"
                                TextWrapping="Wrap"/>
-                            <TextBlock Text="Город"
+                            <TextBlock x:Name="EventLevelValue"
                                FontSize="14"
                                Foreground="#FFCCCCCC"
                                Margin="0,0,0,15"/>
-                            <TextBlock Text="Чемпионат"
+                            <TextBlock x:Name="EventTypeValue"
                                FontSize="14"
                                Foreground="#FFCCCCCC"
                                Margin="0,0,0,15"/>
-                            <TextBlock Text="2 место"
+                            <TextBlock x:Name="EventResultValue"
                                FontSize="14"
                                Foreground="#FFCCCCCC"
                                Margin="0,0,0,15"/>
-                            <TextBlock Text="&quot;Моделирование экономики&quot; группа &quot;Лидер&quot;"
+                            <TextBlock x:Name="EventNominationsValue"
                                FontSize="14"
                                Foreground="#FFCCCCCC"
                                Margin="0,0,0,15"
                                TextWrapping="Wrap"/>
-                            <TextBlock Text="Центр поддержки и развития юношеского предпринимательства"
+                            <TextBlock x:Name="EventLocationValue"
                                FontSize="14"
                                Foreground="#FFCCCCCC"
                                Margin="0,0,0,0"

@@ -1,0 +1,550 @@
+﻿<Page x:Class="Genio.AddHonorPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      mc:Ignorable="d" 
+      Title="AddHonorPage"
+      Background="{StaticResource WindowBackground}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ЗАГОЛОВКИ РАЗДЕЛОВ -->
+        <TextBlock Grid.Row="0" Grid.Column="0"
+                   Text="Выбор студентов"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource LightTextColor}"
+                   Margin="30,15,20,10"
+                   HorizontalAlignment="Left"/>
+
+        <TextBlock Grid.Row="0" Grid.Column="1"
+                   Text="Данные для доски почета"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource LightTextColor}"
+                   Margin="25,15,20,10"
+                   HorizontalAlignment="Left"/>
+
+        <!-- ЛЕВЫЙ ФРЕЙМ - ВЫБОР СТУДЕНТОВ -->
+        <Border Grid.Row="1" Grid.Column="0"
+                Background="{StaticResource ReportFrameColor}"
+                CornerRadius="8"
+                Margin="20,0,10,15"
+                Style="{StaticResource HoverFrameStyle}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- ШАПКА С ПОИСКОМ И КНОПКОЙ ДОБАВЛЕНИЯ -->
+                <Border Grid.Row="0"
+                        Background="Transparent"
+                        Margin="15,15,15,15">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- ПОЛЕ ПОИСКА -->
+                        <Border Grid.Column="0"
+                                Background="{StaticResource MenuItemHoverColor}"
+                                CornerRadius="12"
+                                Height="35"
+                                Margin="0,0,10,0">
+                            <Grid>
+                                <TextBox x:Name="StudentSearchTextBox"
+                                         Background="Transparent"
+                                         Foreground="{StaticResource LightTextColor}"
+                                         BorderThickness="0"
+                                         FontSize="14"
+                                         VerticalContentAlignment="Center"
+                                         CaretBrush="White"
+                                         Padding="38,0,10,0"
+                                         VerticalAlignment="Center"
+                                         Text="Поиск..."
+                                         MaxLength="200"/>
+                                <Image Source="/Images/searchIcon.png"
+                                       Width="20"
+                                       Height="20"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       Margin="12,0,0,0"
+                                       Stretch="Uniform"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- КНОПКА ДОБАВИТЬ УЧАЩЕГОСЯ -->
+                        <Button Grid.Column="1"
+                                Style="{StaticResource FiltersButtonStyle}"
+                                Width="56"
+                                Height="35"
+                                x:Name="AddStudentButton"
+                                ToolTip="Разблокировать форму для добавления студента">
+                            <Image Source="/Images/addIcon.png"
+                                   Width="20"
+                                   Height="20"
+                                   Stretch="Uniform"/>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- СПИСОК УЧАЩИХСЯ -->
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="15,0,15,15">
+                    <StackPanel x:Name="StudentsList">
+                        <!-- Список студентов будет заполняться динамически -->
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- ПРАВЫЙ ФРЕЙМ - ФОРМА ЗАПОЛНЕНИЯ ДАННЫХ -->
+        <Border Grid.Row="1" Grid.Column="1"
+                Background="{StaticResource ReportFrameColor}"
+                CornerRadius="8"
+                Margin="10,0,20,15"
+                Style="{StaticResource HoverFrameStyle}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Padding="20,15">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Кнопки управления -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Дата занесения -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Форма заполнения данных -->
+                    </Grid.RowDefinitions>
+
+                    <!-- КНОПКИ УПРАВЛЕНИЯ ФОРМОЙ -->
+                    <StackPanel Grid.Row="0"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Margin="0,0,0,20">
+                        <!-- КНОПКА ОЧИСТИТЬ -->
+                        <Button x:Name="ClearFormButton"
+                                Style="{StaticResource CircleButtonStyle}"
+                                Width="36"
+                                Height="38"
+                                Margin="0,0,10,0"
+                                ToolTip="Очистить форму"
+                                IsEnabled="False">
+                            <Image Source="/Images/cleanicon.png"
+                                   Width="20"
+                                   Height="20"
+                                   Stretch="Uniform"/>
+                        </Button>
+
+                        <!-- КНОПКА СОХРАНИТЬ ФОРМУ -->
+                        <Button x:Name="SaveFormButton"
+                                Style="{StaticResource CircleButtonStyle}"
+                                Width="36"
+                                Height="38"
+                                ToolTip="Сохранить данные формы"
+                                IsEnabled="False">
+                            <Image Source="/Images/saveIcon.png"
+                                   Width="20"
+                                   Height="20"
+                                   Stretch="Uniform"/>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- ДАТА ЗАНЕСЕНИЯ НА ДОСКУ ПОЧЕТА -->
+                    <Grid Grid.Row="1" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Дата занесения:"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource LightTextColor}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,15,0"/>
+
+                        <Border Grid.Column="1"
+                                Background="{StaticResource MenuItemHoverColor}"
+                                CornerRadius="8"
+                                Height="35">
+                            <Grid>
+                                <TextBox x:Name="PlacementDateTextBox"
+                                         Background="{StaticResource MenuItemHoverColor}"
+                                         Foreground="{StaticResource LightTextColor}"
+                                         BorderThickness="0"
+                                         Padding="12,0,35,0"
+                                         VerticalAlignment="Center"
+                                         FontSize="14"
+                                         IsReadOnly="True"/>
+                                <Button x:Name="PlacementDateButton"
+                                        Style="{StaticResource DatePickerButtonStyle}"
+                                        HorizontalAlignment="Right"
+                                        Width="35"
+                                        Height="35">
+                                    <Image Source="{StaticResource DatePickerIcon}"
+                                           Width="18"
+                                           Height="18"
+                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- ФОРМА ЗАПОЛНЕНИЯ ДАННЫХ СТУДЕНТА -->
+                    <Border Grid.Row="2"
+                            x:Name="StudentFormContainer"
+                            Background="{StaticResource MenuItemHoverColor}"
+                            CornerRadius="8"
+                            Padding="15">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <!-- ФИО -->
+                                <RowDefinition Height="Auto"/>
+                                <!-- Курс -->
+                                <RowDefinition Height="Auto"/>
+                                <!-- Группа -->
+                                <RowDefinition Height="Auto"/>
+                                <!-- Специальность -->
+                                <RowDefinition Height="Auto"/>
+                                <!-- Дата поступления -->
+                                <RowDefinition Height="Auto"/>
+                                <!-- Дата окончания -->
+                                <RowDefinition Height="Auto"/>
+                                <!-- Дата рождения -->
+                                <RowDefinition Height="Auto"/>
+                                <!-- Номер телефона -->
+                                <RowDefinition Height="Auto"/>
+                                <!-- Домашний тел. -->
+                            </Grid.RowDefinitions>
+
+                            <!-- ФИО -->
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Text="ФИО:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,15"/>
+
+                            <TextBox Grid.Row="0" Grid.Column="1"
+                                     x:Name="FullNameTextBox"
+                                     Background="{StaticResource CalendarDayHover}"
+                                     Foreground="{StaticResource LightTextColor}"
+                                     BorderThickness="0"
+                                     FontSize="12"
+                                     Padding="12"
+                                     Margin="0,0,0,15"
+                                     MaxLength="200"
+                                     IsEnabled="False"/>
+
+                            <!-- КУРС -->
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                       Text="Курс:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,15"/>
+
+                            <StackPanel Grid.Row="1" Grid.Column="1"
+                                        Orientation="Horizontal"
+                                        Margin="0,0,0,15"
+                                        IsEnabled="False">
+                                <RadioButton x:Name="Course1Radio"
+                                             Content="1"
+                                             GroupName="CourseGroup"
+                                             Style="{StaticResource CourseRadioButtonStyle}"
+                                             IsChecked="True"/>
+                                <RadioButton x:Name="Course2Radio"
+                                             Content="2"
+                                             GroupName="CourseGroup"
+                                             Style="{StaticResource CourseRadioButtonStyle}"/>
+                                <RadioButton x:Name="Course3Radio"
+                                             Content="3"
+                                             GroupName="CourseGroup"
+                                             Style="{StaticResource CourseRadioButtonStyle}"/>
+                                <RadioButton x:Name="Course4Radio"
+                                             Content="4"
+                                             GroupName="CourseGroup"
+                                             Style="{StaticResource CourseRadioButtonStyle}"/>
+                            </StackPanel>
+
+                            <!-- ГРУППА -->
+                            <TextBlock Grid.Row="2" Grid.Column="0"
+                                       Text="Группа:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,15"/>
+
+                            <TextBox Grid.Row="2" Grid.Column="1"
+                                     x:Name="GroupTextBox"
+                                     Background="{StaticResource CalendarDayHover}"
+                                     Foreground="{StaticResource LightTextColor}"
+                                     BorderThickness="0"
+                                     FontSize="12"
+                                     Padding="12"
+                                     Margin="0,0,0,15"
+                                     MaxLength="20"
+                                     IsEnabled="False"/>
+
+                            <!-- СПЕЦИАЛЬНОСТЬ -->
+                            <TextBlock Grid.Row="3" Grid.Column="0"
+                                       Text="Специальность:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,15"/>
+
+                            <ComboBox Grid.Row="3" Grid.Column="1"
+                                      x:Name="SpecialtyComboBox"
+                                      Style="{StaticResource CustomComboBoxStyle}"
+                                      Margin="0,0,0,15"
+                                      Height="35"
+                                      IsEnabled="False">
+                                <ComboBox.ItemContainerStyle>
+                                    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource CustomComboBoxItemStyle}"/>
+                                </ComboBox.ItemContainerStyle>
+                            </ComboBox>
+
+                            <!-- ДАТА ПОСТУПЛЕНИЯ -->
+                            <TextBlock Grid.Row="4" Grid.Column="0"
+                                       Text="Дата поступления:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,15"/>
+
+                            <Border Grid.Row="4" Grid.Column="1"
+                                    Background="{StaticResource CalendarDayHover}"
+                                    CornerRadius="8"
+                                    Height="35"
+                                    Margin="0,0,0,15">
+                                <Grid>
+                                    <TextBox x:Name="AdmissionDateTextBox"
+                                             Background="{StaticResource CalendarDayHover}"
+                                             Foreground="{StaticResource LightTextColor}"
+                                             BorderThickness="0"
+                                             Padding="12,0,35,0"
+                                             VerticalAlignment="Center"
+                                             FontSize="14"
+                                             IsReadOnly="True"/>
+                                    <Button x:Name="AdmissionDateButton"
+                                            Style="{StaticResource DatePickerButtonStyle}"
+                                            HorizontalAlignment="Right"
+                                            Width="35"
+                                            Height="35"
+                                            IsEnabled="False">
+                                        <Image Source="{StaticResource DatePickerIcon}"
+                                               Width="18"
+                                               Height="18"
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <!-- ДАТА ОКОНЧАНИЯ -->
+                            <TextBlock Grid.Row="5" Grid.Column="0"
+                                       Text="Дата окончания:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,15"/>
+
+                            <Border Grid.Row="5" Grid.Column="1"
+                                    Background="{StaticResource CalendarDayHover}"
+                                    CornerRadius="8"
+                                    Height="35"
+                                    Margin="0,0,0,15">
+                                <Grid>
+                                    <TextBox x:Name="GraduationDateTextBox"
+                                             Background="{StaticResource CalendarDayHover}"
+                                             Foreground="{StaticResource LightTextColor}"
+                                             BorderThickness="0"
+                                             Padding="12,0,35,0"
+                                             VerticalAlignment="Center"
+                                             FontSize="14"
+                                             IsReadOnly="True"/>
+                                    <Button x:Name="GraduationDateButton"
+                                            Style="{StaticResource DatePickerButtonStyle}"
+                                            HorizontalAlignment="Right"
+                                            Width="35"
+                                            Height="35"
+                                            IsEnabled="False">
+                                        <Image Source="{StaticResource DatePickerIcon}"
+                                               Width="18"
+                                               Height="18"
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <!-- ДАТА РОЖДЕНИЯ -->
+                            <TextBlock Grid.Row="6" Grid.Column="0"
+                                       Text="Дата рождения:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,15"/>
+
+                            <Border Grid.Row="6" Grid.Column="1"
+                                    Background="{StaticResource CalendarDayHover}"
+                                    CornerRadius="8"
+                                    Height="35"
+                                    Margin="0,0,0,15">
+                                <Grid>
+                                    <TextBox x:Name="BirthDateTextBox"
+                                             Background="{StaticResource CalendarDayHover}"
+                                             Foreground="{StaticResource LightTextColor}"
+                                             BorderThickness="0"
+                                             Padding="12,0,35,0"
+                                             VerticalAlignment="Center"
+                                             FontSize="14"
+                                             IsReadOnly="True"/>
+                                    <Button x:Name="BirthDateButton"
+                                            Style="{StaticResource DatePickerButtonStyle}"
+                                            HorizontalAlignment="Right"
+                                            Width="35"
+                                            Height="35"
+                                            IsEnabled="False">
+                                        <Image Source="{StaticResource DatePickerIcon}"
+                                               Width="18"
+                                               Height="18"
+                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Button>
+                                </Grid>
+                            </Border>
+
+                            <!-- НОМЕР ТЕЛЕФОНА -->
+                            <TextBlock Grid.Row="7" Grid.Column="0"
+                                       Text="Номер телефона:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,15"/>
+
+                            <TextBox Grid.Row="7" Grid.Column="1"
+                                     x:Name="PhoneTextBox"
+                                     Background="{StaticResource CalendarDayHover}"
+                                     Foreground="{StaticResource LightTextColor}"
+                                     BorderThickness="0"
+                                     FontSize="12"
+                                     Padding="12"
+                                     Margin="0,0,0,15"
+                                     MaxLength="20"
+                                     IsEnabled="False"/>
+
+                            <!-- ДОМАШНИЙ ТЕЛ. -->
+                            <TextBlock Grid.Row="8" Grid.Column="0"
+                                       Text="Домашний тел.:"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource LightTextColor}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,15,0"/>
+
+                            <TextBox Grid.Row="8" Grid.Column="1"
+                                     x:Name="HomePhoneTextBox"
+                                     Background="{StaticResource CalendarDayHover}"
+                                     Foreground="{StaticResource LightTextColor}"
+                                     BorderThickness="0"
+                                     FontSize="12"
+                                     Padding="12"
+                                     MaxLength="20"
+                                     IsEnabled="False"/>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ПОДВАЛ С КНОПКАМИ -->
+        <Border Grid.Row="2" Grid.ColumnSpan="2"
+                Background="Transparent"
+                Margin="20,0,20,20"
+                Height="60">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Left">
+                <!-- КНОПКА НАЗАД -->
+                <Button x:Name="BackButton"
+                        Style="{StaticResource PurpleCircleButtonStyle}"
+                        Width="35"
+                        Height="35"
+                        Margin="0,0,10,0">
+                    <Image Source="/Images/backIcon.png"
+                           Width="24"
+                           Height="24"
+                           Stretch="Uniform"/>
+                </Button>
+
+                <!-- КНОПКА СОХРАНИТЬ ЗАПИСЬ -->
+                <Button x:Name="SaveButton"
+                        Style="{StaticResource PurpleCircleButtonStyle}"
+                        Width="35"
+                        Height="35"
+                        Margin="0,0,10,0">
+                    <Image Source="/Images/saveIcon.png"
+                           Width="20"
+                           Height="20"
+                           Stretch="Uniform"/>
+                </Button>
+
+                <!-- КНОПКА УДАЛИТЬ ЗАПИСЬ -->
+                <Button x:Name="DeleteButton"
+                        Style="{StaticResource CircleButtonStyle}"
+                        Width="36"
+                        Height="38"
+                        Visibility="Collapsed">
+                    <Image Source="/Images/iconRemove.png"
+                           Width="17"
+                           Height="17"
+                           Stretch="Uniform"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- КАЛЕНДАРЬ ДЛЯ ДАТЫ -->
+        <Popup x:Name="DatePickerPopup"
+               Placement="Bottom"
+               StaysOpen="False"
+               AllowsTransparency="True"
+               PopupAnimation="Slide"
+               VerticalOffset="5">
+            <Border Background="{StaticResource CalendarBackground}"
+                    BorderBrush="{StaticResource AccentColor}"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Padding="8">
+                <Calendar x:Name="DatePickerCalendar"
+                          SelectionMode="SingleDate"/>
+            </Border>
+        </Popup>
+    </Grid>
+</Page>

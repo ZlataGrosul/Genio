@@ -6,7 +6,8 @@
       xmlns:sys="clr-namespace:System;assembly=mscorlib"
       mc:Ignorable="d" 
       Title="ReportsPage"
-      Background="{StaticResource WindowBackground}">
+      Background="{StaticResource WindowBackground}"
+      Loaded="Page_Loaded">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -209,7 +210,8 @@
                             CornerRadius="8"
                             Padding="18"
                             Margin="0,0,8,0"
-                            Style="{StaticResource HoverFrameStyle}">
+                            Style="{StaticResource HoverFrameStyle}"
+                            Height="300">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -223,49 +225,15 @@
                                        Foreground="{StaticResource LightTextColor}"
                                        Margin="0,0,0,10"/>
 
-                            <StackPanel Grid.Row="1" x:Name="SpecialtiesPanel">
-                                <CheckBox x:Name="Spec1" Content="Планово-экономическая" 
-                                          Margin="0,0,0,6"
-                                          Style="{StaticResource ReportCheckBoxStyle}"
-                                          FontSize="12"
-                                          Checked="SpecialtyCheckBox_Changed"
-                                          Unchecked="SpecialtyCheckBox_Changed"/>
-                                <CheckBox x:Name="Spec2" Content="ПОИТ" 
-                                          Margin="0,0,0,6"
-                                          Style="{StaticResource ReportCheckBoxStyle}"
-                                          FontSize="12"
-                                          Checked="SpecialtyCheckBox_Changed"
-                                          Unchecked="SpecialtyCheckBox_Changed"/>
-                                <CheckBox x:Name="Spec3" Content="Бухгалтерский учет" 
-                                          Margin="0,0,0,6"
-                                          Style="{StaticResource ReportCheckBoxStyle}"
-                                          FontSize="12"
-                                          Checked="SpecialtyCheckBox_Changed"
-                                          Unchecked="SpecialtyCheckBox_Changed"/>
-                                <CheckBox x:Name="Spec4" Content="Банковское дело" 
-                                          Margin="0,0,0,6"
-                                          Style="{StaticResource ReportCheckBoxStyle}"
-                                          FontSize="12"
-                                          Checked="SpecialtyCheckBox_Changed"
-                                          Unchecked="SpecialtyCheckBox_Changed"/>
-                                <CheckBox x:Name="Spec5" Content="Правоведение" 
-                                          Margin="0,0,0,6"
-                                          Style="{StaticResource ReportCheckBoxStyle}"
-                                          FontSize="12"
-                                          Checked="SpecialtyCheckBox_Changed"
-                                          Unchecked="SpecialtyCheckBox_Changed"/>
-                                <CheckBox x:Name="Spec6" Content="Торговая деятельность" 
-                                          Margin="0,0,0,6"
-                                          Style="{StaticResource ReportCheckBoxStyle}"
-                                          FontSize="12"
-                                          Checked="SpecialtyCheckBox_Changed"
-                                          Unchecked="SpecialtyCheckBox_Changed"/>
-                                <CheckBox x:Name="Spec7" Content="Операционная деятельность в логистике"
-                                          Style="{StaticResource ReportCheckBoxStyle}"
-                                          FontSize="12"
-                                          Checked="SpecialtyCheckBox_Changed"
-                                          Unchecked="SpecialtyCheckBox_Changed"/>
-                            </StackPanel>
+                            <!-- SCROLLVIEWER ДЛЯ СПЕЦИАЛЬНОСТЕЙ -->
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Style="{StaticResource CustomScrollViewerStyle}">
+                                <StackPanel x:Name="SpecialtiesPanel">
+                                    <!-- CheckBox будут добавляться динамически -->
+                                </StackPanel>
+                            </ScrollViewer>
                         </Grid>
                     </Border>
 

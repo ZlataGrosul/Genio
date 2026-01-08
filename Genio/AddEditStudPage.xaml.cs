@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -13,26 +14,16 @@ namespace Genio
         private bool isEditMode = false;
         private int studentId = 0;
         private TextBox currentDateTextBox = null;
-        private List<StudentItem> allStudents = new List<StudentItem>();
-        private List<StudentItem> filteredStudents = new List<StudentItem>();
-        private StudentItem selectedStudent = null;
+        private List<Student> allStudents = new List<Student>();
+        private List<Student> filteredStudents = new List<Student>();
+        private Student selectedStudent = null;
         private bool isPhoneTextChanging = false;
         private bool isHomePhoneTextChanging = false;
+        private List<Specialization> allSpecializations = new List<Specialization>();
 
-        public class StudentItem
-        {
-            public int Id { get; set; }
-            public string FullName { get; set; }
-            public string Course { get; set; }
-            public string Group { get; set; }
-            public string Specialty { get; set; }
-            public DateTime AdmissionDate { get; set; }
-            public DateTime GraduationDate { get; set; }
-            public DateTime BirthDate { get; set; }
-            public string Phone { get; set; }
-            public string HomePhone { get; set; }
-            public Border StudentBorder { get; set; }
-        }
+        // Флаги для отслеживания, с какой страницы перешли
+        private bool cameFromAddEditOlimp = false;
+        private bool cameFromStudentsPage = false;
 
         public AddEditStudPage()
         {
@@ -45,9 +36,41 @@ namespace Genio
             this.isEditMode = editMode;
         }
 
+        // Конструктор с указанием страницы-источника
+        public AddEditStudPage(bool editMode, string cameFromPage) : this()
+        {
+            this.isEditMode = editMode;
+
+            // Устанавливаем флаги в зависимости от страницы-источника
+            if (cameFromPage == "AddEditOlimp")
+            {
+                cameFromAddEditOlimp = true;
+            }
+            else if (cameFromPage == "StudentsPage")
+            {
+                cameFromStudentsPage = true;
+            }
+        }
+        // Конструктор для редактирования конкретного студента
+        public AddEditStudPage(bool editMode, string cameFromPage, int studentId) : this()
+        {
+            this.isEditMode = editMode;
+            this.studentId = studentId;
+
+            // Устанавливаем флаги в зависимости от страницы-источника
+            if (cameFromPage == "AddEditOlimp")
+            {
+                cameFromAddEditOlimp = true;
+            }
+            else if (cameFromPage == "StudentsPage")
+            {
+                cameFromStudentsPage = true;
+            }
+        }
         private void AddEditStudPage_Loaded(object sender, RoutedEventArgs e)
         {
-            InitializeTestStudents();
+            LoadSpecializationsFromDatabase();
+            LoadStudentsFromDatabase();
 
             if (isEditMode)
             {
@@ -61,47 +84,54 @@ namespace Genio
             SetDefaultDates();
         }
 
-        private void InitializeTestStudents()
+        private void LoadSpecializationsFromDatabase()
         {
-            allStudents = new List<StudentItem>
+            try
             {
-                new StudentItem { Id = 1, FullName = "Грекул Злата Анатольевна", Course = "1", Group = "Т-291",
-                    Specialty = "Информационные системы и технологии", AdmissionDate = new DateTime(2023, 9, 1),
-                    GraduationDate = new DateTime(2027, 6, 30), BirthDate = new DateTime(2005, 3, 15),
-                    Phone = "+375 (29) 123-45-67", HomePhone = "+375 (17) 234-56-78" },
+                using (var context = new GenioAppEntities())
+                {
+                    allSpecializations = context.Specializations
+                        .OrderBy(s => s.spec_name)
+                        .ToList();
 
-                new StudentItem { Id = 2, FullName = "Мотович Маргарита Михайловна", Course = "2", Group = "П-294",
-                    Specialty = "Программное обеспечение информационных технологий", AdmissionDate = new DateTime(2022, 9, 1),
-                    GraduationDate = new DateTime(2026, 6, 30), BirthDate = new DateTime(2004, 7, 22),
-                    Phone = "+375 (29) 234-56-78", HomePhone = "+375 (17) 345-67-89" },
+                    // Очищаем и заполняем ComboBox
+                    SpecialtyComboBox.Items.Clear();
+                    SpecialtyComboBox.Items.Add(""); // Пустой элемент для возможности очистки
 
-                new StudentItem { Id = 3, FullName = "Садковская Валерия Викторовна", Course = "1", Group = "Т-291",
-                    Specialty = "Информационные системы и технологии", AdmissionDate = new DateTime(2023, 9, 1),
-                    GraduationDate = new DateTime(2027, 6, 30), BirthDate = new DateTime(2005, 11, 5),
-                    Phone = "+375 (29) 345-67-89", HomePhone = "+375 (17) 456-78-90" },
+                    foreach (var spec in allSpecializations)
+                    {
+                        SpecialtyComboBox.Items.Add(spec.spec_name);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
 
-                new StudentItem { Id = 4, FullName = "Пикист Маргарита Сергеевна", Course = "3", Group = "Т-295",
-                    Specialty = "Экономика и управление", AdmissionDate = new DateTime(2021, 9, 1),
-                    GraduationDate = new DateTime(2025, 6, 30), BirthDate = new DateTime(2003, 4, 18),
-                    Phone = "+375 (29) 456-78-90", HomePhone = "+375 (17) 567-89-01" },
+        private void LoadStudentsFromDatabase()
+        {
+            try
+            {
+                using (var context = new GenioAppEntities())
+                {
+                    allStudents = context.Students
+                        .Include("Specialization")
+                        .OrderBy(s => s.last_name)
+                        .ThenBy(s => s.first_name)
+                        .ToList();
 
-                new StudentItem { Id = 5, FullName = "Иванов Алексей Иванович", Course = "1", Group = "К-291",
-                    Specialty = "Компьютерная безопасность", AdmissionDate = new DateTime(2023, 9, 1),
-                    GraduationDate = new DateTime(2027, 6, 30), BirthDate = new DateTime(2005, 8, 30),
-                    Phone = "+375 (29) 567-89-01", HomePhone = "+375 (17) 678-90-12" },
-
-                new StudentItem { Id = 6, FullName = "Паку Евгений Андреевич", Course = "4", Group = "Т-492",
-                    Specialty = "Автоматизация технологических процессов", AdmissionDate = new DateTime(2020, 9, 1),
-                    GraduationDate = new DateTime(2024, 6, 30), BirthDate = new DateTime(2002, 12, 10),
-                    Phone = "+375 (29) 678-90-12", HomePhone = "+375 (17) 789-01-23" },
-
-                new StudentItem { Id = 7, FullName = "Марина Ирина Викторовна", Course = "4", Group = "П-492",
-                    Specialty = "Психология", AdmissionDate = new DateTime(2020, 9, 1),
-                    GraduationDate = new DateTime(2024, 6, 30), BirthDate = new DateTime(2002, 5, 25),
-                    Phone = "+375 (29) 789-01-23", HomePhone = "+375 (17) 890-12-34" }
-            };
-
-            filteredStudents = new List<StudentItem>(allStudents);
+                    filteredStudents = new List<Student>(allStudents);
+                    RefreshStudentsList();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки студентов: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void SetupEditMode()
@@ -118,9 +148,6 @@ namespace Genio
             ClearDeleteButton.ToolTip = "Удалить учащегося";
             ClearDeleteImage.Source = new System.Windows.Media.Imaging.BitmapImage(
                 new Uri("pack://application:,,,/Images/iconRemove.png"));
-
-            // Загружаем список учащихся для выбора
-            RefreshStudentsList();
 
             // Устанавливаем обработчики для поиска
             SearchTextBox.GotFocus += SearchTextBox_GotFocus;
@@ -142,9 +169,6 @@ namespace Genio
             ClearDeleteButton.ToolTip = "Очистить форму";
             ClearDeleteImage.Source = new System.Windows.Media.Imaging.BitmapImage(
                 new Uri("pack://application:,,,/Images/cleanIcon.png"));
-
-            // Загружаем список учащихся только для просмотра
-            RefreshStudentsList();
         }
 
         private void RefreshStudentsList()
@@ -157,43 +181,41 @@ namespace Genio
             }
         }
 
-        private void CreateStudentItem(StudentItem student)
+        private void CreateStudentItem(Student student)
         {
             // Создаем Border для элемента
             var border = new Border();
-            student.StudentBorder = border;
 
             // Устанавливаем стиль в зависимости от выбора
-            if (selectedStudent != null && student.Id == selectedStudent.Id)
+            if (selectedStudent != null && student.student_id == selectedStudent.student_id)
             {
-                border.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6155F5")); // Фиолетовый
-                border.Cursor = Cursors.Hand;
-                border.MouseLeftButtonDown += StudentItem_MouseLeftButtonDown;
+                border.Background = (SolidColorBrush)FindResource("AccentColor");
             }
             else
             {
-                border.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF787878")); // Серый
-                if (isEditMode)
-                {
-                    border.Cursor = Cursors.Hand;
-                    border.MouseLeftButtonDown += StudentItem_MouseLeftButtonDown;
-                }
-                else
-                {
-                    border.Cursor = Cursors.Arrow;
-                }
+                border.Background = (SolidColorBrush)FindResource("CalendarDayHover");
             }
 
             border.CornerRadius = new CornerRadius(4);
             border.Height = 27;
             border.Margin = new Thickness(0, 0, 0, 5);
-            border.Tag = student;
+            border.Tag = student.student_id;
+
+            if (isEditMode)
+            {
+                border.Cursor = Cursors.Hand;
+                border.MouseLeftButtonDown += StudentItem_MouseLeftButtonDown;
+            }
+            else
+            {
+                border.Cursor = Cursors.Arrow;
+            }
 
             // Текст с ФИО и группой
             var textBlock = new TextBlock
             {
-                Text = $"{student.FullName} • {student.Group}",
-                Foreground = Brushes.White,
+                Text = $"{student.last_name} {student.first_name} {student.middle_name} • {student.group_name}",
+                Foreground = (SolidColorBrush)FindResource("LightTextColor"),
                 FontSize = 13,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(10, 0, 0, 0)
@@ -205,58 +227,79 @@ namespace Genio
             StudentsList.Children.Add(border);
         }
 
-        private void StudentItem_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void StudentItem_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!isEditMode) return;
 
             var border = sender as Border;
-            if (border != null && border.Tag is StudentItem student)
+            if (border != null && border.Tag is int studentId)
             {
-                // Снимаем выделение с предыдущего элемента
-                if (selectedStudent != null && selectedStudent.StudentBorder != null)
+                // Находим студента по ID
+                var student = allStudents.FirstOrDefault(s => s.student_id == studentId);
+                if (student != null)
                 {
-                    selectedStudent.StudentBorder.Background =
-                        new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF787878"));
+                    SelectStudent(student);
                 }
-
-                // Выделяем новый элемент
-                selectedStudent = student;
-                student.StudentBorder.Background =
-                    new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF6155F5"));
-
-                // Загружаем данные учащегося в форму
-                LoadStudentData(student);
             }
         }
 
-        private void LoadStudentData(StudentItem student)
+        private void SelectStudent(Student student)
         {
-            FullNameTextBox.Text = student.FullName;
+            // Снимаем выделение с предыдущего элемента
+            if (selectedStudent != null)
+            {
+                RefreshStudentsList();
+            }
+
+            // Выделяем новый элемент
+            selectedStudent = student;
+            RefreshStudentsList();
+
+            // Загружаем данные учащегося в форму
+            LoadStudentData(student);
+        }
+
+        private void LoadStudentData(Student student)
+        {
+            FullNameTextBox.Text = $"{student.last_name} {student.first_name} {student.middle_name}";
 
             // Устанавливаем курс
-            switch (student.Course)
+            switch (student.course_number)
             {
-                case "1":
+                case 1:
                     Course1Radio.IsChecked = true;
                     break;
-                case "2":
+                case 2:
                     Course2Radio.IsChecked = true;
                     break;
-                case "3":
+                case 3:
                     Course3Radio.IsChecked = true;
                     break;
-                case "4":
+                case 4:
                     Course4Radio.IsChecked = true;
                     break;
             }
 
-            GroupTextBox.Text = student.Group;
-            SpecialtyTextBox.Text = student.Specialty;
-            AdmissionDateTextBox.Text = student.AdmissionDate.ToString("dd.MM.yyyy");
-            GraduationDateTextBox.Text = student.GraduationDate.ToString("dd.MM.yyyy");
-            BirthDateTextBox.Text = student.BirthDate.ToString("dd.MM.yyyy");
-            PhoneTextBox.Text = student.Phone;
-            HomePhoneTextBox.Text = student.HomePhone;
+            GroupTextBox.Text = student.group_name;
+
+            // Устанавливаем специальность в ComboBox
+            if (student.Specialization != null)
+            {
+                SpecialtyComboBox.SelectedItem = student.Specialization.spec_name;
+            }
+            else
+            {
+                SpecialtyComboBox.SelectedIndex = -1;
+            }
+
+            AdmissionDateTextBox.Text = student.admission_date.ToString("dd.MM.yyyy");
+
+            if (student.graduation_date.HasValue)
+                GraduationDateTextBox.Text = student.graduation_date.Value.ToString("dd.MM.yyyy");
+
+            BirthDateTextBox.Text = student.birth_date.ToString("dd.MM.yyyy");
+            PhoneTextBox.Text = student.phone;
+            HomePhoneTextBox.Text = student.home_phone;
         }
 
         private void SetDefaultDates()
@@ -267,6 +310,9 @@ namespace Genio
                 AdmissionDateTextBox.Text = new DateTime(today.Year, 9, 1).ToString("dd.MM.yyyy");
                 GraduationDateTextBox.Text = new DateTime(today.Year + 4, 6, 30).ToString("dd.MM.yyyy");
                 BirthDateTextBox.Text = new DateTime(today.Year - 18, 1, 1).ToString("dd.MM.yyyy");
+
+                // Очищаем ComboBox
+                SpecialtyComboBox.SelectedIndex = -1;
             }
         }
 
@@ -274,19 +320,34 @@ namespace Genio
         private void AdmissionDateButton_Click(object sender, RoutedEventArgs e)
         {
             currentDateTextBox = AdmissionDateTextBox;
-            ShowDatePicker(DateTime.Now);
+
+            DateTime initialDate;
+            if (!DateTime.TryParse(AdmissionDateTextBox.Text, out initialDate))
+                initialDate = DateTime.Now;
+
+            ShowDatePicker(initialDate);
         }
 
         private void GraduationDateButton_Click(object sender, RoutedEventArgs e)
         {
             currentDateTextBox = GraduationDateTextBox;
-            ShowDatePicker(DateTime.Now.AddYears(4));
+
+            DateTime initialDate;
+            if (!DateTime.TryParse(GraduationDateTextBox.Text, out initialDate))
+                initialDate = DateTime.Now.AddYears(4);
+
+            ShowDatePicker(initialDate);
         }
 
         private void BirthDateButton_Click(object sender, RoutedEventArgs e)
         {
             currentDateTextBox = BirthDateTextBox;
-            ShowDatePicker(DateTime.Now.AddYears(-18));
+
+            DateTime initialDate;
+            if (!DateTime.TryParse(BirthDateTextBox.Text, out initialDate))
+                initialDate = DateTime.Now.AddYears(-18);
+
+            ShowDatePicker(initialDate);
         }
 
         private void ShowDatePicker(DateTime initialDate)
@@ -343,23 +404,26 @@ namespace Genio
         {
             if (isEditMode)
             {
-                FilterStudents(SearchTextBox.Text);
+                if (SearchTextBox.Text != "Поиск..." && !string.IsNullOrWhiteSpace(SearchTextBox.Text))
+                {
+                    FilterStudents(SearchTextBox.Text);
+                }
+                else if (string.IsNullOrWhiteSpace(SearchTextBox.Text))
+                {
+                    filteredStudents = new List<Student>(allStudents);
+                    RefreshStudentsList();
+                }
             }
         }
 
         private void FilterStudents(string searchText)
         {
-            if (string.IsNullOrWhiteSpace(searchText) || searchText == "Поиск...")
-            {
-                filteredStudents = new List<StudentItem>(allStudents);
-            }
-            else
-            {
-                filteredStudents = allStudents.FindAll(student =>
-                    student.FullName.ToLower().Contains(searchText.ToLower()) ||
-                    student.Group.ToLower().Contains(searchText.ToLower()) ||
-                    student.Specialty.ToLower().Contains(searchText.ToLower()));
-            }
+            filteredStudents = allStudents.FindAll(student =>
+                student.last_name.ToLower().Contains(searchText.ToLower()) ||
+                student.first_name.ToLower().Contains(searchText.ToLower()) ||
+                student.middle_name.ToLower().Contains(searchText.ToLower()) ||
+                student.group_name.ToLower().Contains(searchText.ToLower()) ||
+                (student.Specialization != null && student.Specialization.spec_name.ToLower().Contains(searchText.ToLower())));
 
             RefreshStudentsList();
         }
@@ -428,7 +492,7 @@ namespace Genio
             }
 
             // Ограничиваем количество цифр
-            if (digitsOnly.Length > 12) // Максимум 12 цифр для международного номера
+            if (digitsOnly.Length > 12)
             {
                 digitsOnly = digitsOnly.Substring(0, 12);
             }
@@ -469,20 +533,15 @@ namespace Genio
             // Обновляем текст
             textBox.Text = formatted;
 
-            // Корректируем позицию курсора с учетом добавленных символов форматирования
+            // Корректируем позицию курсора
             if (cursorPosition <= text.Length)
             {
                 int newPosition = cursorPosition;
-
-                // Подсчитываем, сколько форматирующих символов было добавлено/удалено
                 int formattingDifference = formatted.Length - text.Length;
 
                 if (formattingDifference != 0)
                 {
-                    // Корректируем позицию курсора
                     newPosition += formattingDifference;
-
-                    // Ограничиваем позицию курсора длиной строки
                     newPosition = Math.Max(0, Math.Min(formatted.Length, newPosition));
                 }
 
@@ -491,23 +550,68 @@ namespace Genio
         }
 
         // Получение выбранного курса
-        private string GetSelectedCourse()
+        private int GetSelectedCourse()
         {
-            if (Course1Radio.IsChecked == true) return "1";
-            if (Course2Radio.IsChecked == true) return "2";
-            if (Course3Radio.IsChecked == true) return "3";
-            if (Course4Radio.IsChecked == true) return "4";
-            return "1"; // По умолчанию
+            if (Course1Radio.IsChecked == true) return 1;
+            if (Course2Radio.IsChecked == true) return 2;
+            if (Course3Radio.IsChecked == true) return 3;
+            if (Course4Radio.IsChecked == true) return 4;
+            return 1;
         }
 
-        // Кнопки управления
+        // Разделение ФИО на части
+        private bool SplitFullName(string fullName, out string lastName, out string firstName, out string middleName)
+        {
+            lastName = "";
+            firstName = "";
+            middleName = "";
+
+            var parts = fullName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            if (parts.Length >= 3)
+            {
+                lastName = parts[0];
+                firstName = parts[1];
+                middleName = parts[2];
+                return true;
+            }
+            else if (parts.Length == 2)
+            {
+                lastName = parts[0];
+                firstName = parts[1];
+                return true;
+            }
+            else if (parts.Length == 1)
+            {
+                lastName = parts[0];
+                return true;
+            }
+
+            return false;
+        }
+
+        // Кнопки управления - ИЗМЕНЕННЫЙ МЕТОД
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Возврат на страницу AddEditOlimpPage
+            // Возврат на нужную страницу в зависимости от того, откуда пришли
             var mainWindow = Window.GetWindow(this) as MainWindow;
             if (mainWindow != null)
             {
-                mainWindow.LoadPage("AddEditOlimp");
+                if (cameFromAddEditOlimp)
+                {
+                    // Возвращаемся на страницу AddEditOlimpPage
+                    mainWindow.LoadPage("AddEditOlimp");
+                }
+                else if (cameFromStudentsPage)
+                {
+                    // Возвращаемся на страницу StudentsPage
+                    mainWindow.LoadPage("Students");
+                }
+                else
+                {
+                    // По умолчанию возвращаемся на AddEditOlimpPage
+                    mainWindow.LoadPage("AddEditOlimp");
+                }
             }
         }
 
@@ -530,37 +634,132 @@ namespace Genio
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(SpecialtyTextBox.Text))
+            if (string.IsNullOrWhiteSpace(SpecialtyComboBox.Text))
             {
-                MessageBox.Show("Введите специальность учащегося", "Ошибка",
+                MessageBox.Show("Выберите специальность учащегося", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
-                SpecialtyTextBox.Focus();
+                SpecialtyComboBox.Focus();
                 return;
             }
 
-            // TODO: Сохранение данных в БД
-            if (isEditMode && selectedStudent != null)
+            try
             {
-                MessageBox.Show("Изменения сохранены", "Сохранение",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                using (var context = new GenioAppEntities())
+                {
+                    if (isEditMode && selectedStudent != null)
+                    {
+                        // Режим редактирования - обновляем существующего студента
+                        var student = context.Students.Find(selectedStudent.student_id);
+                        if (student != null)
+                        {
+                            UpdateStudentData(student);
+                            context.SaveChanges();
 
-                // Обновляем данные в списке
-                selectedStudent.FullName = FullNameTextBox.Text;
-                selectedStudent.Course = GetSelectedCourse();
-                selectedStudent.Group = GroupTextBox.Text;
-                selectedStudent.Specialty = SpecialtyTextBox.Text;
-                selectedStudent.Phone = PhoneTextBox.Text;
-                selectedStudent.HomePhone = HomePhoneTextBox.Text;
+                            MessageBox.Show("Изменения сохранены", "Сохранение",
+                                MessageBoxButton.OK, MessageBoxImage.Information);
 
-                RefreshStudentsList();
+                            // Обновляем данные в списке
+                            LoadStudentsFromDatabase();
+                            SelectStudent(student);
+                        }
+                    }
+                    else
+                    {
+                        // Режим добавления - создаем нового студента
+                        var newStudent = new Student();
+                        UpdateStudentData(newStudent);
+                        newStudent.created_date = DateTime.Now;
+
+                        context.Students.Add(newStudent);
+                        context.SaveChanges();
+
+                        MessageBox.Show("Новый учащийся добавлен", "Добавление",
+                            MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        // Очищаем форму и добавляем в список
+                        ClearForm();
+                        LoadStudentsFromDatabase();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сохранения данных: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void UpdateStudentData(Student student)
+        {
+            // Разделяем ФИО
+            string lastName, firstName, middleName;
+            if (SplitFullName(FullNameTextBox.Text, out lastName, out firstName, out middleName))
+            {
+                student.last_name = lastName;
+                student.first_name = firstName;
+                student.middle_name = middleName;
             }
             else
             {
-                MessageBox.Show("Новый учащийся добавлен", "Добавление",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                student.last_name = FullNameTextBox.Text;
+                student.first_name = "";
+                student.middle_name = "";
+            }
 
-                // Очищаем форму
-                ClearForm();
+            student.course_number = GetSelectedCourse();
+            student.group_name = GroupTextBox.Text;
+
+            // Находим или создаем специализацию
+            student.Specialization = GetOrCreateSpecialization(SpecialtyComboBox.Text);
+
+            // Парсим даты
+            if (DateTime.TryParse(AdmissionDateTextBox.Text, out DateTime admissionDate))
+                student.admission_date = admissionDate;
+
+            if (DateTime.TryParse(GraduationDateTextBox.Text, out DateTime graduationDate))
+                student.graduation_date = graduationDate;
+            else
+                student.graduation_date = null;
+
+            if (DateTime.TryParse(BirthDateTextBox.Text, out DateTime birthDate))
+                student.birth_date = birthDate;
+
+            student.phone = PhoneTextBox.Text;
+            student.home_phone = HomePhoneTextBox.Text;
+        }
+
+        private Specialization GetOrCreateSpecialization(string specName)
+        {
+            try
+            {
+                using (var context = new GenioAppEntities())
+                {
+                    var specialization = context.Specializations
+                        .FirstOrDefault(s => s.spec_name.ToLower() == specName.ToLower());
+
+                    if (specialization == null && !string.IsNullOrWhiteSpace(specName))
+                    {
+                        specialization = new Specialization
+                        {
+                            spec_name = specName,
+                            created_date = DateTime.Now
+                        };
+                        context.Specializations.Add(specialization);
+                        context.SaveChanges();
+
+                        // Добавляем новую специализацию в ComboBox
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            SpecialtyComboBox.Items.Add(specName);
+                        });
+                    }
+
+                    return specialization;
+                }
+            }
+            catch
+            {
+                return null;
             }
         }
 
@@ -577,16 +776,44 @@ namespace Genio
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        // TODO: Удаление из БД
-                        allStudents.Remove(selectedStudent);
-                        filteredStudents.Remove(selectedStudent);
-                        selectedStudent = null;
+                        try
+                        {
+                            using (var context = new GenioAppEntities())
+                            {
+                                // Находим студента
+                                var student = context.Students.Find(selectedStudent.student_id);
+                                if (student != null)
+                                {
+                                    // Удаляем связанные записи (участие в мероприятиях, доску почета)
+                                    var participations = context.StudentOlimps
+                                        .Where(so => so.student_id == student.student_id)
+                                        .ToList();
+                                    context.StudentOlimps.RemoveRange(participations);
 
-                        RefreshStudentsList();
-                        ClearForm();
+                                    var honors = context.HonorBoards
+                                        .Where(h => h.student_id == student.student_id)
+                                        .ToList();
+                                    context.HonorBoards.RemoveRange(honors);
 
-                        MessageBox.Show("Учащийся удален", "Удаление",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
+                                    // Удаляем студента
+                                    context.Students.Remove(student);
+                                    context.SaveChanges();
+
+                                    // Обновляем списки
+                                    selectedStudent = null;
+                                    LoadStudentsFromDatabase();
+                                    ClearForm();
+
+                                    MessageBox.Show("Учащийся удален", "Удаление",
+                                        MessageBoxButton.OK, MessageBoxImage.Information);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
                     }
                 }
                 else
@@ -607,7 +834,7 @@ namespace Genio
             FullNameTextBox.Text = "";
             Course1Radio.IsChecked = true;
             GroupTextBox.Text = "";
-            SpecialtyTextBox.Text = "";
+            SpecialtyComboBox.SelectedIndex = -1;
             SetDefaultDates();
             PhoneTextBox.Text = "";
             HomePhoneTextBox.Text = "";

@@ -53,6 +53,7 @@ namespace Genio
                     LoadPage("Reports");
                     break;
                 case "OlympiadsBtn":
+                    // При нажатии на Олимпиады в меню показываем страницу мероприятий
                     LoadPage("Olympiads");
                     break;
                 case "HonorBoardBtn":
@@ -72,7 +73,7 @@ namespace Genio
             try
             {
                 // блокируем меню для страницы редактирования
-                if (pageName == "AddEditOlimp" || pageName == "AddEditStud")
+                if (pageName == "AddEditOlimp" || pageName == "AddEditStud" || pageName == "AddEditStudEdit")
                 {
                     LockMenu(true);
                 }
@@ -81,14 +82,14 @@ namespace Genio
                     LockMenu(false);
                 }
 
-                // унимаем выделение со всех кнопок
+                // снимаем выделение со всех кнопок меню
                 AnalyticsBtn.IsChecked = false;
                 ReportsBtn.IsChecked = false;
                 OlympiadsBtn.IsChecked = false;
                 HonorBoardBtn.IsChecked = false;
                 SettingsBtn.IsChecked = false;
 
-                // устанавливаем выделение на нужной кнопке
+                // устанавливаем выделение на нужной кнопке меню
                 switch (pageName)
                 {
                     case "Analytics":
@@ -98,6 +99,7 @@ namespace Genio
                         ReportsBtn.IsChecked = true;
                         break;
                     case "Olympiads":
+                    case "Students": // При загрузке Students также подсвечиваем Olympiads в меню
                         OlympiadsBtn.IsChecked = true;
                         break;
                     case "HonorBoard":
@@ -117,44 +119,64 @@ namespace Genio
             switch (pageName)
             {
                 case "Analytics":
-                    // показываем простую страницу аналитики
                     ShowSimplePage("Аналитика", "Страница аналитики находится в разработке");
                     break;
 
                 case "Reports":
-                    // загружаем страницу отчетов
                     var reportsPage = new ReportsPage();
                     MainFrame.Navigate(reportsPage);
                     break;
 
                 case "Olympiads":
-                    // загружаем страницу олимпиад
                     var olimpPage = new OlimpPage();
                     MainFrame.Navigate(olimpPage);
                     break;
 
+                case "Students":
+                    var studentsPage = new StudentsPage();
+                    MainFrame.Navigate(studentsPage);
+                    break;
+
                 case "HonorBoard":
-                    ShowSimplePage("Доска почета", "Страница доски почета находится в разработке");
+                    try
+                    {
+                        var honorBoardPage = new HonorBoardPage();
+                        MainFrame.Navigate(honorBoardPage);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка загрузки страницы Доска почета: {ex.Message}", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        ShowSimplePage("Доска почета", "Страница доски почета находится в разработке");
+                    }
                     break;
 
                 case "Settings":
-                    ShowSimplePage("Настройки", "Страница настроек находится в разработке");
+                    // ЗАМЕНА: вместо заглушки используем нашу новую страницу настроек
+                    try
+                    {
+                        var settingsPage = new SettingsPage();
+                        MainFrame.Navigate(settingsPage);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка загрузки страницы Настройки: {ex.Message}", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        ShowSimplePage("Настройки", "Ошибка загрузки страницы настроек");
+                    }
                     break;
 
                 case "AddEditOlimp":
-                    // загружаем страницу добавления/редактирования олимпиад
                     var addEditPage = new AddEditOlimpPage();
                     MainFrame.Navigate(addEditPage);
                     break;
 
                 case "AddEditStud":
-                    // загружаем страницу добавления учащегося
                     var addEditStudPage = new AddEditStudPage(false);
                     MainFrame.Navigate(addEditStudPage);
                     break;
 
                 case "AddEditStudEdit":
-                    // загружаем страницу редактирования учащегося
                     var addEditStudPageEdit = new AddEditStudPage(true);
                     MainFrame.Navigate(addEditStudPageEdit);
                     break;

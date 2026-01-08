@@ -231,9 +231,26 @@
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="12">
                                     <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- ContentPresenter для отображения выбранного значения -->
+                                        <ContentPresenter x:Name="contentPresenter"
+                                              Grid.Column="0"
+                                              HorizontalAlignment="Left" 
+                                              VerticalAlignment="Center"
+                                              Margin="10,0,5,0"
+                                              IsHitTestVisible="False"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"/>
+
                                         <ToggleButton x:Name="toggleButton" 
-                                          Grid.Column="2" 
+                                          Grid.Column="1" 
                                           Focusable="false"
+                                          Width="30"
                                           IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                           ClickMode="Press">
                                             <ToggleButton.Template>
@@ -241,33 +258,28 @@
                                                     <Border Background="Transparent">
                                                         <Path x:Name="arrow"
                                                   Fill="{StaticResource LightTextColor}"
-                                                  HorizontalAlignment="Right"
+                                                  HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"
-                                                  Margin="0,0,10,0"
                                                   Data="M 0 0 L 4 4 L 8 0 Z"/>
                                                     </Border>
                                                 </ControlTemplate>
                                             </ToggleButton.Template>
                                         </ToggleButton>
-                                        <ContentPresenter x:Name="contentPresenter"
-                                              HorizontalAlignment="Left" 
-                                              VerticalAlignment="Center"
-                                              Margin="10,0,30,0"
-                                              IsHitTestVisible="False"/>
                                     </Grid>
                                 </Border>
                                 <Popup x:Name="Popup"
-                                Placement="Bottom"
-                                IsOpen="{TemplateBinding IsDropDownOpen}"
-                                AllowsTransparency="True"
-                                PopupAnimation="Slide"
-                                VerticalOffset="1">
+                           Placement="Bottom"
+                           IsOpen="{TemplateBinding IsDropDownOpen}"
+                           AllowsTransparency="True"
+                           PopupAnimation="Slide"
+                           VerticalOffset="1"
+                           MinWidth="{Binding ActualWidth, ElementName=border}">
                                     <Border x:Name="DropDownBorder"
                                 Background="{StaticResource ComboBoxInnerColor}"
                                 CornerRadius="8"
                                 BorderThickness="1"
                                 BorderBrush="{StaticResource AccentColor}">
-                                        <ScrollViewer>
+                                        <ScrollViewer MaxHeight="200">
                                             <ItemsPresenter/>
                                         </ScrollViewer>
                                     </Border>
@@ -597,7 +609,6 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-
             <!-- СТИЛЬ ДЛЯ КНОПКИ ФИЛЬТРОВ -->
             <Style x:Key="FiltersButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="{StaticResource MenuItemHoverColor}"/>
@@ -621,6 +632,38 @@
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
                                     <Setter TargetName="border" Property="Background" Value="#FF505050"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ ФИЛЬТРОВ -->
+            <Style x:Key="FiltersButtonActiveStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="{StaticResource AccentColor}"
+                        BorderThickness="2"
+                        BorderBrush="{StaticResource AccentColor}"
+                        CornerRadius="12">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF5045D5"/>
+                                    <Setter TargetName="border" Property="BorderBrush" Value="#FF5045D5"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF4035C5"/>
+                                    <Setter TargetName="border" Property="BorderBrush" Value="#FF4035C5"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -700,44 +743,46 @@
 
                                 <!-- ОСНОВНОЙ КОНТЕНТ -->
                                 <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
-                                Grid.Column="0"
-                                Margin="{TemplateBinding Padding}"
-                                CanContentScroll="{TemplateBinding CanContentScroll}"/>
+                    Grid.Column="0"
+                    Margin="{TemplateBinding Padding}"
+                    CanContentScroll="{TemplateBinding CanContentScroll}"/>
 
                                 <!-- ВЕРТИКАЛЬНЫЙ СКРОЛЛБАР -->
                                 <ScrollBar x:Name="PART_VerticalScrollBar"
-                               Grid.Column="1"
-                               Orientation="Vertical"
-                               Minimum="0"
-                               Maximum="{TemplateBinding ScrollableHeight}"
-                               ViewportSize="{TemplateBinding ViewportHeight}"
-                               Value="{TemplateBinding VerticalOffset}"
-                               Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
-                               Width="5"
-                               Margin="-14,0,0,0">
+                   Grid.Column="1"
+                   Orientation="Vertical"
+                   Minimum="0"
+                   Maximum="{TemplateBinding ScrollableHeight}"
+                   ViewportSize="{TemplateBinding ViewportHeight}"
+                   Value="{TemplateBinding VerticalOffset}"
+                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                   Width="12"
+                   Margin="-14,0,0,0">
                                     <ScrollBar.Template>
                                         <ControlTemplate TargetType="ScrollBar">
                                             <Grid>
                                                 <!-- ТРЕК (серый фон полосы прокрутки) -->
                                                 <Border x:Name="TrackBorder"
-                                            CornerRadius="9"
-                                            Background="{StaticResource CheckBoxBorder}"
-                                            Opacity="0.3"
-                                            Margin="0,10,0,10"/>
+                                CornerRadius="9"
+                                Background="{StaticResource CheckBoxBorder}"
+                                Opacity="0.3"
+                                Margin="2,10,2,10"/>
 
                                                 <!-- Трек с ползунком -->
-                                                <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                                <Track x:Name="PART_Track" 
+                                           IsDirectionReversed="true"
+                                           Margin="0,10,0,10">
                                                     <Track.Thumb>
                                                         <Thumb x:Name="Thumb" 
-                                                   Background="{StaticResource AccentColor}"
-                                                   Width="6"
-                                                               MaxHeight="220"
-                                                            Margin="2,0,2,0">
+                                       Background="{StaticResource AccentColor}"
+                                       Width="6"
+                                                   MaxHeight="200"
+                                                Margin="3,0,3,0">
                                                             <Thumb.Template>
                                                                 <ControlTemplate TargetType="Thumb">
                                                                     <Border CornerRadius="4"
-                                                                        Background="{TemplateBinding Background}"
-                                                                Margin="0,4,0,4"/>
+                                                            Background="{TemplateBinding Background}"
+                                                    Margin="0,2,0,2"/>
                                                                 </ControlTemplate>
                                                             </Thumb.Template>
                                                         </Thumb>
@@ -782,14 +827,317 @@
                 <Setter Property="Margin" Value="0,0,0,7"/>
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
-            
+
             <Style x:Key="WrappingTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource SearchTextBoxStyle}">
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="AcceptsReturn" Value="True"/>
                 <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
                 <Setter Property="VerticalContentAlignment" Value="Top"/>
             </Style>
-            
+
+            <!-- Стиль для карточек мероприятий -->
+            <Style x:Key="EventCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource CalendarDayHover}"/>
+                <Setter Property="CornerRadius" Value="9"/>
+                <Setter Property="Height" Value="27"/>
+                <Setter Property="Margin" Value="0,0,0,7"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="Tag" Value="{Binding olimp_id}"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- Стиль для выбранной карточки мероприятия -->
+            <Style x:Key="SelectedEventCardStyle" TargetType="Border" BasedOn="{StaticResource EventCardStyle}">
+                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+            </Style>
+
+            <!-- ЦВЕТА ДЛЯ КАРТОЧЕК УЧАЩИХСЯ -->
+            <Color x:Key="StudentCardColor1">#FF6155F5</Color>
+            <Color x:Key="StudentCardColor2">#FF978FFF</Color>
+            <Color x:Key="StudentCardColor3">#FF4F47B7</Color>
+            <Color x:Key="StudentCardColor4">#FF6B5FDD</Color>
+            <Color x:Key="StudentCardColor5">#FF8579F7</Color>
+
+            <SolidColorBrush x:Key="StudentCardBrush1" Color="{StaticResource StudentCardColor1}"/>
+            <SolidColorBrush x:Key="StudentCardBrush2" Color="{StaticResource StudentCardColor2}"/>
+            <SolidColorBrush x:Key="StudentCardBrush3" Color="{StaticResource StudentCardColor3}"/>
+            <SolidColorBrush x:Key="StudentCardBrush4" Color="{StaticResource StudentCardColor4}"/>
+            <SolidColorBrush x:Key="StudentCardBrush5" Color="{StaticResource StudentCardColor5}"/>
+
+            <!-- СТИЛЬ ДЛЯ КАРТОЧЕК УЧАЩИХСЯ С ЦВЕТАМИ -->
+            <Style x:Key="StudentCardColoredStyle" TargetType="Border">
+                <Setter Property="CornerRadius" Value="9"/>
+                <Setter Property="Height" Value="27"/>
+                <Setter Property="Margin" Value="0,0,0,7"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="Tag" Value="{Binding student_id}"/>
+                <Setter Property="Background" Value="{StaticResource StudentCardBrush1}"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- Стиль для текста в карточках -->
+            <Style x:Key="CardTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="Margin" Value="10,0,10,0"/>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ ВЫБРАННОЙ КАРТОЧКИ СТУДЕНТА -->
+            <Style x:Key="SelectedStudentCardStyle" TargetType="Border" BasedOn="{StaticResource StudentCardColoredStyle}">
+                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ НЕВЫБРАННОЙ КАРТОЧКИ СТУДЕНТА -->
+            <Style x:Key="UnselectedStudentCardStyle" TargetType="Border" BasedOn="{StaticResource StudentCardColoredStyle}">
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Style>
+
+            <!-- Стиль для результата участника -->
+            <Style x:Key="ParticipantResultItemStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource CalendarDayHover}"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="10,5"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+            </Style>
+
+            <!-- Стиль для кнопки добавления результата -->
+            <Style x:Key="AddResultButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="Transparent"
+                        CornerRadius="8"
+                        BorderThickness="1"
+                        BorderBrush="Transparent">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ ЗАГОЛОВКА "ДОСКА ПОЧЕТА" -->
+            <Style x:Key="HonorBoardTitleStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="FontSize" Value="20"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ ТАБЛИЦЫ ДОСКИ ПОЧЕТА (ОБНОВЛЕННЫЙ С ЗАКРУГЛЕННЫМИ КРАЯМИ) -->
+            <Style x:Key="HonorBoardTableStyle" TargetType="DataGrid">
+                <Setter Property="Background" Value="#404040"/>
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="RowBackground" Value="#404040"/>
+                <Setter Property="AlternatingRowBackground" Value="#505050"/>
+                <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+                <Setter Property="HeadersVisibility" Value="Column"/>
+                <Setter Property="HorizontalGridLinesBrush" Value="#787878"/>
+                <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
+                <Setter Property="AutoGenerateColumns" Value="False"/>
+                <Setter Property="CanUserAddRows" Value="False"/>
+                <Setter Property="CanUserDeleteRows" Value="False"/>
+                <Setter Property="CanUserReorderColumns" Value="False"/>
+                <Setter Property="CanUserResizeColumns" Value="True"/>
+                <Setter Property="CanUserResizeRows" Value="False"/>
+                <Setter Property="CanUserSortColumns" Value="True"/>
+                <Setter Property="SelectionMode" Value="Single"/>
+                <Setter Property="SelectionUnit" Value="FullRow"/>
+                <Setter Property="RowHeight" Value="35"/>
+                <Setter Property="FontSize" Value="13"/>
+
+                <Setter Property="CellStyle">
+                    <Setter.Value>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="#787878"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                            <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                            <Setter Property="Padding" Value="10,5"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridCell">
+                                        <Grid Background="{TemplateBinding Background}">
+                                            <ContentPresenter VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="ColumnHeaderStyle">
+                    <Setter.Value>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#303030"/>
+                            <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="FontSize" Value="13"/>
+                            <Setter Property="Height" Value="40"/>
+                            <Setter Property="Padding" Value="10,5"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            <Setter Property="BorderBrush" Value="#787878"/>
+                            <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridColumnHeader">
+                                        <Grid>
+                                            <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                      Margin="{TemplateBinding Padding}"/>
+                                            </Border>
+                                        </Grid>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#404040"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+
+                <Setter Property="RowStyle">
+                    <Setter.Value>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#505050"/>
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ КНОПКИ ОЧИСТКИ ФИЛЬТРОВ -->
+            <Style x:Key="ClearFilterButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource IconGrayColor}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Width" Value="38"/>
+                <Setter Property="Height" Value="38"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="18"
+                        BorderThickness="0">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF9E9EA3"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FFAEAEB3"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- СТИЛЬ ДЛЯ КНОПКИ ЭКСПОРТА В EXCEL -->
+            <Style x:Key="ExcelExportButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="MinWidth" Value="120"/>
+                <Setter Property="Height" Value="38"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="15"
+                        BorderThickness="0">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Margin="10,8"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF5045D5"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF4035C5"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Стиль для кнопки редактирования -->
+            <Style x:Key="EditButtonStyle" TargetType="Button" BasedOn="{StaticResource CircleButtonStyle}">
+                <Setter Property="Width" Value="27"/>
+                <Setter Property="Height" Value="27"/>
+                <Setter Property="Margin" Value="0,0,5,0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+
+            <!-- Стиль для кнопки удаления -->
+            <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource CircleButtonStyle}">
+                <Setter Property="Width" Value="27"/>
+                <Setter Property="Height" Value="27"/>
+                <Setter Property="Margin" Value="5,0,0,0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+            </Style>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

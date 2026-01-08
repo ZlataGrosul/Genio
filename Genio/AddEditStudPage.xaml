@@ -124,61 +124,9 @@
                 Style="{StaticResource HoverFrameStyle}">
             <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}"
                           Padding="15">
+                <!-- Список учащихся будет заполняться динамически -->
                 <StackPanel x:Name="StudentsList">
-                    <!-- ТЕСТОВЫЕ ДАННЫЕ -->
-                    <Border Background="{StaticResource CalendarDayHover}"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Грекул Злата Анатольевна • Т-291"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
 
-                    <Border Background="{StaticResource CalendarDayHover}"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Мотович Маргарита Михайловна • П-294"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Background="{StaticResource CalendarDayHover}"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Садковская Валерия Викторовна • Т-291"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    <Border Background="{StaticResource CalendarDayHover}"
-                            CornerRadius="9"
-                            Height="27"
-                            Margin="0,0,0,5">
-                        <Grid>
-                            <TextBlock Text="Пикист Маргарита Сергеевна • Т-295"
-                                       Foreground="{StaticResource LightTextColor}"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="10,0,0,0"/>
-                        </Grid>
-                    </Border>
-
-                    
                 </StackPanel>
             </ScrollViewer>
         </Border>
@@ -298,15 +246,24 @@
                                VerticalAlignment="Center"
                                Margin="10,0,15,15"/>
 
-                    <TextBox Grid.Row="3" Grid.Column="1"
-                             x:Name="SpecialtyTextBox"
-                             Style="{StaticResource SearchTextBoxStyle}"
-                             Background="{StaticResource MenuItemHoverColor}"
-                             Foreground="{StaticResource LightTextColor}"
-                             FontSize="12"
-                             Padding="12"
-                             Margin="0,0,0,15"
-                             MaxLength="200"/>
+                    <!-- СПЕЦИАЛЬНОСТЬ -->
+                    <TextBlock Grid.Row="3" Grid.Column="0"
+           Text="Специальность:"
+           FontSize="14"
+           FontWeight="SemiBold"
+           Foreground="{StaticResource LightTextColor}"
+           VerticalAlignment="Center"
+           Margin="10,0,15,15"/>
+
+                    <ComboBox Grid.Row="3" Grid.Column="1"
+          x:Name="SpecialtyComboBox"
+          Style="{StaticResource CustomComboBoxStyle}"
+          Margin="0,0,0,15"
+          Height="35">
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem" BasedOn="{StaticResource CustomComboBoxItemStyle}"/>
+                        </ComboBox.ItemContainerStyle>
+                    </ComboBox>
 
                     <!-- ДАТА ПОСТУПЛЕНИЯ -->
                     <TextBlock Grid.Row="4" Grid.Column="0"

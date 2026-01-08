@@ -20,31 +20,78 @@ namespace Genio
         private DateTime endDate = new DateTime(2025, 5, 15);
         private bool isReportGenerated = false;
         private TextBox currentDateTextBox = null;
+        private Dictionary<CheckBox, string> specialtyCheckBoxes = new Dictionary<CheckBox, string>();
 
         public ReportsPage()
         {
             InitializeComponent();
-            LoadDefaultSelections();
-            UpdateExportButtonsState();
 
             DatePickerCalendar.SelectedDatesChanged += DatePickerCalendar_SelectedDatesChanged;
             UpdateDateTexts();
         }
 
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadSpecialtiesFromDatabase();
+            LoadDefaultSelections();
+            UpdateExportButtonsState();
+        }
+
+        private void LoadSpecialtiesFromDatabase()
+        {
+            try
+            {
+                using (var db = new GenioAppEntities())
+                {
+                    var specialties = db.Specializations
+                        .OrderBy(s => s.spec_name)
+                        .Select(s => s.spec_name)
+                        .ToList();
+
+                    SpecialtiesPanel.Children.Clear();
+                    specialtyCheckBoxes.Clear();
+
+                    foreach (var specialty in specialties)
+                    {
+                        var checkBox = new CheckBox
+                        {
+                            Content = specialty,
+                            Margin = new Thickness(0, 0, 0, 6),
+                            Style = (Style)FindResource("ReportCheckBoxStyle"),
+                            FontSize = 12
+                        };
+
+                        checkBox.Checked += SpecialtyCheckBox_Changed;
+                        checkBox.Unchecked += SpecialtyCheckBox_Changed;
+
+                        specialtyCheckBoxes.Add(checkBox, specialty);
+                        SpecialtiesPanel.Children.Add(checkBox);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void LoadDefaultSelections()
         {
-            if (Spec1 != null) Spec1.IsChecked = true;
-            if (Spec2 != null) Spec2.IsChecked = true;
-            if (Spec3 != null) Spec3.IsChecked = true;
-            if (Spec4 != null) Spec4.IsChecked = true;
-            if (Spec5 != null) Spec5.IsChecked = true;
-            if (Spec6 != null) Spec6.IsChecked = true;
-            if (Spec7 != null) Spec7.IsChecked = true;
+            // Выбираем все специальности по умолчанию
+            foreach (var checkBox in specialtyCheckBoxes.Keys)
+            {
+                checkBox.IsChecked = true;
+            }
+
+            UpdateSelectedSpecialties();
 
             if (Course1 != null) Course1.IsChecked = true;
             if (Course2 != null) Course2.IsChecked = true;
             if (Course3 != null) Course3.IsChecked = true;
             if (Course4 != null) Course4.IsChecked = true;
+
+            UpdateSelectedCourses();
         }
 
         private void UpdateDateTexts()
@@ -242,7 +289,7 @@ namespace Genio
 
                         // Название олимпиады
                         var nameCell = new System.Windows.Documents.TableCell(new System.Windows.Documents.Paragraph(
-                            new Run(isFirstStudent ? olimp.olimp_name : ""))); // Run (пробег/кусок текста)
+                            new Run(isFirstStudent ? olimp.olimp_name : "")));
                         nameCell.Padding = new Thickness(5);
                         nameCell.BorderBrush = Brushes.Black;
                         nameCell.BorderThickness = new Thickness(1);
@@ -635,26 +682,30 @@ namespace Genio
 
             if (result == MessageBoxResult.Yes)
             {
-                if (Spec1 != null) Spec1.IsChecked = false;
-                if (Spec2 != null) Spec2.IsChecked = false;
-                if (Spec3 != null) Spec3.IsChecked = false;
-                if (Spec4 != null) Spec4.IsChecked = false;
-                if (Spec5 != null) Spec5.IsChecked = false;
-                if (Spec6 != null) Spec6.IsChecked = false;
-                if (Spec7 != null) Spec7.IsChecked = false;
+                // Сбрасываем все флажки специальностей
+                foreach (var checkBox in specialtyCheckBoxes.Keys)
+                {
+                    checkBox.IsChecked = false;
+                }
 
+                // Сбрасываем флажки курсов
                 if (Course1 != null) Course1.IsChecked = false;
                 if (Course2 != null) Course2.IsChecked = false;
                 if (Course3 != null) Course3.IsChecked = false;
                 if (Course4 != null) Course4.IsChecked = false;
 
+                // Сбрасываем даты
                 startDate = new DateTime(2024, 9, 1);
                 endDate = new DateTime(2025, 5, 15);
                 UpdateDateTexts();
 
+                // Обновляем списки и состояние кнопок
+                UpdateSelectedSpecialties();
+                UpdateSelectedCourses();
                 isReportGenerated = false;
                 UpdateExportButtonsState();
 
+                // Очищаем отчет
                 if (ReportDocument != null)
                     ReportDocument.Blocks.Clear();
             }
@@ -674,20 +725,13 @@ namespace Genio
         {
             selectedSpecialties.Clear();
 
-            if (Spec1 != null && Spec1.IsChecked == true)
-                selectedSpecialties.Add(Spec1.Content.ToString());
-            if (Spec2 != null && Spec2.IsChecked == true)
-                selectedSpecialties.Add(Spec2.Content.ToString());
-            if (Spec3 != null && Spec3.IsChecked == true)
-                selectedSpecialties.Add(Spec3.Content.ToString());
-            if (Spec4 != null && Spec4.IsChecked == true)
-                selectedSpecialties.Add(Spec4.Content.ToString());
-            if (Spec5 != null && Spec5.IsChecked == true)
-                selectedSpecialties.Add(Spec5.Content.ToString());
-            if (Spec6 != null && Spec6.IsChecked == true)
-                selectedSpecialties.Add(Spec6.Content.ToString());
-            if (Spec7 != null && Spec7.IsChecked == true)
-                selectedSpecialties.Add(Spec7.Content.ToString());
+            foreach (var kvp in specialtyCheckBoxes)
+            {
+                if (kvp.Key.IsChecked == true)
+                {
+                    selectedSpecialties.Add(kvp.Value);
+                }
+            }
         }
 
         private void UpdateSelectedCourses()
