@@ -129,6 +129,9 @@
     <Compile Include="AddHonorPage.xaml.cs">
       <DependentUpon>AddHonorPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AnalyticsPage.xaml.cs">
+      <DependentUpon>AnalyticsPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="EventType.cs">
       <DependentUpon>GenioModel.tt</DependentUpon>
     </Compile>
@@ -186,6 +189,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="AddHonorPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AnalyticsPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

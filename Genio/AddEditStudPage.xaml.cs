@@ -51,6 +51,7 @@ namespace Genio
                 cameFromStudentsPage = true;
             }
         }
+
         // Конструктор для редактирования конкретного студента
         public AddEditStudPage(bool editMode, string cameFromPage, int studentId) : this()
         {
@@ -67,6 +68,7 @@ namespace Genio
                 cameFromStudentsPage = true;
             }
         }
+
         private void AddEditStudPage_Loaded(object sender, RoutedEventArgs e)
         {
             LoadSpecializationsFromDatabase();
@@ -96,11 +98,16 @@ namespace Genio
 
                     // Очищаем и заполняем ComboBox
                     SpecialtyComboBox.Items.Clear();
-                    SpecialtyComboBox.Items.Add(""); // Пустой элемент для возможности очистки
 
                     foreach (var spec in allSpecializations)
                     {
                         SpecialtyComboBox.Items.Add(spec.spec_name);
+                    }
+
+                    // Если есть специальности, выбираем первую
+                    if (SpecialtyComboBox.Items.Count > 0)
+                    {
+                        SpecialtyComboBox.SelectedIndex = 0;
                     }
                 }
             }
@@ -153,6 +160,12 @@ namespace Genio
             SearchTextBox.GotFocus += SearchTextBox_GotFocus;
             SearchTextBox.LostFocus += SearchTextBox_LostFocus;
             SearchTextBox.TextChanged += SearchTextBox_TextChanged;
+
+            // Если передан studentId, загружаем этого студента
+            if (studentId > 0)
+            {
+                LoadStudentById(studentId);
+            }
         }
 
         private void SetupAddMode()
@@ -169,6 +182,30 @@ namespace Genio
             ClearDeleteButton.ToolTip = "Очистить форму";
             ClearDeleteImage.Source = new System.Windows.Media.Imaging.BitmapImage(
                 new Uri("pack://application:,,,/Images/cleanIcon.png"));
+        }
+
+        private void LoadStudentById(int id)
+        {
+            try
+            {
+                using (var context = new GenioAppEntities())
+                {
+                    var student = context.Students
+                        .Include("Specialization")
+                        .FirstOrDefault(s => s.student_id == id);
+
+                    if (student != null)
+                    {
+                        selectedStudent = student;
+                        LoadStudentData(student);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки студента: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void RefreshStudentsList()
@@ -289,7 +326,7 @@ namespace Genio
             }
             else
             {
-                SpecialtyComboBox.SelectedIndex = -1;
+                SpecialtyComboBox.SelectedIndex = 0; // Выбираем первую по умолчанию
             }
 
             AdmissionDateTextBox.Text = student.admission_date.ToString("dd.MM.yyyy");
@@ -310,9 +347,6 @@ namespace Genio
                 AdmissionDateTextBox.Text = new DateTime(today.Year, 9, 1).ToString("dd.MM.yyyy");
                 GraduationDateTextBox.Text = new DateTime(today.Year + 4, 6, 30).ToString("dd.MM.yyyy");
                 BirthDateTextBox.Text = new DateTime(today.Year - 18, 1, 1).ToString("dd.MM.yyyy");
-
-                // Очищаем ComboBox
-                SpecialtyComboBox.SelectedIndex = -1;
             }
         }
 
@@ -590,7 +624,19 @@ namespace Genio
             return false;
         }
 
-        // Кнопки управления - ИЗМЕНЕННЫЙ МЕТОД
+        // Получение ID выбранной специальности
+        private int? GetSelectedSpecializationId()
+        {
+            if (SpecialtyComboBox.SelectedItem != null)
+            {
+                string selectedSpecName = SpecialtyComboBox.SelectedItem.ToString();
+                var spec = allSpecializations.FirstOrDefault(s => s.spec_name == selectedSpecName);
+                return spec?.specialization_id;
+            }
+            return null;
+        }
+
+        // Кнопки управления
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             // Возврат на нужную страницу в зависимости от того, откуда пришли
@@ -634,11 +680,19 @@ namespace Genio
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(SpecialtyComboBox.Text))
+            if (SpecialtyComboBox.SelectedItem == null)
             {
                 MessageBox.Show("Выберите специальность учащегося", "Ошибка",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 SpecialtyComboBox.Focus();
+                return;
+            }
+
+            var specId = GetSelectedSpecializationId();
+            if (!specId.HasValue)
+            {
+                MessageBox.Show("Ошибка при выборе специальности", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -652,7 +706,7 @@ namespace Genio
                         var student = context.Students.Find(selectedStudent.student_id);
                         if (student != null)
                         {
-                            UpdateStudentData(student);
+                            UpdateStudentData(student, specId.Value);
                             context.SaveChanges();
 
                             MessageBox.Show("Изменения сохранены", "Сохранение",
@@ -667,7 +721,7 @@ namespace Genio
                     {
                         // Режим добавления - создаем нового студента
                         var newStudent = new Student();
-                        UpdateStudentData(newStudent);
+                        UpdateStudentData(newStudent, specId.Value);
                         newStudent.created_date = DateTime.Now;
 
                         context.Students.Add(newStudent);
@@ -689,7 +743,7 @@ namespace Genio
             }
         }
 
-        private void UpdateStudentData(Student student)
+        private void UpdateStudentData(Student student, int specializationId)
         {
             // Разделяем ФИО
             string lastName, firstName, middleName;
@@ -708,9 +762,7 @@ namespace Genio
 
             student.course_number = GetSelectedCourse();
             student.group_name = GroupTextBox.Text;
-
-            // Находим или создаем специализацию
-            student.Specialization = GetOrCreateSpecialization(SpecialtyComboBox.Text);
+            student.specialization_id = specializationId;
 
             // Парсим даты
             if (DateTime.TryParse(AdmissionDateTextBox.Text, out DateTime admissionDate))
@@ -726,41 +778,6 @@ namespace Genio
 
             student.phone = PhoneTextBox.Text;
             student.home_phone = HomePhoneTextBox.Text;
-        }
-
-        private Specialization GetOrCreateSpecialization(string specName)
-        {
-            try
-            {
-                using (var context = new GenioAppEntities())
-                {
-                    var specialization = context.Specializations
-                        .FirstOrDefault(s => s.spec_name.ToLower() == specName.ToLower());
-
-                    if (specialization == null && !string.IsNullOrWhiteSpace(specName))
-                    {
-                        specialization = new Specialization
-                        {
-                            spec_name = specName,
-                            created_date = DateTime.Now
-                        };
-                        context.Specializations.Add(specialization);
-                        context.SaveChanges();
-
-                        // Добавляем новую специализацию в ComboBox
-                        Application.Current.Dispatcher.Invoke(() =>
-                        {
-                            SpecialtyComboBox.Items.Add(specName);
-                        });
-                    }
-
-                    return specialization;
-                }
-            }
-            catch
-            {
-                return null;
-            }
         }
 
         private void ClearDeleteButton_Click(object sender, RoutedEventArgs e)
@@ -834,10 +851,32 @@ namespace Genio
             FullNameTextBox.Text = "";
             Course1Radio.IsChecked = true;
             GroupTextBox.Text = "";
-            SpecialtyComboBox.SelectedIndex = -1;
+
+            // Выбираем первую специальность по умолчанию
+            if (SpecialtyComboBox.Items.Count > 0)
+            {
+                SpecialtyComboBox.SelectedIndex = 0;
+            }
+
             SetDefaultDates();
             PhoneTextBox.Text = "";
             HomePhoneTextBox.Text = "";
+        }
+
+        private void FullNameTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                GroupTextBox.Focus();
+            }
+        }
+
+        private void GroupTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                SpecialtyComboBox.Focus();
+            }
         }
     }
 }

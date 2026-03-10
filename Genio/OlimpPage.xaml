@@ -326,88 +326,136 @@
                 <ScrollViewer Grid.Row="1"
                       Style="{StaticResource CustomScrollViewerStyle}"
                       Padding="15,0,15,15">
-                    <Grid>
+                    <!-- Используем Grid с SharedSizeScope для синхронизации высоты строк -->
+                    <Grid UseLayoutRounding="True" 
+                  x:Name="EventInfoGrid" 
+                  Grid.IsSharedSizeScope="True">
                         <Grid.ColumnDefinitions>
-                            <!-- Фиксированная ширина для меток (самой длинной) -->
-                            <ColumnDefinition Width="Auto"/>
-                            <!-- Оставшееся пространство для значений -->
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="15"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                        <!-- ЛЕВАЯ КОЛОНКА - МЕТКИ -->
-                        <StackPanel Grid.Column="0" Margin="10,20,30,0">
-                            <TextBlock Text="Дата:"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource LightTextColor}"
-                               Margin="0,0,0,15"/>
-                            <TextBlock Text="Название:"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource LightTextColor}"
-                               Margin="0,0,0,15"/>
-                            <TextBlock Text="Уровень:"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource LightTextColor}"
-                               Margin="0,0,0,15"/>
-                            <TextBlock Text="Вид:"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource LightTextColor}"
-                               Margin="0,0,0,15"/>
-                            <TextBlock Text="Результат:"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource LightTextColor}"
-                               Margin="0,0,0,15"/>
-                            <TextBlock Text="Номинации:"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource LightTextColor}"
-                               Margin="0,0,0,15"/>
-                            <TextBlock Text="Место проведения:"
-                               FontSize="14"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource LightTextColor}"
-                               Margin="0,0,0,0"/>
-                        </StackPanel>
+                        <!-- МЕТКИ (СТАТИЧНЫЕ) -->
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                           Text="Дата:"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource LightTextColor}"
+                           VerticalAlignment="Top"
+                           Margin="10,20,0,15"/>
 
-                        <!-- ПРАВАЯ КОЛОНКА - ЗНАЧЕНИЯ -->
-                        <StackPanel Grid.Column="1" Margin="20">
-                            <!-- Значения будут заполняться динамически -->
-                            <TextBlock x:Name="EventDateValue"
-                               FontSize="14"
-                               Foreground="#FFCCCCCC"
-                               Margin="0,0,0,15"/>
-                            <TextBlock x:Name="EventNameValue"
-                               FontSize="14"
-                               Foreground="#FFCCCCCC"
-                               Margin="0,0,0,15"
-                               TextWrapping="Wrap"/>
-                            <TextBlock x:Name="EventLevelValue"
-                               FontSize="14"
-                               Foreground="#FFCCCCCC"
-                               Margin="0,0,0,15"/>
-                            <TextBlock x:Name="EventTypeValue"
-                               FontSize="14"
-                               Foreground="#FFCCCCCC"
-                               Margin="0,0,0,15"/>
-                            <TextBlock x:Name="EventResultValue"
-                               FontSize="14"
-                               Foreground="#FFCCCCCC"
-                               Margin="0,0,0,15"/>
-                            <TextBlock x:Name="EventNominationsValue"
-                               FontSize="14"
-                               Foreground="#FFCCCCCC"
-                               Margin="0,0,0,15"
-                               TextWrapping="Wrap"/>
-                            <TextBlock x:Name="EventLocationValue"
-                               FontSize="14"
-                               Foreground="#FFCCCCCC"
-                               Margin="0,0,0,0"
-                               TextWrapping="Wrap"/>
-                        </StackPanel>
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                           Text="Название:"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource LightTextColor}"
+                           VerticalAlignment="Top"
+                           Margin="10,0,0,15"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0"
+                           Text="Уровень:"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource LightTextColor}"
+                           VerticalAlignment="Top"
+                           Margin="10,0,0,15"/>
+
+                        <TextBlock Grid.Row="3" Grid.Column="0"
+                           Text="Вид:"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource LightTextColor}"
+                           VerticalAlignment="Top"
+                           Margin="10,0,0,15"/>
+
+                        <TextBlock Grid.Row="4" Grid.Column="0"
+                           Text="Результат:"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource LightTextColor}"
+                           VerticalAlignment="Top"
+                           Margin="10,0,0,15"/>
+
+                        <TextBlock Grid.Row="5" Grid.Column="0"
+                           Text="Номинации:"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource LightTextColor}"
+                           VerticalAlignment="Top"
+                           Margin="10,0,0,15"/>
+
+                        <TextBlock Grid.Row="6" Grid.Column="0"
+                           Text="Место проведения:"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"
+                           Foreground="{StaticResource LightTextColor}"
+                           VerticalAlignment="Top"
+                           Margin="10,0,0,0"/>
+
+                        <!-- ЗНАЧЕНИЯ (ДИНАМИЧЕСКИЕ) -->
+                        <TextBlock x:Name="EventDateValue"
+                           Grid.Row="0" Grid.Column="2"
+                           FontSize="14"
+                           Foreground="#FFCCCCCC"
+                           VerticalAlignment="Top"
+                           Margin="0,20,10,15"/>
+
+                        <TextBlock x:Name="EventNameValue"
+                           Grid.Row="1" Grid.Column="2"
+                           FontSize="14"
+                           Foreground="#FFCCCCCC"
+                           VerticalAlignment="Top"
+                           Margin="0,0,10,15"
+                           TextWrapping="Wrap"/>
+
+                        <TextBlock x:Name="EventLevelValue"
+                           Grid.Row="2" Grid.Column="2"
+                           FontSize="14"
+                           Foreground="#FFCCCCCC"
+                           VerticalAlignment="Top"
+                           Margin="0,0,10,15"/>
+
+                        <TextBlock x:Name="EventTypeValue"
+                           Grid.Row="3" Grid.Column="2"
+                           FontSize="14"
+                           Foreground="#FFCCCCCC"
+                           VerticalAlignment="Top"
+                           Margin="0,0,10,15"/>
+
+                        <TextBlock x:Name="EventResultValue"
+                           Grid.Row="4" Grid.Column="2"
+                           FontSize="14"
+                           Foreground="#FFCCCCCC"
+                           VerticalAlignment="Top"
+                           Margin="0,0,10,15"
+                           TextWrapping="Wrap"/>
+
+                        <TextBlock x:Name="EventNominationsValue"
+                           Grid.Row="5" Grid.Column="2"
+                           FontSize="14"
+                           Foreground="#FFCCCCCC"
+                           VerticalAlignment="Top"
+                           Margin="0,0,10,15"
+                           TextWrapping="Wrap"/>
+
+                        <TextBlock x:Name="EventLocationValue"
+                           Grid.Row="6" Grid.Column="2"
+                           FontSize="14"
+                           Foreground="#FFCCCCCC"
+                           VerticalAlignment="Top"
+                           Margin="0,0,10,0"
+                           TextWrapping="Wrap"/>
                     </Grid>
                 </ScrollViewer>
 
@@ -427,6 +475,7 @@
                 </Button>
             </Grid>
         </Border>
+        
         <!-- ПОДВАЛ С КНОПКАМИ (СЛЕВА) -->
         <Border Grid.Row="4" Grid.Column="0"
                 Background="Transparent"

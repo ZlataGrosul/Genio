@@ -53,7 +53,6 @@ namespace Genio
                     LoadPage("Reports");
                     break;
                 case "OlympiadsBtn":
-                    // При нажатии на Олимпиады в меню показываем страницу мероприятий
                     LoadPage("Olympiads");
                     break;
                 case "HonorBoardBtn":
@@ -119,7 +118,17 @@ namespace Genio
             switch (pageName)
             {
                 case "Analytics":
-                    ShowSimplePage("Аналитика", "Страница аналитики находится в разработке");
+                    try
+                    {
+                        var analyticsPage = new AnalyticsPage();
+                        MainFrame.Navigate(analyticsPage);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка загрузки страницы Аналитика: {ex.Message}", "Ошибка",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        ShowSimplePage("Аналитика", "Ошибка загрузки аналитики");
+                    }
                     break;
 
                 case "Reports":
@@ -152,7 +161,6 @@ namespace Genio
                     break;
 
                 case "Settings":
-                    // ЗАМЕНА: вместо заглушки используем нашу новую страницу настроек
                     try
                     {
                         var settingsPage = new SettingsPage();

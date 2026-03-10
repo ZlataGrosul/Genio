@@ -418,7 +418,9 @@
                             Text="{TemplateBinding Content}"
                             Foreground="{TemplateBinding Foreground}"
                             VerticalAlignment="Center"
-                            TextTrimming="CharacterEllipsis"/>
+                            TextTrimming="CharacterEllipsis"
+                            TextWrapping="Wrap" 
+                            Margin="0,0,10,0"/>
                             </Grid>
 
                             <ControlTemplate.Triggers>
