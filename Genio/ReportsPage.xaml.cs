@@ -71,8 +71,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -126,13 +126,13 @@ namespace Genio
                 isReportGenerated = true;
                 UpdateExportButtonsState();
 
-                MessageBox.Show("Отчет успешно сформирован!", "Успех",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                CustomMessageBox.Show("Отчет успешно сформирован!", "Успех",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -412,8 +412,8 @@ namespace Genio
         {
             if (!isReportGenerated)
             {
-                MessageBox.Show("Сначала сформируйте отчет!", "Внимание",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Сначала сформируйте отчет!", "Внимание",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 return;
             }
 
@@ -429,14 +429,14 @@ namespace Genio
                 if (dialog.ShowDialog() == true)
                 {
                     ExportToWordDocument(dialog.FileName);
-                    MessageBox.Show($"Word отчет успешно сохранен!", "Успех",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.Show($"Word отчет успешно сохранен!", "Успех",
+                        CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при экспорте в Word: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка при экспорте в Word: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -677,10 +677,10 @@ namespace Genio
 
         private void ClearBtn_Click(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Очистить все параметры?", "Подтверждение",
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = CustomMessageBox.Show("Очистить все параметры?", "Подтверждение",
+                CustomMessageBoxButton.YesNo, CustomMessageBoxIcon.Question);
 
-            if (result == MessageBoxResult.Yes)
+            if (result == CustomMessageBoxResult.Yes)
             {
                 // Сбрасываем все флажки специальностей
                 foreach (var checkBox in specialtyCheckBoxes.Keys)

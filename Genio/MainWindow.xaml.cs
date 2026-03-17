@@ -125,8 +125,8 @@ namespace Genio
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка загрузки страницы Аналитика: {ex.Message}", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.Show($"Ошибка загрузки страницы Аналитика: {ex.Message}", "Ошибка",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                         ShowSimplePage("Аналитика", "Ошибка загрузки аналитики");
                     }
                     break;
@@ -154,8 +154,8 @@ namespace Genio
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка загрузки страницы Доска почета: {ex.Message}", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.Show($"Ошибка загрузки страницы Доска почета: {ex.Message}", "Ошибка",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                         ShowSimplePage("Доска почета", "Страница доски почета находится в разработке");
                     }
                     break;
@@ -168,8 +168,8 @@ namespace Genio
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка загрузки страницы Настройки: {ex.Message}", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.Show($"Ошибка загрузки страницы Настройки: {ex.Message}", "Ошибка",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                         ShowSimplePage("Настройки", "Ошибка загрузки страницы настроек");
                     }
                     break;

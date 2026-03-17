@@ -311,31 +311,54 @@
 
         <!-- ПАНЕЛЬ ФИЛЬТРОВ -->
         <Border x:Name="FiltersPanel"
-                Grid.Row="3" Grid.Column="1"
-                Background="{StaticResource ReportFrameColor}"
-                CornerRadius="10"
-                Margin="10,0,20,15"
-                Height="235"
-                VerticalAlignment="Bottom"
-                Visibility="Collapsed"
-                Style="{StaticResource HoverFrameStyle}">
+        Grid.Row="3" Grid.Column="1"
+        Background="{StaticResource ReportFrameColor}"
+        CornerRadius="10"
+        Margin="10,0,20,15"
+        Height="235"
+        VerticalAlignment="Bottom"
+        Visibility="Collapsed"
+        Style="{StaticResource HoverFrameStyle}">
             <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}"
-                          Padding="15">
+                  Padding="15">
                 <StackPanel>
                     <!-- ЗАГОЛОВОК ФИЛЬТРОВ -->
-                    <StackPanel Orientation="Horizontal"
-                                Margin="0,0,0,15">
-                        <Image Source="/Images/filterIcon.png"
-                               Width="20"
-                               Height="20"
-                               Stretch="Uniform"
-                               Margin="0,0,5,0"/>
-                        <TextBlock Text="Фильтры"
-                                   Foreground="{StaticResource LightTextColor}"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Левая часть с иконкой и заголовком -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Image Source="/Images/filterIcon.png"
+                           Width="20"
+                           Height="20"
+                           Stretch="Uniform"
+                           Margin="0,0,10,0"/>
+                            <TextBlock Text="Фильтры"
+                               Foreground="{StaticResource LightTextColor}"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <!-- Кнопка сброса фильтров (справа) -->
+                        <Button x:Name="ResetFiltersButton"
+                        Grid.Column="2"
+                        Style="{StaticResource ClearFilterButtonStyle}"
+                        Width="38"
+                        Height="38"
+                        HorizontalAlignment="Right"
+                        Click="ResetFiltersButton_Click"
+                        ToolTip="Сбросить фильтры">
+                            <Image Source="/Images/cleanicon.png"
+                           Width="20"
+                           Height="20"
+                           Stretch="Uniform"/>
+                        </Button>
+                    </Grid>
 
                     <!-- РАСПОЛОЖЕНИЕ КАК НА ФОТО: СЛЕВА СПЕЦИАЛЬНОСТИ, СПРАВА КУРСЫ -->
                     <Grid>
@@ -346,11 +369,11 @@
 
                         <!-- ФРЕЙМ СПЕЦИАЛЬНОСТИ -->
                         <Border Grid.Column="0"
-                                Background="{StaticResource ReportFrameColor}"
-                                CornerRadius="8"
-                                Padding="18"
-                                Margin="0,0,8,0"
-                                Style="{StaticResource HoverFrameStyle}">
+                        Background="{StaticResource ReportFrameColor}"
+                        CornerRadius="8"
+                        Padding="18"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource HoverFrameStyle}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -358,15 +381,15 @@
                                 </Grid.RowDefinitions>
 
                                 <TextBlock Text="Специальность"
-                                           Grid.Row="0"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource LightTextColor}"
-                                           Margin="0,0,0,10"/>
+                                   Grid.Row="0"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource LightTextColor}"
+                                   Margin="0,0,0,10"/>
 
                                 <!-- УБРАЛИ ScrollViewer ОТСЮДА -->
                                 <StackPanel Grid.Row="1"
-                                            x:Name="SpecializationFilters">
+                                    x:Name="SpecializationFilters">
                                     <!-- Чекбоксы специальностей будут добавлены динамически -->
                                 </StackPanel>
                             </Grid>
@@ -374,11 +397,11 @@
 
                         <!-- ФРЕЙМ КУРСЫ -->
                         <Border Grid.Column="1"
-                                Background="{StaticResource ReportFrameColor}"
-                                CornerRadius="8"
-                                Padding="18"
-                                Margin="8,0,0,0"
-                                Style="{StaticResource HoverFrameStyle}">
+                        Background="{StaticResource ReportFrameColor}"
+                        CornerRadius="8"
+                        Padding="18"
+                        Margin="8,0,0,0"
+                        Style="{StaticResource HoverFrameStyle}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -386,36 +409,36 @@
                                 </Grid.RowDefinitions>
 
                                 <TextBlock Text="Курс"
-                                           Grid.Row="0"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="{StaticResource LightTextColor}"
-                                           Margin="0,0,0,10"/>
+                                   Grid.Row="0"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource LightTextColor}"
+                                   Margin="0,0,0,10"/>
 
                                 <StackPanel Grid.Row="1">
                                     <CheckBox x:Name="Course1" Content="1 курс" 
-                                              Margin="0,0,0,10"
-                                              Style="{StaticResource ReportCheckBoxStyle}"
-                                              FontSize="12"
-                                              Checked="CourseCheckBox_Changed"
-                                              Unchecked="CourseCheckBox_Changed"/>
+                                      Margin="0,0,0,10"
+                                      Style="{StaticResource ReportCheckBoxStyle}"
+                                      FontSize="12"
+                                      Checked="CourseCheckBox_Changed"
+                                      Unchecked="CourseCheckBox_Changed"/>
                                     <CheckBox x:Name="Course2" Content="2 курс" 
-                                              Margin="0,0,0,10"
-                                              Style="{StaticResource ReportCheckBoxStyle}"
-                                              FontSize="12"
-                                              Checked="CourseCheckBox_Changed"
-                                              Unchecked="CourseCheckBox_Changed"/>
+                                      Margin="0,0,0,10"
+                                      Style="{StaticResource ReportCheckBoxStyle}"
+                                      FontSize="12"
+                                      Checked="CourseCheckBox_Changed"
+                                      Unchecked="CourseCheckBox_Changed"/>
                                     <CheckBox x:Name="Course3" Content="3 курс" 
-                                              Margin="0,0,0,10"
-                                              Style="{StaticResource ReportCheckBoxStyle}"
-                                              FontSize="12"
-                                              Checked="CourseCheckBox_Changed"
-                                              Unchecked="CourseCheckBox_Changed"/>
+                                      Margin="0,0,0,10"
+                                      Style="{StaticResource ReportCheckBoxStyle}"
+                                      FontSize="12"
+                                      Checked="CourseCheckBox_Changed"
+                                      Unchecked="CourseCheckBox_Changed"/>
                                     <CheckBox x:Name="Course4" Content="4 курс"
-                                              Style="{StaticResource ReportCheckBoxStyle}"
-                                              FontSize="12"
-                                              Checked="CourseCheckBox_Changed"
-                                              Unchecked="CourseCheckBox_Changed"/>
+                                      Style="{StaticResource ReportCheckBoxStyle}"
+                                      FontSize="12"
+                                      Checked="CourseCheckBox_Changed"
+                                      Unchecked="CourseCheckBox_Changed"/>
                                 </StackPanel>
                             </Grid>
                         </Border>

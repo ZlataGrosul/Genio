@@ -12,10 +12,9 @@ namespace Genio
     {
         private bool isEditMode = false;
         private int honorId = 0;
+        private int editYear = 0;
         private List<Student> allStudents = new List<Student>();
         private List<Student> selectedStudents = new List<Student>();
-        private List<Specialization> allSpecializations = new List<Specialization>();
-        private bool isFormEnabled = false;
         private List<HonorBoard> existingHonors = new List<HonorBoard>();
 
         public AddHonorPage()
@@ -24,33 +23,37 @@ namespace Genio
             Loaded += AddHonorPage_Loaded;
         }
 
-        // Конструктор для режима редактирования
-        public AddHonorPage(int honorId) : this()
+        public AddHonorPage(int honorIdOrYear) : this()
         {
-            this.honorId = honorId;
-            this.isEditMode = true;
+            if (honorIdOrYear > 2000)
+            {
+                this.editYear = honorIdOrYear;
+                this.isEditMode = true;
+            }
+            else
+            {
+                this.honorId = honorIdOrYear;
+                this.isEditMode = true;
+            }
         }
 
         private void AddHonorPage_Loaded(object sender, RoutedEventArgs e)
         {
-            // Устанавливаем текущую дату
             PlacementDateTextBox.Text = DateTime.Now.ToString("dd.MM.yyyy");
-
-            // Загружаем данные
             LoadDataFromDatabase();
-
-            // Настраиваем режим
             if (isEditMode)
             {
                 DeleteButton.Visibility = Visibility.Visible;
-                LoadHonorData();
+                if (editYear > 0)
+                {
+                    LoadHonorDataByYear(editYear);
+                }
+                else
+                {
+                    LoadHonorData();
+                }
             }
-
-            // Настраиваем обработчики событий
             SetupEventHandlers();
-
-            // Устанавливаем даты по умолчанию для формы
-            SetDefaultFormDates();
         }
 
         private void LoadDataFromDatabase()
@@ -59,101 +62,92 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    // Загружаем всех студентов
-                    allStudents = context.Students
-                        .Include("Specialization")
-                        .OrderBy(s => s.last_name)
-                        .ThenBy(s => s.first_name)
-                        .ThenBy(s => s.middle_name)
-                        .ToList();
-
-                    // Загружаем специальности
-                    allSpecializations = context.Specializations
-                        .OrderBy(s => s.spec_name)
-                        .ToList();
-
-                    // Заполняем ComboBox для специализации
-                    SpecialtyComboBox.Items.Clear();
-                    foreach (var spec in allSpecializations)
-                    {
-                        SpecialtyComboBox.Items.Add(spec.spec_name);
-                    }
-
-                    // Загружаем список студентов
+                    allStudents = context.Students_GetAll();
                     LoadStudentsList();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
         private void LoadHonorData()
         {
             if (honorId <= 0) return;
-
             try
             {
                 using (var context = new GenioAppEntities())
                 {
-                    // Загружаем существующие записи доски почета для редактирования
-                    var honor = context.HonorBoards
-                        .Include("Student")
-                        .FirstOrDefault(h => h.honor_id == honorId);
-
+                    var honor = context.HonorBoard_GetById(honorId);
                     if (honor != null)
                     {
-                        // Устанавливаем дату из выбранной записи
                         PlacementDateTextBox.Text = honor.placement_date.ToString("dd.MM.yyyy");
-
-                        // Загружаем ВСЕ записи доски почета за выбранную дату
-                        existingHonors = context.HonorBoards
-                            .Include("Student")
-                            .Where(h => h.placement_date == honor.placement_date)
-                            .ToList();
-
-                        // Добавляем студентов из существующих записей в выбранные
+                        existingHonors = context.HonorBoard_GetByDate(honor.placement_date);
                         foreach (var existingHonor in existingHonors)
                         {
-                            if (!selectedStudents.Any(s => s.student_id == existingHonor.Student.student_id))
+                            var student = allStudents.FirstOrDefault(s => s.student_id == existingHonor.student_id);
+                            if (student != null && !selectedStudents.Any(s => s.student_id == student.student_id))
                             {
-                                selectedStudents.Add(existingHonor.Student);
+                                selectedStudents.Add(student);
                             }
                         }
-
-                        // Обновляем отображение карточек студентов
                         foreach (var student in selectedStudents)
                         {
                             UpdateStudentCard(student);
-                        }
-
-                        // Если у нас есть данные студента из выбранной записи, показываем их в форме
-                        if (honor.Student != null)
-                        {
-                            FillFormWithStudentData(honor.Student);
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadHonorDataByYear(int year)
+        {
+            try
+            {
+                using (var context = new GenioAppEntities())
+                {
+                    var allHonors = context.HonorBoard_GetAll();
+                    existingHonors = allHonors.Where(h => h.placement_date.Year == year).ToList();
+                    if (existingHonors.Any())
+                    {
+                        PlacementDateTextBox.Text = existingHonors.First().placement_date.ToString("dd.MM.yyyy");
+                        foreach (var existingHonor in existingHonors)
+                        {
+                            var student = allStudents.FirstOrDefault(s => s.student_id == existingHonor.student_id);
+                            if (student != null && !selectedStudents.Any(s => s.student_id == student.student_id))
+                            {
+                                selectedStudents.Add(student);
+                            }
+                        }
+                        foreach (var student in selectedStudents)
+                        {
+                            UpdateStudentCard(student);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                CustomMessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
         private void LoadStudentsList()
         {
             StudentsList.Children.Clear();
-
             if (allStudents.Count == 0)
             {
                 ShowNoResultsMessage("Список студентов пуст");
                 return;
             }
-
             foreach (var student in allStudents)
             {
                 CreateStudentCard(student);
@@ -162,13 +156,8 @@ namespace Genio
 
         private void CreateStudentCard(Student student)
         {
-            // Создаем Border для карточки студента
             var border = new Border();
-
-            // Проверяем, выбран ли уже этот студент
             bool isSelected = selectedStudents.Any(s => s.student_id == student.student_id);
-
-            // Устанавливаем стиль в зависимости от состояния
             if (isSelected)
             {
                 border.Style = (Style)FindResource("SelectedStudentItemStyle");
@@ -178,12 +167,10 @@ namespace Genio
                 border.Style = (Style)FindResource("UnselectedStudentItemStyle");
             }
 
-            // Создаем Grid для содержимого
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            // Текст с ФИО и группой
             var textBlock = new TextBlock
             {
                 Text = $"{student.last_name} {student.first_name} {student.middle_name} • {student.group_name} • {GetCourseName(student.course_number)} курс",
@@ -194,10 +181,8 @@ namespace Genio
                 TextWrapping = TextWrapping.Wrap
             };
 
-            // Кнопка добавления/удаления
             var button = new Button
             {
-                Style = (Style)FindResource("StudentSelectionButtonStyle"),
                 Width = 27,
                 Height = 27,
                 Tag = student,
@@ -205,7 +190,6 @@ namespace Genio
                 Cursor = Cursors.Hand
             };
 
-            // Иконка кнопки
             var image = new Image
             {
                 Stretch = Stretch.Uniform,
@@ -213,15 +197,17 @@ namespace Genio
                 Height = 15
             };
 
-            // Устанавливаем иконку в зависимости от состояния
             if (isSelected)
             {
+                // ✅ ИСПОЛЬЗУЕМ НОВЫЙ СТИЛЬ ДЛЯ КНОПКИ УДАЛЕНИЯ
+                button.Style = (Style)FindResource("DeleteListItemButtonStyle");
                 image.Source = new System.Windows.Media.Imaging.BitmapImage(
                     new Uri("pack://application:,,,/Images/iconRemove.png"));
                 button.ToolTip = "Удалить из выбранных";
             }
             else
             {
+                button.Style = (Style)FindResource("StudentSelectionButtonStyle");
                 image.Source = new System.Windows.Media.Imaging.BitmapImage(
                     new Uri("pack://application:,,,/Images/addIcon.png"));
                 button.ToolTip = "Добавить в выбранные";
@@ -230,17 +216,12 @@ namespace Genio
             button.Content = image;
             button.Click += StudentSelectionButton_Click;
 
-            // Добавляем элементы в Grid
             Grid.SetColumn(textBlock, 0);
             Grid.SetColumn(button, 1);
-
             grid.Children.Add(textBlock);
             grid.Children.Add(button);
-
             border.Child = grid;
             border.Tag = student;
-
-            // Добавляем в список
             StudentsList.Children.Add(border);
         }
 
@@ -249,21 +230,15 @@ namespace Genio
             var button = sender as Button;
             if (button != null && button.Tag is Student student)
             {
-                // Проверяем, выбран ли уже этот студент
                 var existingStudent = selectedStudents.FirstOrDefault(s => s.student_id == student.student_id);
-
                 if (existingStudent != null)
                 {
-                    // Удаляем из выбранных
                     selectedStudents.Remove(existingStudent);
                 }
                 else
                 {
-                    // Добавляем в выбранные
                     selectedStudents.Add(student);
                 }
-
-                // Обновляем отображение карточки студента
                 UpdateStudentCard(student);
             }
         }
@@ -275,8 +250,6 @@ namespace Genio
                 if (child is Border border && border.Tag is Student stud && stud.student_id == student.student_id)
                 {
                     bool isSelected = selectedStudents.Any(s => s.student_id == student.student_id);
-
-                    // Обновляем стиль
                     if (isSelected)
                     {
                         border.Style = (Style)FindResource("SelectedStudentItemStyle");
@@ -286,7 +259,6 @@ namespace Genio
                         border.Style = (Style)FindResource("UnselectedStudentItemStyle");
                     }
 
-                    // Обновляем кнопку
                     if (border.Child is Grid grid)
                     {
                         var button = grid.Children.OfType<Button>().FirstOrDefault();
@@ -297,12 +269,14 @@ namespace Genio
                             {
                                 if (isSelected)
                                 {
+                                    button.Style = (Style)FindResource("DeleteListItemButtonStyle");
                                     image.Source = new System.Windows.Media.Imaging.BitmapImage(
                                         new Uri("pack://application:,,,/Images/iconRemove.png"));
                                     button.ToolTip = "Удалить из выбранных";
                                 }
                                 else
                                 {
+                                    button.Style = (Style)FindResource("StudentSelectionButtonStyle");
                                     image.Source = new System.Windows.Media.Imaging.BitmapImage(
                                         new Uri("pack://application:,,,/Images/addIcon.png"));
                                     button.ToolTip = "Добавить в выбранные";
@@ -315,257 +289,17 @@ namespace Genio
             }
         }
 
-        private void FillFormWithStudentData(Student student)
-        {
-            FullNameTextBox.Text = $"{student.last_name} {student.first_name} {student.middle_name}";
-
-            // Устанавливаем курс
-            switch (student.course_number)
-            {
-                case 1:
-                    Course1Radio.IsChecked = true;
-                    break;
-                case 2:
-                    Course2Radio.IsChecked = true;
-                    break;
-                case 3:
-                    Course3Radio.IsChecked = true;
-                    break;
-                case 4:
-                    Course4Radio.IsChecked = true;
-                    break;
-            }
-
-            GroupTextBox.Text = student.group_name;
-
-            // Устанавливаем специальность в ComboBox
-            if (student.Specialization != null)
-            {
-                SpecialtyComboBox.SelectedItem = student.Specialization.spec_name;
-            }
-
-            AdmissionDateTextBox.Text = student.admission_date.ToString("dd.MM.yyyy");
-
-            if (student.graduation_date.HasValue)
-                GraduationDateTextBox.Text = student.graduation_date.Value.ToString("dd.MM.yyyy");
-
-            BirthDateTextBox.Text = student.birth_date.ToString("dd.MM.yyyy");
-            PhoneTextBox.Text = student.phone;
-            HomePhoneTextBox.Text = student.home_phone;
-        }
-
-        private void SetDefaultFormDates()
-        {
-            var today = DateTime.Now;
-            AdmissionDateTextBox.Text = new DateTime(today.Year, 9, 1).ToString("dd.MM.yyyy");
-            GraduationDateTextBox.Text = new DateTime(today.Year + 4, 6, 30).ToString("dd.MM.yyyy");
-            BirthDateTextBox.Text = new DateTime(today.Year - 18, 1, 1).ToString("dd.MM.yyyy");
-        }
-
         private void SetupEventHandlers()
         {
-            // Обработчики для даты занесения
             PlacementDateButton.Click += PlacementDateButton_Click;
             DatePickerCalendar.SelectedDatesChanged += DatePickerCalendar_SelectedDatesChanged;
-
-            // Обработчики для дат в форме
-            AdmissionDateButton.Click += (s, e) => ShowDatePickerForTextBox(AdmissionDateTextBox, AdmissionDateButton);
-            GraduationDateButton.Click += (s, e) => ShowDatePickerForTextBox(GraduationDateTextBox, GraduationDateButton);
-            BirthDateButton.Click += (s, e) => ShowDatePickerForTextBox(BirthDateTextBox, BirthDateButton);
-
-            // Обработчики для поиска
             StudentSearchTextBox.GotFocus += StudentSearchTextBox_GotFocus;
             StudentSearchTextBox.LostFocus += StudentSearchTextBox_LostFocus;
             StudentSearchTextBox.TextChanged += StudentSearchTextBox_TextChanged;
             StudentSearchTextBox.KeyDown += StudentSearchTextBox_KeyDown;
-
-            // Обработчики для кнопок
             BackButton.Click += BackButton_Click;
             SaveButton.Click += SaveButton_Click;
             DeleteButton.Click += DeleteButton_Click;
-            AddStudentButton.Click += AddStudentButton_Click;
-            ClearFormButton.Click += ClearFormButton_Click;
-            SaveFormButton.Click += SaveFormButton_Click;
-        }
-
-        private void AddStudentButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Включаем форму для добавления нового студента
-            isFormEnabled = !isFormEnabled;
-
-            if (isFormEnabled)
-            {
-                // Включаем все элементы формы
-                EnableFormControls(true);
-                ClearFormButton.IsEnabled = true;
-                SaveFormButton.IsEnabled = true;
-                AddStudentButton.ToolTip = "Заблокировать форму";
-                ClearForm();
-            }
-            else
-            {
-                // Отключаем форму
-                EnableFormControls(false);
-                ClearFormButton.IsEnabled = false;
-                SaveFormButton.IsEnabled = false;
-                AddStudentButton.ToolTip = "Разблокировать форму для добавления студента";
-            }
-        }
-
-        private void EnableFormControls(bool enable)
-        {
-            FullNameTextBox.IsEnabled = enable;
-            Course1Radio.IsEnabled = enable;
-            Course2Radio.IsEnabled = enable;
-            Course3Radio.IsEnabled = enable;
-            Course4Radio.IsEnabled = enable;
-            GroupTextBox.IsEnabled = enable;
-            SpecialtyComboBox.IsEnabled = enable;
-            AdmissionDateButton.IsEnabled = enable;
-            GraduationDateButton.IsEnabled = enable;
-            BirthDateButton.IsEnabled = enable;
-            PhoneTextBox.IsEnabled = enable;
-            HomePhoneTextBox.IsEnabled = enable;
-        }
-
-        private void ClearFormButton_Click(object sender, RoutedEventArgs e)
-        {
-            ClearForm();
-        }
-
-        private void ClearForm()
-        {
-            FullNameTextBox.Text = "";
-            Course1Radio.IsChecked = true;
-            GroupTextBox.Text = "";
-            SpecialtyComboBox.SelectedIndex = -1;
-            SetDefaultFormDates();
-            PhoneTextBox.Text = "";
-            HomePhoneTextBox.Text = "";
-        }
-
-        private void SaveFormButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Валидация данных формы
-            if (string.IsNullOrWhiteSpace(FullNameTextBox.Text))
-            {
-                MessageBox.Show("Введите ФИО студента", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                FullNameTextBox.Focus();
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(GroupTextBox.Text))
-            {
-                MessageBox.Show("Введите группу студента", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                GroupTextBox.Focus();
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(SpecialtyComboBox.Text))
-            {
-                MessageBox.Show("Выберите специальность студента", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                SpecialtyComboBox.Focus();
-                return;
-            }
-
-            try
-            {
-                using (var context = new GenioAppEntities())
-                {
-                    // Разделяем ФИО
-                    var nameParts = FullNameTextBox.Text.Trim().Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    string lastName = nameParts.Length > 0 ? nameParts[0] : "";
-                    string firstName = nameParts.Length > 1 ? nameParts[1] : "";
-                    string middleName = nameParts.Length > 2 ? nameParts[2] : "";
-
-                    // Получаем курс
-                    int course = 1;
-                    if (Course1Radio.IsChecked == true) course = 1;
-                    else if (Course2Radio.IsChecked == true) course = 2;
-                    else if (Course3Radio.IsChecked == true) course = 3;
-                    else if (Course4Radio.IsChecked == true) course = 4;
-
-                    // Находим или создаем специализацию
-                    var specialization = context.Specializations
-                        .FirstOrDefault(s => s.spec_name.ToLower() == SpecialtyComboBox.Text.ToLower());
-
-                    if (specialization == null)
-                    {
-                        specialization = new Specialization
-                        {
-                            spec_name = SpecialtyComboBox.Text,
-                            created_date = DateTime.Now
-                        };
-                        context.Specializations.Add(specialization);
-                        context.SaveChanges();
-                    }
-
-                    // Парсим даты
-                    DateTime admissionDate;
-                    if (!DateTime.TryParse(AdmissionDateTextBox.Text, out admissionDate))
-                        admissionDate = new DateTime(DateTime.Now.Year, 9, 1);
-
-                    DateTime? graduationDate = null;
-                    if (DateTime.TryParse(GraduationDateTextBox.Text, out DateTime gradDate))
-                        graduationDate = gradDate;
-
-                    DateTime birthDate;
-                    if (!DateTime.TryParse(BirthDateTextBox.Text, out birthDate))
-                        birthDate = new DateTime(DateTime.Now.Year - 18, 1, 1);
-
-                    // Создаем нового студента
-                    var newStudent = new Student
-                    {
-                        last_name = lastName,
-                        first_name = firstName,
-                        middle_name = middleName,
-                        course_number = course,
-                        group_name = GroupTextBox.Text,
-                        specialization_id = specialization.specialization_id,
-                        admission_date = admissionDate,
-                        graduation_date = graduationDate,
-                        birth_date = birthDate,
-                        phone = PhoneTextBox.Text,
-                        home_phone = HomePhoneTextBox.Text,
-                        created_date = DateTime.Now
-                    };
-
-                    context.Students.Add(newStudent);
-                    context.SaveChanges();
-
-                    // Обновляем локальный список студентов
-                    allStudents = context.Students
-                        .Include("Specialization")
-                        .OrderBy(s => s.last_name)
-                        .ThenBy(s => s.first_name)
-                        .ThenBy(s => s.middle_name)
-                        .ToList();
-
-                    // Добавляем в выбранные
-                    selectedStudents.Add(newStudent);
-
-                    // Обновляем список студентов
-                    LoadStudentsList();
-
-                    // Отключаем форму
-                    isFormEnabled = false;
-                    EnableFormControls(false);
-                    ClearFormButton.IsEnabled = false;
-                    SaveFormButton.IsEnabled = false;
-                    AddStudentButton.ToolTip = "Разблокировать форму для добавления студента";
-
-                    MessageBox.Show("Новый студент добавлен", "Добавление",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Ошибка добавления студента: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
         }
 
         private void PlacementDateButton_Click(object sender, RoutedEventArgs e)
@@ -590,30 +324,14 @@ namespace Genio
             if (DatePickerCalendar.SelectedDate.HasValue && DatePickerPopup.PlacementTarget is Button button)
             {
                 var selectedDate = DatePickerCalendar.SelectedDate.Value;
-
-                // Определяем, для какого TextBox открыт DatePicker
                 if (button == PlacementDateButton)
                 {
                     PlacementDateTextBox.Text = selectedDate.ToString("dd.MM.yyyy");
                 }
-                else if (button == AdmissionDateButton)
-                {
-                    AdmissionDateTextBox.Text = selectedDate.ToString("dd.MM.yyyy");
-                }
-                else if (button == GraduationDateButton)
-                {
-                    GraduationDateTextBox.Text = selectedDate.ToString("dd.MM.yyyy");
-                }
-                else if (button == BirthDateButton)
-                {
-                    BirthDateTextBox.Text = selectedDate.ToString("dd.MM.yyyy");
-                }
-
                 DatePickerPopup.IsOpen = false;
             }
         }
 
-        // МЕТОДЫ ДЛЯ РАБОТЫ С ПОИСКОМ
         private void StudentSearchTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (StudentSearchTextBox.Text == "Поиск...")
@@ -641,7 +359,6 @@ namespace Genio
             else if (string.IsNullOrWhiteSpace(StudentSearchTextBox.Text) ||
                      StudentSearchTextBox.Text == "Поиск...")
             {
-                // Восстанавливаем полный список студентов
                 LoadStudentsList();
             }
         }
@@ -654,7 +371,6 @@ namespace Genio
                 {
                     FilterStudents(StudentSearchTextBox.Text);
                 }
-                // Убираем фокус с TextBox после нажатия Enter
                 Keyboard.ClearFocus();
             }
         }
@@ -662,51 +378,30 @@ namespace Genio
         private void FilterStudents(string searchText)
         {
             StudentsList.Children.Clear();
-
-            // Приводим поисковый запрос к нижнему регистру для регистронезависимого поиска
             string searchLower = searchText.ToLower();
-
-            // Фильтруем студентов по всем полям
             var filteredStudents = allStudents.Where(s =>
-                // Поиск по ФИО (фамилия, имя, отчество отдельно)
                 s.last_name.ToLower().Contains(searchLower) ||
                 s.first_name.ToLower().Contains(searchLower) ||
                 s.middle_name.ToLower().Contains(searchLower) ||
-
-                // Поиск по полному ФИО (через пробел)
                 $"{s.last_name} {s.first_name} {s.middle_name}".ToLower().Contains(searchLower) ||
-
-                // Поиск по группе
                 s.group_name.ToLower().Contains(searchLower) ||
-
-                // Поиск по курсу (цифра или слово)
-                s.course_number.ToString().Contains(searchText) || // для цифр
-                GetCourseName(s.course_number).ToLower().Contains(searchLower) || // для слов
-
-                // Поиск по специальности
-                (s.Specialization != null && s.Specialization.spec_name.ToLower().Contains(searchLower)) ||
-
-                // Поиск по телефону
+                s.course_number.ToString().Contains(searchText) ||
+                GetCourseName(s.course_number).ToLower().Contains(searchLower) ||
                 (!string.IsNullOrEmpty(s.phone) && s.phone.Contains(searchText)) ||
-
-                // Поиск по домашнему телефону
                 (!string.IsNullOrEmpty(s.home_phone) && s.home_phone.Contains(searchText))
             ).ToList();
 
-            // Сортируем результаты поиска
             var sortedStudents = filteredStudents
                 .OrderBy(s => s.last_name)
                 .ThenBy(s => s.first_name)
                 .ThenBy(s => s.middle_name)
                 .ToList();
 
-            // Отображаем отфильтрованных студентов
             foreach (var student in sortedStudents)
             {
                 CreateStudentCard(student);
             }
 
-            // Если ничего не найдено, показываем сообщение
             if (sortedStudents.Count == 0)
             {
                 ShowNoResultsMessage(searchText);
@@ -740,8 +435,8 @@ namespace Genio
             var textBlock = new TextBlock
             {
                 Text = string.IsNullOrEmpty(searchText) ?
-                       "Список студентов пуст" :
-                       $"По запросу \"{searchText}\" ничего не найдено",
+                    "Список студентов пуст" :
+                    $"По запросу \"{searchText}\" ничего не найдено",
                 Foreground = (SolidColorBrush)FindResource("LightTextColor"),
                 FontSize = 13,
                 VerticalAlignment = VerticalAlignment.Center,
@@ -754,13 +449,11 @@ namespace Genio
             Grid.SetColumn(textBlock, 0);
             grid.Children.Add(textBlock);
             messageBorder.Child = grid;
-
             StudentsList.Children.Add(messageBorder);
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Возврат на страницу доски почета
             var mainWindow = Window.GetWindow(this) as MainWindow;
             if (mainWindow != null)
             {
@@ -770,18 +463,17 @@ namespace Genio
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            // Валидация данных
             if (string.IsNullOrWhiteSpace(PlacementDateTextBox.Text))
             {
-                MessageBox.Show("Выберите дату занесения", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Выберите дату занесения", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 return;
             }
 
             if (selectedStudents.Count == 0)
             {
-                MessageBox.Show("Выберите хотя бы одного студента", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Выберите хотя бы одного студента", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 return;
             }
 
@@ -789,108 +481,103 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    if (isEditMode && honorId > 0)
+                    if (isEditMode)
                     {
-                        // РЕЖИМ РЕДАКТИРОВАНИЯ - редактируем всю доску почета за выбранную дату
                         if (DateTime.TryParse(PlacementDateTextBox.Text, out DateTime placementDate))
                         {
-                            // Удаляем старые записи для этой даты
-                            var oldHonors = context.HonorBoards
-                                .Where(h => h.placement_date == placementDate)
-                                .ToList();
-
-                            context.HonorBoards.RemoveRange(oldHonors);
-
-                            // Создаем новые записи для каждого выбранного студента
-                            foreach (var student in selectedStudents)
+                            if (editYear > 0)
                             {
-                                var honor = new HonorBoard
+                                var honorsToDelete = context.HonorBoard_GetAll()
+                                    .Where(h => h.placement_date.Year == editYear)
+                                    .Select(h => h.honor_id)
+                                    .ToList();
+                                foreach (var id in honorsToDelete)
                                 {
-                                    student_id = student.student_id,
-                                    placement_date = placementDate,
-                                    created_date = DateTime.Now
-                                };
-                                context.HonorBoards.Add(honor);
+                                    context.HonorBoard_Delete(id);
+                                }
+                            }
+                            else
+                            {
+                                context.HonorBoard_DeleteByDate(placementDate);
                             }
 
-                            context.SaveChanges();
+                            foreach (var student in selectedStudents)
+                            {
+                                context.HonorBoard_Insert(student.student_id, placementDate);
+                            }
 
-                            MessageBox.Show($"Обновлено {selectedStudents.Count} записей на доске почета", "Обновление",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
+                            CustomMessageBox.Show($"Обновлено {selectedStudents.Count} записей на доске почета", "Обновление",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                         }
                     }
                     else
                     {
-                        // РЕЖИМ ДОБАВЛЕНИЯ - создаем записи для каждого выбранного студента
                         if (DateTime.TryParse(PlacementDateTextBox.Text, out DateTime placementDate))
                         {
                             foreach (var student in selectedStudents)
                             {
-                                var honor = new HonorBoard
-                                {
-                                    student_id = student.student_id,
-                                    placement_date = placementDate,
-                                    created_date = DateTime.Now
-                                };
-                                context.HonorBoards.Add(honor);
+                                context.HonorBoard_Insert(student.student_id, placementDate);
                             }
 
-                            context.SaveChanges();
-
-                            MessageBox.Show($"Добавлено {selectedStudents.Count} записей на доску почета", "Добавление",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
+                            CustomMessageBox.Show($"Добавлено {selectedStudents.Count} записей на доску почета", "Добавление",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                         }
                     }
 
-                    // Возврат на страницу доски почета
                     BackButton_Click(sender, e);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка сохранения: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!isEditMode || honorId <= 0) return;
+            if (!isEditMode) return;
 
-            var result = MessageBox.Show("Вы уверены, что хотите удалить ВСЕ записи доски почета за эту дату?",
+            var result = CustomMessageBox.Show("Вы уверены, что хотите удалить записи доски почета?",
                 "Подтверждение удаления",
-                MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                CustomMessageBoxButton.YesNo, CustomMessageBoxIcon.Warning);
 
-            if (result == MessageBoxResult.Yes)
+            if (result == CustomMessageBoxResult.Yes)
             {
                 try
                 {
                     using (var context = new GenioAppEntities())
                     {
-                        // Находим дату из выбранной записи
-                        var honor = context.HonorBoards.Find(honorId);
-                        if (honor != null)
+                        if (editYear > 0)
                         {
-                            // Удаляем ВСЕ записи за эту дату
-                            var honorsToDelete = context.HonorBoards
-                                .Where(h => h.placement_date == honor.placement_date)
+                            var honorsToDelete = context.HonorBoard_GetAll()
+                                .Where(h => h.placement_date.Year == editYear)
                                 .ToList();
-
-                            context.HonorBoards.RemoveRange(honorsToDelete);
-                            context.SaveChanges();
-
-                            MessageBox.Show($"Удалено {honorsToDelete.Count} записей с доски почета", "Удаление",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
-
-                            // Возврат на страницу доски почета
-                            BackButton_Click(sender, e);
+                            foreach (var honor in honorsToDelete)
+                            {
+                                context.HonorBoard_Delete(honor.honor_id);
+                            }
+                            CustomMessageBox.Show($"Удалено {honorsToDelete.Count} записей с доски почета за {editYear} год", "Удаление",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                         }
+                        else if (honorId > 0)
+                        {
+                            var honor = context.HonorBoard_GetById(honorId);
+                            if (honor != null)
+                            {
+                                context.HonorBoard_DeleteByDate(honor.placement_date);
+                                CustomMessageBox.Show("Записи с доски почета удалены", "Удаление",
+                                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
+                            }
+                        }
+
+                        BackButton_Click(sender, e);
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
+                        CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                 }
             }
         }

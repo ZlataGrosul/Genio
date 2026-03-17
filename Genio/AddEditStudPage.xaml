@@ -455,13 +455,13 @@
 
                 <!-- КНОПКА ОЧИСТИТЬ/УДАЛИТЬ -->
                 <Button x:Name="ClearDeleteButton"
-                        Style="{StaticResource CircleButtonStyle}"
+                        Style="{StaticResource DeleteButtonStyle}"
                         Width="36"
                         Height="38"
                         Click="ClearDeleteButton_Click"
                         Cursor="Hand">
                     <Image x:Name="ClearDeleteImage"
-                           Source="/Images/cleanIcon.png"
+                           Source="/Images/iconRemove.png"
                            Width="19"
                            Height="19"
                            Stretch="Uniform"/>

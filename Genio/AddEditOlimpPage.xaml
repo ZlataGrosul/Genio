@@ -373,7 +373,7 @@
 
                 <!-- КНОПКА УДАЛИТЬ -->
                 <Button x:Name="DeleteButton"
-                        Style="{StaticResource CircleButtonStyle}"
+                        Style="{StaticResource DeleteButtonStyle}"
                         Width="36"
                         Height="38"
                         IsEnabled="False"

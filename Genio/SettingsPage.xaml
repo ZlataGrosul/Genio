@@ -75,7 +75,7 @@
                             <!-- КНОПКА ДОБАВЛЕНИЯ -->
                             <Button x:Name="AddSpecialtyButton"
                                     Grid.Column="1"
-                                    Style="{StaticResource CircleButtonStyle}"
+                                    Style="{StaticResource PurpleCircleButtonStyle}"
                                     Width="36"
                                     Height="36"
                                     Margin="10,0,0,0"
@@ -147,7 +147,7 @@
                             <!-- КНОПКА ДОБАВЛЕНИЯ -->
                             <Button x:Name="AddEventTypeButton"
                                     Grid.Column="1"
-                                    Style="{StaticResource CircleButtonStyle}"
+                                    Style="{StaticResource PurpleCircleButtonStyle}"
                                     Width="36"
                                     Height="36"
                                     Margin="10,0,0,0"

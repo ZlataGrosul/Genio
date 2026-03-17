@@ -81,7 +81,7 @@
                         Height="38"
                         Margin="5,0"
                         Click="ClearBtn_Click">
-                        <Image Source="/Images/iconRemove.png"
+                        <Image Source="/Images/cleanicon.png"
                             Width="15"
                             Height="15"
                             RenderOptions.BitmapScalingMode="HighQuality"/>

@@ -33,17 +33,14 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    allSpecializations = context.Specializations
-                        .OrderBy(s => s.spec_name)
-                        .ToList();
-
+                    allSpecializations = context.Specializations_GetAll();
                     RefreshSpecialtiesList();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -53,17 +50,14 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    allEventTypes = context.EventTypes
-                        .OrderBy(et => et.type_name)
-                        .ToList();
-
+                    allEventTypes = context.EventTypes_GetAll();
                     RefreshEventTypesList();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки видов мероприятий: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки видов мероприятий: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -105,7 +99,6 @@ namespace Genio
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            // Текстовое поле для редактирования
             TextBox textBox = null;
 
             if (currentEditingSpecialization != null && currentEditingSpecialization.specialization_id == specialization.specialization_id)
@@ -140,7 +133,6 @@ namespace Genio
                 grid.Children.Add(textBlock);
             }
 
-            // Кнопка сохранения/редактирования
             var editSaveButton = new Button
             {
                 Style = (Style)FindResource("StudentSelectionButtonStyle"),
@@ -176,10 +168,9 @@ namespace Genio
             Grid.SetColumn(editSaveButton, 1);
             grid.Children.Add(editSaveButton);
 
-            // Кнопка удаления
             var deleteButton = new Button
             {
-                Style = (Style)FindResource("StudentSelectionButtonStyle"),
+                Style = (Style)FindResource("DeleteListItemButtonStyle"),
                 Width = 27,
                 Height = 27,
                 Tag = specialization,
@@ -225,7 +216,6 @@ namespace Genio
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-            // Текстовое поле для редактирования
             TextBox textBox = null;
 
             if (currentEditingEventType != null && currentEditingEventType.event_type_id == eventType.event_type_id)
@@ -260,7 +250,6 @@ namespace Genio
                 grid.Children.Add(textBlock);
             }
 
-            // Кнопка сохранения/редактирования
             var editSaveButton = new Button
             {
                 Style = (Style)FindResource("StudentSelectionButtonStyle"),
@@ -296,10 +285,9 @@ namespace Genio
             Grid.SetColumn(editSaveButton, 1);
             grid.Children.Add(editSaveButton);
 
-            // Кнопка удаления
             var deleteButton = new Button
             {
-                Style = (Style)FindResource("StudentSelectionButtonStyle"),
+                Style = (Style)FindResource("DeleteListItemButtonStyle"),
                 Width = 27,
                 Height = 27,
                 Tag = eventType,
@@ -331,8 +319,8 @@ namespace Genio
         {
             if (string.IsNullOrWhiteSpace(SpecialtyTextBox.Text))
             {
-                MessageBox.Show("Введите название специальности", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Введите название специальности", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 return;
             }
 
@@ -340,43 +328,33 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    // Проверяем, не существует ли уже такая специальность
-                    bool exists = context.Specializations
+                    bool exists = context.Specializations_GetAll()
                         .Any(s => s.spec_name.ToLower().Trim() == SpecialtyTextBox.Text.Trim().ToLower());
 
                     if (exists)
                     {
-                        MessageBox.Show("Такая специальность уже существует!", "Ошибка дублирования",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        CustomMessageBox.Show("Такая специальность уже существует!", "Ошибка дублирования",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                         SpecialtyTextBox.Focus();
                         SpecialtyTextBox.SelectAll();
                         return;
                     }
 
-                    var newSpecialization = new Specialization
-                    {
-                        spec_name = SpecialtyTextBox.Text.Trim(),
-                        created_date = DateTime.Now
-                    };
+                    context.Specializations_Insert(SpecialtyTextBox.Text.Trim());
 
-                    context.Specializations.Add(newSpecialization);
-                    context.SaveChanges();
-
-                    // Обновляем список
                     LoadSpecializationsFromDatabase();
 
-                    // Очищаем поле ввода
                     SpecialtyTextBox.Text = "";
                     SpecialtyTextBox.Focus();
 
-                    MessageBox.Show("Специальность успешно добавлена", "Успешно",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.Show("Специальность успешно добавлена", "Успешно",
+                        CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка добавления специальности: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка добавления специальности: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -384,8 +362,8 @@ namespace Genio
         {
             if (string.IsNullOrWhiteSpace(EventTypeTextBox.Text))
             {
-                MessageBox.Show("Введите название вида мероприятия", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Введите название вида мероприятия", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 return;
             }
 
@@ -393,40 +371,30 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    // Проверяем, не существует ли уже такой вид мероприятия
-                    bool exists = context.EventTypes
+                    bool exists = context.EventTypes_GetAll()
                         .Any(et => et.type_name.ToLower().Trim() == EventTypeTextBox.Text.Trim().ToLower());
 
                     if (exists)
                     {
-                        MessageBox.Show("Такой вид мероприятия уже существует!", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        CustomMessageBox.Show("Такой вид мероприятия уже существует!", "Ошибка",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                         return;
                     }
 
-                    var newEventType = new EventType
-                    {
-                        type_name = EventTypeTextBox.Text.Trim(),
-                        created_date = DateTime.Now
-                    };
+                    context.EventTypes_Insert(EventTypeTextBox.Text.Trim());
 
-                    context.EventTypes.Add(newEventType);
-                    context.SaveChanges();
-
-                    // Обновляем список
                     LoadEventTypesFromDatabase();
 
-                    // Очищаем поле ввода
                     EventTypeTextBox.Text = "";
 
-                    MessageBox.Show("Вид мероприятия успешно добавлен", "Успешно",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.Show("Вид мероприятия успешно добавлен", "Успешно",
+                        CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка добавления вида мероприятия: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка добавления вида мероприятия: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -435,7 +403,6 @@ namespace Genio
             var button = sender as Button;
             if (button != null && button.Tag is Specialization specialization)
             {
-                // Включаем режим редактирования для выбранной специальности
                 currentEditingSpecialization = specialization;
                 RefreshSpecialtiesList();
             }
@@ -448,7 +415,6 @@ namespace Genio
             {
                 try
                 {
-                    // Находим текстовое поле в текущем элементе
                     var border = button.Parent as Grid;
                     if (border != null && border.Children[0] is TextBox textBox)
                     {
@@ -456,15 +422,13 @@ namespace Genio
 
                         if (string.IsNullOrWhiteSpace(newName))
                         {
-                            MessageBox.Show("Название специальности не может быть пустым", "Ошибка",
-                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            CustomMessageBox.Show("Название специальности не может быть пустым", "Ошибка",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                             return;
                         }
 
-                        // Проверяем, не изменилось ли название
                         if (newName == specialization.spec_name)
                         {
-                            // Если название не изменилось, просто выходим из режима редактирования
                             currentEditingSpecialization = null;
                             LoadSpecializationsFromDatabase();
                             return;
@@ -472,40 +436,33 @@ namespace Genio
 
                         using (var context = new GenioAppEntities())
                         {
-                            // Проверяем, не существует ли уже такая специальность
-                            bool exists = context.Specializations
+                            bool exists = context.Specializations_GetAll()
                                 .Any(s => s.specialization_id != specialization.specialization_id &&
                                        s.spec_name.ToLower().Trim() == newName.ToLower());
 
                             if (exists)
                             {
-                                MessageBox.Show("Такая специальность уже существует!", "Ошибка дублирования",
-                                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                                CustomMessageBox.Show("Такая специальность уже существует!", "Ошибка дублирования",
+                                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                                 textBox.Focus();
                                 textBox.SelectAll();
                                 return;
                             }
 
-                            var specToUpdate = context.Specializations.Find(specialization.specialization_id);
-                            if (specToUpdate != null)
-                            {
-                                specToUpdate.spec_name = newName;
-                                context.SaveChanges();
+                            context.Specializations_Update(specialization.specialization_id, newName);
 
-                                // Выходим из режима редактирования
-                                currentEditingSpecialization = null;
-                                LoadSpecializationsFromDatabase();
+                            currentEditingSpecialization = null;
+                            LoadSpecializationsFromDatabase();
 
-                                MessageBox.Show("Специальность успешно обновлена", "Успешно",
-                                    MessageBoxButton.OK, MessageBoxImage.Information);
-                            }
+                            CustomMessageBox.Show("Специальность успешно обновлена", "Успешно",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка обновления специальности: {ex.Message}", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.Show($"Ошибка обновления специальности: {ex.Message}", "Ошибка",
+                        CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                 }
             }
         }
@@ -515,56 +472,49 @@ namespace Genio
             var button = sender as Button;
             if (button != null && button.Tag is Specialization specialization)
             {
-                var result = MessageBox.Show($"Вы уверены, что хотите удалить специальность \"{specialization.spec_name}\"?\n\n" +
+                var result = CustomMessageBox.Show($"Вы уверены, что хотите удалить специальность \"{specialization.spec_name}\"?\n\n" +
                     "Внимание: Это действие нельзя отменить.",
                     "Подтверждение удаления",
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    CustomMessageBoxButton.YesNo, CustomMessageBoxIcon.Warning);
 
-                if (result == MessageBoxResult.Yes)
+                if (result == CustomMessageBoxResult.Yes)
                 {
                     try
                     {
                         using (var context = new GenioAppEntities())
                         {
-                            // Проверяем, есть ли связанные студенты
-                            bool hasStudents = context.Students
+                            bool hasStudents = context.Students_GetAll()
                                 .Any(s => s.specialization_id == specialization.specialization_id);
 
                             if (hasStudents)
                             {
-                                var studentCount = context.Students
+                                var studentCount = context.Students_GetAll()
                                     .Count(s => s.specialization_id == specialization.specialization_id);
 
-                                MessageBox.Show($"Невозможно удалить специальность, так как с ней связано {studentCount} студент(ов).\n\n" +
+                                CustomMessageBox.Show($"Невозможно удалить специальность, так как с ней связано {studentCount} студент(ов).\n\n" +
                                     "Сначала измените специальность у этих студентов или удалите их.", "Ошибка",
-                                    MessageBoxButton.OK, MessageBoxImage.Error);
+                                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                                 return;
                             }
 
-                            var specToDelete = context.Specializations.Find(specialization.specialization_id);
-                            if (specToDelete != null)
+                            context.Specializations_Delete(specialization.specialization_id);
+
+                            if (currentEditingSpecialization != null &&
+                                currentEditingSpecialization.specialization_id == specialization.specialization_id)
                             {
-                                context.Specializations.Remove(specToDelete);
-                                context.SaveChanges();
-
-                                // Выходим из режима редактирования, если удаляем редактируемый элемент
-                                if (currentEditingSpecialization != null &&
-                                    currentEditingSpecialization.specialization_id == specialization.specialization_id)
-                                {
-                                    currentEditingSpecialization = null;
-                                }
-
-                                LoadSpecializationsFromDatabase();
-
-                                MessageBox.Show("Специальность успешно удалена", "Успешно",
-                                    MessageBoxButton.OK, MessageBoxImage.Information);
+                                currentEditingSpecialization = null;
                             }
+
+                            LoadSpecializationsFromDatabase();
+
+                            CustomMessageBox.Show("Специальность успешно удалена", "Успешно",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка удаления специальности: {ex.Message}", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.Show($"Ошибка удаления специальности: {ex.Message}", "Ошибка",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                     }
                 }
             }
@@ -575,7 +525,6 @@ namespace Genio
             var button = sender as Button;
             if (button != null && button.Tag is EventType eventType)
             {
-                // Включаем режим редактирования для выбранного вида мероприятия
                 currentEditingEventType = eventType;
                 RefreshEventTypesList();
             }
@@ -588,7 +537,6 @@ namespace Genio
             {
                 try
                 {
-                    // Находим текстовое поле в текущем элементе
                     var border = button.Parent as Grid;
                     if (border != null && border.Children[0] is TextBox textBox)
                     {
@@ -596,45 +544,38 @@ namespace Genio
 
                         if (string.IsNullOrWhiteSpace(newName))
                         {
-                            MessageBox.Show("Название вида мероприятия не может быть пустым", "Ошибка",
-                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            CustomMessageBox.Show("Название вида мероприятия не может быть пустым", "Ошибка",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                             return;
                         }
 
                         using (var context = new GenioAppEntities())
                         {
-                            // Проверяем, не существует ли уже такой вид мероприятия
-                            bool exists = context.EventTypes
+                            bool exists = context.EventTypes_GetAll()
                                 .Any(et => et.event_type_id != eventType.event_type_id &&
                                        et.type_name.ToLower().Trim() == newName.ToLower());
 
                             if (exists)
                             {
-                                MessageBox.Show("Такой вид мероприятия уже существует!", "Ошибка",
-                                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                                CustomMessageBox.Show("Такой вид мероприятия уже существует!", "Ошибка",
+                                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                                 return;
                             }
 
-                            var eventTypeToUpdate = context.EventTypes.Find(eventType.event_type_id);
-                            if (eventTypeToUpdate != null)
-                            {
-                                eventTypeToUpdate.type_name = newName;
-                                context.SaveChanges();
+                            context.EventTypes_Update(eventType.event_type_id, newName);
 
-                                // Выходим из режима редактирования
-                                currentEditingEventType = null;
-                                LoadEventTypesFromDatabase();
+                            currentEditingEventType = null;
+                            LoadEventTypesFromDatabase();
 
-                                MessageBox.Show("Вид мероприятия успешно обновлен", "Успешно",
-                                    MessageBoxButton.OK, MessageBoxImage.Information);
-                            }
+                            CustomMessageBox.Show("Вид мероприятия успешно обновлен", "Успешно",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Ошибка обновления вида мероприятия: {ex.Message}", "Ошибка",
-                        MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.Show($"Ошибка обновления вида мероприятия: {ex.Message}", "Ошибка",
+                        CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                 }
             }
         }
@@ -644,61 +585,53 @@ namespace Genio
             var button = sender as Button;
             if (button != null && button.Tag is EventType eventType)
             {
-                var result = MessageBox.Show($"Вы уверены, что хотите удалить вид мероприятия \"{eventType.type_name}\"?",
+                var result = CustomMessageBox.Show($"Вы уверены, что хотите удалить вид мероприятия \"{eventType.type_name}\"?",
                     "Подтверждение удаления",
-                    MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    CustomMessageBoxButton.YesNo, CustomMessageBoxIcon.Warning);
 
-                if (result == MessageBoxResult.Yes)
+                if (result == CustomMessageBoxResult.Yes)
                 {
                     try
                     {
                         using (var context = new GenioAppEntities())
                         {
-                            // Проверяем, есть ли связанные мероприятия
-                            bool hasEvents = context.Olimps
+                            bool hasEvents = context.Olimps_GetAll()
                                 .Any(o => o.event_type_id == eventType.event_type_id);
 
                             if (hasEvents)
                             {
-                                var eventCount = context.Olimps
+                                var eventCount = context.Olimps_GetAll()
                                     .Count(o => o.event_type_id == eventType.event_type_id);
 
-                                MessageBox.Show($"Невозможно удалить вид мероприятия, так как с ним связано {eventCount} мероприятие(й).\n\n" +
+                                CustomMessageBox.Show($"Невозможно удалить вид мероприятия, так как с ним связано {eventCount} мероприятие(й).\n\n" +
                                     "Сначала измените вид у этих мероприятий.", "Ошибка",
-                                    MessageBoxButton.OK, MessageBoxImage.Error);
+                                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                                 return;
                             }
 
-                            var eventTypeToDelete = context.EventTypes.Find(eventType.event_type_id);
-                            if (eventTypeToDelete != null)
+                            context.EventTypes_Delete(eventType.event_type_id);
+
+                            if (currentEditingEventType != null &&
+                                currentEditingEventType.event_type_id == eventType.event_type_id)
                             {
-                                context.EventTypes.Remove(eventTypeToDelete);
-                                context.SaveChanges();
-
-                                // Выходим из режима редактирования, если удаляем редактируемый элемент
-                                if (currentEditingEventType != null &&
-                                    currentEditingEventType.event_type_id == eventType.event_type_id)
-                                {
-                                    currentEditingEventType = null;
-                                }
-
-                                LoadEventTypesFromDatabase();
-
-                                MessageBox.Show("Вид мероприятия успешно удален", "Успешно",
-                                    MessageBoxButton.OK, MessageBoxImage.Information);
+                                currentEditingEventType = null;
                             }
+
+                            LoadEventTypesFromDatabase();
+
+                            CustomMessageBox.Show("Вид мероприятия успешно удален", "Успешно",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Ошибка удаления вида мероприятия: {ex.Message}", "Ошибка",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.Show($"Ошибка удаления вида мероприятия: {ex.Message}", "Ошибка",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                     }
                 }
             }
         }
 
-        // Обработчик нажатия Enter в текстовом поле специальности
         private void SpecialtyTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -707,7 +640,6 @@ namespace Genio
             }
         }
 
-        // Обработчик нажатия Enter в текстовом поле вида мероприятий
         private void EventTypeTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)

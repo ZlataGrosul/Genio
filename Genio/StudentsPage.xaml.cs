@@ -41,6 +41,31 @@ namespace Genio
 
             ApplyAllFilters();
         }
+        private void ResetFiltersButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Сброс поискового запроса
+            currentSearchText = "";
+            SearchTextBox.Text = "Поиск...";
+            SearchTextBox.Foreground = new SolidColorBrush(Color.FromArgb(255, 140, 140, 140));
+
+            // Сброс чекбоксов специальностей
+            foreach (var checkBox in SpecializationFilters.Children)
+            {
+                if (checkBox is CheckBox cb)
+                    cb.IsChecked = false;
+            }
+            selectedSpecializationIds.Clear();
+
+            // Сброс чекбоксов курсов
+            Course1.IsChecked = false;
+            Course2.IsChecked = false;
+            Course3.IsChecked = false;
+            Course4.IsChecked = false;
+            selectedCourses.Clear();
+
+            // Применяем фильтры
+            ApplyAllFilters();
+        }
 
         private void LoadAllStudentsFromDatabase()
         {
@@ -57,8 +82,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки учащихся: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки учащихся: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -75,8 +100,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -171,8 +196,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка применения фильтров: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка применения фильтров: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -259,8 +284,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки мероприятий: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки мероприятий: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -340,8 +365,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки информации об учащемся: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки информации об учащемся: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -381,8 +406,8 @@ namespace Genio
         {
             if (selectedStudent == null)
             {
-                MessageBox.Show("Выберите учащегося", "Внимание",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Выберите учащегося", "Внимание",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 return;
             }
 
@@ -430,8 +455,8 @@ namespace Genio
             }
             else
             {
-                MessageBox.Show("Выберите учащегося для редактирования", "Внимание",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Выберите учащегося для редактирования", "Внимание",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
             }
         }
 

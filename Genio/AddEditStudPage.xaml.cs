@@ -92,9 +92,8 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    allSpecializations = context.Specializations
-                        .OrderBy(s => s.spec_name)
-                        .ToList();
+                    // ХРАНИМАЯ ПРОЦЕДУРА
+                    allSpecializations = context.Specializations_GetAll();
 
                     // Очищаем и заполняем ComboBox
                     SpecialtyComboBox.Items.Clear();
@@ -113,8 +112,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -124,11 +123,8 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    allStudents = context.Students
-                        .Include("Specialization")
-                        .OrderBy(s => s.last_name)
-                        .ThenBy(s => s.first_name)
-                        .ToList();
+                    // ХРАНИМАЯ ПРОЦЕДУРА
+                    allStudents = context.Students_GetAll();
 
                     filteredStudents = new List<Student>(allStudents);
                     RefreshStudentsList();
@@ -136,8 +132,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки студентов: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки студентов: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -190,9 +186,8 @@ namespace Genio
             {
                 using (var context = new GenioAppEntities())
                 {
-                    var student = context.Students
-                        .Include("Specialization")
-                        .FirstOrDefault(s => s.student_id == id);
+                    // ХРАНИМАЯ ПРОЦЕДУРА
+                    var student = context.Students_GetById(id);
 
                     if (student != null)
                     {
@@ -203,8 +198,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки студента: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки студента: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -666,24 +661,24 @@ namespace Genio
             // Валидация данных
             if (string.IsNullOrWhiteSpace(FullNameTextBox.Text))
             {
-                MessageBox.Show("Введите ФИО учащегося", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Введите ФИО учащегося", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 FullNameTextBox.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(GroupTextBox.Text))
             {
-                MessageBox.Show("Введите группу учащегося", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Введите группу учащегося", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 GroupTextBox.Focus();
                 return;
             }
 
             if (SpecialtyComboBox.SelectedItem == null)
             {
-                MessageBox.Show("Выберите специальность учащегося", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Выберите специальность учащегося", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 SpecialtyComboBox.Focus();
                 return;
             }
@@ -691,8 +686,8 @@ namespace Genio
             var specId = GetSelectedSpecializationId();
             if (!specId.HasValue)
             {
-                MessageBox.Show("Ошибка при выборе специальности", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Ошибка при выборе специальности", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 return;
             }
 
@@ -702,82 +697,83 @@ namespace Genio
                 {
                     if (isEditMode && selectedStudent != null)
                     {
-                        // Режим редактирования - обновляем существующего студента
-                        var student = context.Students.Find(selectedStudent.student_id);
-                        if (student != null)
-                        {
-                            UpdateStudentData(student, specId.Value);
-                            context.SaveChanges();
+                        // РЕЖИМ РЕДАКТИРОВАНИЯ 
+                        string lastName, firstName, middleName;
+                        SplitFullName(FullNameTextBox.Text, out lastName, out firstName, out middleName);
 
-                            MessageBox.Show("Изменения сохранены", "Сохранение",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
+                        DateTime? graduationDate = null;
+                        if (DateTime.TryParse(GraduationDateTextBox.Text, out DateTime gradDate))
+                            graduationDate = gradDate;
 
-                            // Обновляем данные в списке
-                            LoadStudentsFromDatabase();
-                            SelectStudent(student);
-                        }
+                        context.Students_Update(
+                            selectedStudent.student_id,
+                            lastName,
+                            firstName,
+                            middleName,
+                            DateTime.Parse(BirthDateTextBox.Text),
+                            PhoneTextBox.Text,
+                            HomePhoneTextBox.Text,
+                            DateTime.Parse(AdmissionDateTextBox.Text),
+                            graduationDate,
+                            GetSelectedCourse(),
+                            GroupTextBox.Text,
+                            specId.Value);
+
+                        CustomMessageBox.Show("Изменения сохранены", "Сохранение",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                     }
                     else
                     {
-                        // Режим добавления - создаем нового студента
-                        var newStudent = new Student();
-                        UpdateStudentData(newStudent, specId.Value);
-                        newStudent.created_date = DateTime.Now;
+                        // РЕЖИМ ДОБАВЛЕНИЯ
+                        string lastName, firstName, middleName;
+                        SplitFullName(FullNameTextBox.Text, out lastName, out firstName, out middleName);
 
-                        context.Students.Add(newStudent);
-                        context.SaveChanges();
+                        DateTime? graduationDate = null;
+                        if (DateTime.TryParse(GraduationDateTextBox.Text, out DateTime gradDate))
+                            graduationDate = gradDate;
 
-                        MessageBox.Show("Новый учащийся добавлен", "Добавление",
-                            MessageBoxButton.OK, MessageBoxImage.Information);
+                        context.Students_Insert(
+                            lastName,
+                            firstName,
+                            middleName,
+                            DateTime.Parse(BirthDateTextBox.Text),
+                            PhoneTextBox.Text,
+                            HomePhoneTextBox.Text,
+                            DateTime.Parse(AdmissionDateTextBox.Text),
+                            graduationDate,
+                            GetSelectedCourse(),
+                            GroupTextBox.Text,
+                            specId.Value);
 
-                        // Очищаем форму и добавляем в список
-                        ClearForm();
-                        LoadStudentsFromDatabase();
+                        CustomMessageBox.Show("Новый учащийся добавлен", "Добавление",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
+                    }
+                }
+
+                // ВОЗВРАТ НА ПРЕДЫДУЩУЮ СТРАНИЦУ ПОСЛЕ СОХРАНЕНИЯ
+                var mainWindow = Window.GetWindow(this) as MainWindow;
+                if (mainWindow != null)
+                {
+                    if (cameFromAddEditOlimp)
+                    {
+                        mainWindow.LoadPage("AddEditOlimp");
+                    }
+                    else if (cameFromStudentsPage)
+                    {
+                        mainWindow.LoadPage("Students");
+                    }
+                    else
+                    {
+                        // По умолчанию возвращаемся на страницу олимпиад
+                        mainWindow.LoadPage("Olympiads");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка сохранения данных: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка сохранения данных: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
-        }
-
-        private void UpdateStudentData(Student student, int specializationId)
-        {
-            // Разделяем ФИО
-            string lastName, firstName, middleName;
-            if (SplitFullName(FullNameTextBox.Text, out lastName, out firstName, out middleName))
-            {
-                student.last_name = lastName;
-                student.first_name = firstName;
-                student.middle_name = middleName;
-            }
-            else
-            {
-                student.last_name = FullNameTextBox.Text;
-                student.first_name = "";
-                student.middle_name = "";
-            }
-
-            student.course_number = GetSelectedCourse();
-            student.group_name = GroupTextBox.Text;
-            student.specialization_id = specializationId;
-
-            // Парсим даты
-            if (DateTime.TryParse(AdmissionDateTextBox.Text, out DateTime admissionDate))
-                student.admission_date = admissionDate;
-
-            if (DateTime.TryParse(GraduationDateTextBox.Text, out DateTime graduationDate))
-                student.graduation_date = graduationDate;
-            else
-                student.graduation_date = null;
-
-            if (DateTime.TryParse(BirthDateTextBox.Text, out DateTime birthDate))
-                student.birth_date = birthDate;
-
-            student.phone = PhoneTextBox.Text;
-            student.home_phone = HomePhoneTextBox.Text;
         }
 
         private void ClearDeleteButton_Click(object sender, RoutedEventArgs e)
@@ -787,56 +783,39 @@ namespace Genio
                 // Режим удаления
                 if (selectedStudent != null)
                 {
-                    var result = MessageBox.Show("Вы уверены, что хотите удалить этого учащегося?",
+                    var result = CustomMessageBox.Show("Вы уверены, что хотите удалить этого учащегося?",
                         "Подтверждение удаления",
-                        MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                        CustomMessageBoxButton.YesNo, CustomMessageBoxIcon.Warning);
 
-                    if (result == MessageBoxResult.Yes)
+                    if (result == CustomMessageBoxResult.Yes)
                     {
                         try
                         {
                             using (var context = new GenioAppEntities())
                             {
-                                // Находим студента
-                                var student = context.Students.Find(selectedStudent.student_id);
-                                if (student != null)
-                                {
-                                    // Удаляем связанные записи (участие в мероприятиях, доску почета)
-                                    var participations = context.StudentOlimps
-                                        .Where(so => so.student_id == student.student_id)
-                                        .ToList();
-                                    context.StudentOlimps.RemoveRange(participations);
+                                // ХРАНИМАЯ ПРОЦЕДУРА (каскадное удаление)
+                                context.Students_Delete(selectedStudent.student_id);
 
-                                    var honors = context.HonorBoards
-                                        .Where(h => h.student_id == student.student_id)
-                                        .ToList();
-                                    context.HonorBoards.RemoveRange(honors);
+                                // Обновляем списки
+                                selectedStudent = null;
+                                LoadStudentsFromDatabase();
+                                ClearForm();
 
-                                    // Удаляем студента
-                                    context.Students.Remove(student);
-                                    context.SaveChanges();
-
-                                    // Обновляем списки
-                                    selectedStudent = null;
-                                    LoadStudentsFromDatabase();
-                                    ClearForm();
-
-                                    MessageBox.Show("Учащийся удален", "Удаление",
-                                        MessageBoxButton.OK, MessageBoxImage.Information);
-                                }
+                                CustomMessageBox.Show("Учащийся удален", "Удаление",
+                                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                             }
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
+                            CustomMessageBox.Show($"Ошибка удаления: {ex.Message}", "Ошибка",
+                                CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                         }
                     }
                 }
                 else
                 {
-                    MessageBox.Show("Выберите учащегося для удаления", "Внимание",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    CustomMessageBox.Show("Выберите учащегося для удаления", "Внимание",
+                        CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 }
             }
             else

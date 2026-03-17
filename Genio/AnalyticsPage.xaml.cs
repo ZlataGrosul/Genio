@@ -79,8 +79,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки аналитики: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки аналитики: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -104,8 +104,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки статистики олимпиад: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки статистики олимпиад: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                 OlimpCountText.Text = "0";
             }
         }
@@ -234,8 +234,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка построения графика: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка построения графика: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -288,8 +288,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки рейтинговой таблицы: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки рейтинговой таблицы: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -373,7 +373,7 @@ namespace Genio
                     // Обработчик клика
                     path.MouseLeftButtonDown += (s, e) =>
                     {
-                        MessageBox.Show($"{stat.Specialization}\nУчащихся: {stat.StudentCount}\nУчастий в мероприятиях: {stat.OlimpCount}",
+                        CustomMessageBox.Show($"{stat.Specialization}\nУчащихся: {stat.StudentCount}\nУчастий в мероприятиях: {stat.OlimpCount}",
                             "Статистика специальности");
                     };
 
@@ -431,8 +431,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки статистики специальностей: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки статистики специальностей: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -506,8 +506,8 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки активной группы: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки активной группы: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
                 ActiveGroupText.Text = "Ошибка";
             }
         }

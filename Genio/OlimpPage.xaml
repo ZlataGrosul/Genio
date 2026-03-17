@@ -204,19 +204,42 @@
 
             <StackPanel Margin="15">
                 <!-- ЗАГОЛОВОК ФИЛЬТРОВ -->
-                <StackPanel Orientation="Horizontal"
-                                Margin="0,0,0,15">
-                    <Image Source="/Images/filterIcon.png"
-                               Width="20"
-                               Height="20"
-                               Stretch="Uniform"
-                               Margin="0,0,10,0"/>
-                    <TextBlock Text="Фильтры"
-                                   Foreground="{StaticResource LightTextColor}"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
-                </StackPanel>
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Левая часть с иконкой и заголовком -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Image Source="/Images/filterIcon.png"
+               Width="20"
+               Height="20"
+               Stretch="Uniform"
+               Margin="0,0,10,0"/>
+                        <TextBlock Text="Фильтры"
+                   Foreground="{StaticResource LightTextColor}"
+                   FontSize="14"
+                   FontWeight="SemiBold"
+                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Кнопка сброса фильтров (справа) -->
+                    <Button x:Name="ResetFiltersButton"
+            Grid.Column="2"
+            Style="{StaticResource ClearFilterButtonStyle}"
+            Width="38"
+            Height="38"
+            HorizontalAlignment="Right"
+            Click="ResetFiltersButton_Click"
+            ToolTip="Сбросить фильтры">
+                        <Image Source="/Images/cleanicon.png"
+               Width="20"
+               Height="20"
+               Stretch="Uniform"/>
+                    </Button>
+                </Grid>
 
                 <!-- COMBOBOX ДЛЯ ФИЛЬТРОВ -->
                 <ComboBox x:Name="FiltersComboBox"

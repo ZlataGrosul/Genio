@@ -118,13 +118,12 @@
 
             <!-- СТИЛЬ ДЛЯ ФРЕЙМОВ -->
             <Style x:Key="HoverFrameStyle" TargetType="Border">
-                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="BorderThickness" Value="2"/>
                 <Setter Property="BorderBrush" Value="Transparent"/>
                 <Setter Property="CornerRadius" Value="8"/>
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
-                        <Setter Property="BorderThickness" Value="2"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -454,14 +453,14 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="CalendarDayButton">
                             <Border x:Name="Border"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="5"
-                                    Margin="1">
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5"
+                            Margin="1">
                                 <ContentPresenter x:Name="ContentPresenter"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
@@ -499,14 +498,14 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="Border"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{StaticResource AccentColor}"
-                                    BorderThickness="1"
-                                    CornerRadius="5"
-                                    Padding="5,3">
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{StaticResource AccentColor}"
+                            BorderThickness="1"
+                            CornerRadius="5"
+                            Padding="5,3">
                                 <ContentPresenter x:Name="ContentPresenter"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
@@ -547,13 +546,13 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="border"
-                        Background="Transparent"
-                        CornerRadius="8"
-                        BorderThickness="1"
-                        BorderBrush="Transparent">
+                            Background="Transparent"
+                            CornerRadius="8"
+                            BorderThickness="1"
+                            BorderBrush="Transparent">
                                 <ContentPresenter x:Name="contentPresenter"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
@@ -598,6 +597,7 @@
                 <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="FontSize" Value="13"/>
+                <Setter Property="CaretBrush" Value="{StaticResource LightTextColor}"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TextBox">
@@ -611,6 +611,7 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            
             <!-- СТИЛЬ ДЛЯ КНОПКИ ФИЛЬТРОВ -->
             <Style x:Key="FiltersButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="{StaticResource MenuItemHoverColor}"/>
@@ -745,57 +746,65 @@
 
                                 <!-- ОСНОВНОЙ КОНТЕНТ -->
                                 <ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
-                    Grid.Column="0"
-                    Margin="{TemplateBinding Padding}"
-                    CanContentScroll="{TemplateBinding CanContentScroll}"/>
+                                          Grid.Column="0"
+                                          Margin="{TemplateBinding Padding}"
+                                          CanContentScroll="{TemplateBinding CanContentScroll}"/>
 
                                 <!-- ВЕРТИКАЛЬНЫЙ СКРОЛЛБАР -->
                                 <ScrollBar x:Name="PART_VerticalScrollBar"
-                   Grid.Column="1"
-                   Orientation="Vertical"
-                   Minimum="0"
-                   Maximum="{TemplateBinding ScrollableHeight}"
-                   ViewportSize="{TemplateBinding ViewportHeight}"
-                   Value="{TemplateBinding VerticalOffset}"
-                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
-                   Width="12"
-                   Margin="-14,0,0,0">
+                             Grid.Column="1"
+                             Orientation="Vertical"
+                             Minimum="0"
+                             Maximum="{TemplateBinding ScrollableHeight}"
+                             ViewportSize="{TemplateBinding ViewportHeight}"
+                             Value="{TemplateBinding VerticalOffset}"
+                             Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                             Width="12"
+                             Margin="-14,0,0,0">
                                     <ScrollBar.Template>
                                         <ControlTemplate TargetType="ScrollBar">
                                             <Grid>
-                                                <!-- ТРЕК (серый фон полосы прокрутки) -->
+                                                <!-- ТРЕК (фон полосы прокрутки) -->
                                                 <Border x:Name="TrackBorder"
-                                CornerRadius="9"
-                                Background="{StaticResource CheckBoxBorder}"
-                                Opacity="0.3"
-                                Margin="2,10,2,10"/>
+                                          CornerRadius="6"
+                                          Background="{StaticResource CheckBoxBorder}"
+                                          Opacity="0.3"
+                                          Margin="3,8,3,8"/>
 
                                                 <!-- Трек с ползунком -->
-                                                <Track x:Name="PART_Track" 
-                                           IsDirectionReversed="true"
-                                           Margin="0,10,0,10">
+                                                <Track x:Name="PART_Track"
+                                         IsDirectionReversed="true"
+                                         Margin="0,8,0,8">
                                                     <Track.Thumb>
-                                                        <Thumb x:Name="Thumb" 
-                                       Background="{StaticResource AccentColor}"
-                                       Width="6"
-                                                   MaxHeight="200"
-                                                Margin="3,0,3,0">
+                                                        <Thumb x:Name="Thumb"
+                                                 Background="{StaticResource AccentColor}"
+                                                 Width="6"
+                                                 MinHeight="20"
+                                                 Margin="3,0,3,0">
                                                             <Thumb.Template>
                                                                 <ControlTemplate TargetType="Thumb">
-                                                                    <Border CornerRadius="4"
-                                                            Background="{TemplateBinding Background}"
-                                                    Margin="0,2,0,2"/>
+                                                                    <Border x:Name="thumbBorder"
+                                                              CornerRadius="4"
+                                                              Background="{TemplateBinding Background}"
+                                                              Margin="0,2,0,2"/>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="thumbBorder" 
+                                                                        Property="Background" 
+                                                                        Value="#FF5045D5"/>
+                                                                        </Trigger>
+                                                                        <Trigger Property="IsDragging" Value="True">
+                                                                            <Setter TargetName="thumbBorder" 
+                                                                        Property="Background" 
+                                                                        Value="#FF4035C5"/>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
                                                                 </ControlTemplate>
                                                             </Thumb.Template>
                                                         </Thumb>
                                                     </Track.Thumb>
                                                 </Track>
                                             </Grid>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Thumb" Property="Background" Value="#FF5045D5"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </ScrollBar.Template>
                                 </ScrollBar>
@@ -1131,13 +1140,198 @@
                 <Setter Property="Margin" Value="0,0,5,0"/>
                 <Setter Property="Cursor" Value="Hand"/>
             </Style>
+            
+            <!-- СТИЛЬ ДЛЯ КНОПКИ УДАЛЕНИЯ (мягкая красная обводка/фон) -->
+            <Style x:Key="DeleteButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource IconGrayColor}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="18"
+                        Width="36"
+                        Height="36"
+                        BorderThickness="1.5"
+                        BorderBrush="Transparent">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <!-- При наведении: тонкая мягкая красная обводка + светлее серый -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="#FFFF7F7F"/>
+                                    <Setter TargetName="border" Property="Background" Value="#FF6A6A6A"/>
+                                </Trigger>
+                                <!-- При нажатии: мягкий красный фон -->
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FFFF7F7F"/>
+                                    <Setter TargetName="border" Property="BorderBrush" Value="#FFFF7F7F"/>
+                                </Trigger>
+                                <!-- При отключении -->
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                    <Setter Property="Cursor" Value="Arrow"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
-            <!-- Стиль для кнопки удаления -->
-            <Style x:Key="DeleteButtonStyle" TargetType="Button" BasedOn="{StaticResource CircleButtonStyle}">
+            <!-- СТИЛЬ ДЛЯ КНОПКИ УДАЛЕНИЯ В СПИСКЕ -->
+            <Style x:Key="DeleteListItemButtonStyle" TargetType="Button" BasedOn="{StaticResource DatePickerButtonStyle}">
                 <Setter Property="Width" Value="27"/>
                 <Setter Property="Height" Value="27"/>
-                <Setter Property="Margin" Value="5,0,0,0"/>
                 <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="Transparent"
+                        CornerRadius="8"
+                        BorderThickness="1"
+                        BorderBrush="Transparent">
+                                <ContentPresenter x:Name="contentPresenter"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <!-- При наведении: тонкая красная обводка -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="#FFFF7F7F"/>
+                                    <Setter TargetName="border" Property="Background" Value="#20FF7F7F"/>
+                                </Trigger>
+                                <!-- При нажатии: мягкий красный фон -->
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#40FF7F7F"/>
+                                    <Setter TargetName="border" Property="BorderBrush" Value="#FFFF7F7F"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- ==================== КАСТОМНЫЙ MESSAGEBOX ==================== -->
+            <SolidColorBrush x:Key="MessageBoxOverlayColor" Color="#80000000"/>
+
+            <Style x:Key="CustomMessageBoxWindowStyle" TargetType="Window">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="WindowStyle" Value="None"/>
+                <Setter Property="ResizeMode" Value="NoResize"/>
+                <Setter Property="ShowInTaskbar" Value="False"/>
+                <Setter Property="Topmost" Value="True"/>
+                <Setter Property="SizeToContent" Value="WidthAndHeight"/>
+            </Style>
+
+            <Style x:Key="MessageBoxContainerStyle" TargetType="Border">
+                <Setter Property="Background" Value="{StaticResource ReportFrameColor}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource AccentColor}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="20"/>
+                <Setter Property="MinWidth" Value="320"/>
+                <Setter Property="MaxWidth" Value="480"/>
+            </Style>
+
+            <Style x:Key="MessageBoxTitleStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="FontSize" Value="16"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Margin" Value="0,5,0,15"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+
+            <Style x:Key="MessageBoxMessageStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#FFCCCCCC"/>
+                <Setter Property="FontSize" Value="13"/>
+                <Setter Property="Margin" Value="0,0,0,25"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="MaxWidth" Value="400"/>
+            </Style>
+
+            <!-- ✅ КНОПКИ: изначально серые, при наведении - Да=фиолетовый, Нет=красный -->
+            <Style x:Key="MessageBoxButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource IconGrayColor}"/>
+                <Setter Property="Foreground" Value="{StaticResource LightTextColor}"/>
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Padding" Value="20,8"/>
+                <Setter Property="MinWidth" Value="80"/>
+                <Setter Property="Height" Value="35"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="17"
+                        BorderThickness="0">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                      VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <!-- При наведении: цвет зависит от содержимого кнопки -->
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FF9E9EA3"/>
+                                </Trigger>
+                                <!-- При нажатии -->
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="border" Property="Background" Value="#FFAEAEB3"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- КНОПКА "ДА" / "OK" - фиолетовая при наведении -->
+            <Style x:Key="MessageBoxButtonConfirmStyle" TargetType="Button" BasedOn="{StaticResource MessageBoxButtonStyle}">
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Background" Value="#FF5045D5"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- КНОПКА "НЕТ" / "Удалить" - красная при наведении -->
+            <Style x:Key="MessageBoxButtonDangerStyle" TargetType="Button" BasedOn="{StaticResource MessageBoxButtonStyle}">
+                <Setter Property="Background" Value="{StaticResource IconGrayColor}"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#FFFF5555"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Background" Value="#FFFF4040"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <!-- КНОПКА "ОТМЕНА" - серая -->
+            <Style x:Key="MessageBoxButtonSecondaryStyle" TargetType="Button" BasedOn="{StaticResource MessageBoxButtonStyle}">
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#FF9E9EA3"/>
+                    </Trigger>
+                    <Trigger Property="IsPressed" Value="True">
+                        <Setter Property="Background" Value="#FFAEAEB3"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Key="MessageBoxIconStyle" TargetType="Image">
+                <Setter Property="Width" Value="32"/>
+                <Setter Property="Height" Value="32"/>
+                <Setter Property="Margin" Value="0,0,15,0"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
             </Style>
 
         </ResourceDictionary>

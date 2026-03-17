@@ -7,6 +7,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Genio
 {
@@ -21,7 +23,6 @@ namespace Genio
         private List<HonorDisplayItem> allHonorItems = new List<HonorDisplayItem>();
         private ICollectionView honorItemsView;
 
-        // Простой класс для отображения данных
         public class HonorDisplayItem
         {
             public string FullName { get; set; }
@@ -57,14 +58,10 @@ namespace Genio
                 using (var db = new GenioAppEntities())
                 {
                     YearComboBox.Items.Clear();
+                    YearComboBox.Items.Add(new ComboBoxItem { Content = "За всё время", Tag = 0 });
 
-                    YearComboBox.Items.Add(new ComboBoxItem
-                    {
-                        Content = "Все годы",
-                        Tag = 0
-                    });
-
-                    var years = db.HonorBoards
+                    var honorRecords = db.HonorBoard_GetAll();
+                    var years = honorRecords
                         .Select(h => h.placement_date.Year)
                         .Distinct()
                         .OrderByDescending(y => y)
@@ -72,20 +69,15 @@ namespace Genio
 
                     foreach (var year in years)
                     {
-                        YearComboBox.Items.Add(new ComboBoxItem
-                        {
-                            Content = year.ToString(),
-                            Tag = year
-                        });
+                        YearComboBox.Items.Add(new ComboBoxItem { Content = year.ToString(), Tag = year });
                     }
-
                     YearComboBox.SelectedIndex = 0;
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки списка годов: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки списка годов: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
@@ -95,9 +87,7 @@ namespace Genio
             {
                 using (var db = new GenioAppEntities())
                 {
-                    var specialties = db.Specializations
-                        .OrderBy(s => s.spec_name)
-                        .ToList();
+                    var specialties = db.Specializations_GetAll();
 
                     SpecialtiesFilterPanel.Children.Clear();
                     specialtyCheckBoxes.Clear();
@@ -112,10 +102,8 @@ namespace Genio
                             FontSize = 12,
                             Tag = specialty.specialization_id
                         };
-
                         checkBox.Checked += SpecialtyFilter_Changed;
                         checkBox.Unchecked += SpecialtyFilter_Changed;
-
                         specialtyCheckBoxes.Add(checkBox, specialty.specialization_id);
                         SpecialtiesFilterPanel.Children.Add(checkBox);
                     }
@@ -123,17 +111,15 @@ namespace Genio
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки специальностей: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
         private void LoadDefaultFilters()
         {
             foreach (var checkBox in specialtyCheckBoxes.Keys)
-            {
                 checkBox.IsChecked = true;
-            }
 
             FilterCourse1.IsChecked = true;
             FilterCourse2.IsChecked = true;
@@ -150,105 +136,122 @@ namespace Genio
             {
                 using (var db = new GenioAppEntities())
                 {
-                    var query = db.HonorBoards
-                        .Include("Student")
-                        .Include("Student.Specialization")
-                        .AsQueryable();
+                    var honorRecords = db.HonorBoard_GetAll();
+                    var allStudents = db.Students_GetAll();
+
+                    var studentsDict = allStudents.ToDictionary(s => s.student_id);
+
+                    var filteredRecords = honorRecords.AsEnumerable();
 
                     if (selectedYear > 0)
                     {
-                        query = query.Where(h => h.placement_date.Year == selectedYear);
+                        filteredRecords = filteredRecords.Where(h => h.placement_date.Year == selectedYear);
                     }
 
                     if (selectedCourses.Any())
                     {
-                        query = query.Where(h => selectedCourses.Contains(h.Student.course_number));
+                        filteredRecords = filteredRecords.Where(h =>
+                        {
+                            if (studentsDict.TryGetValue(h.student_id, out var student))
+                                return selectedCourses.Contains(student.course_number);
+                            return false;
+                        });
                     }
 
                     if (selectedSpecialties.Any())
                     {
-                        query = query.Where(h => selectedSpecialties.Contains(h.Student.specialization_id));
-                    }
-
-                    var honorRecords = query
-                        .OrderByDescending(h => h.placement_date)
-                        .ThenBy(h => h.Student.last_name)
-                        .ThenBy(h => h.Student.first_name)
-                        .ThenBy(h => h.Student.middle_name)
-                        .ToList();
-
-                    allHonorItems = new List<HonorDisplayItem>();
-
-                    foreach (var record in honorRecords)
-                    {
-                        var student = record.Student;
-                        allHonorItems.Add(new HonorDisplayItem
+                        filteredRecords = filteredRecords.Where(h =>
                         {
-                            FullName = $"{student.last_name} {student.first_name} {student.middle_name}",
-                            LastName = student.last_name,
-                            FirstName = student.first_name,
-                            MiddleName = student.middle_name,
-                            Course = student.course_number,
-                            Group = student.group_name,
-                            AdmissionDate = student.admission_date,
-                            GraduationDate = student.graduation_date ?? student.admission_date.AddYears(4),
-                            PlacementDate = record.placement_date,
-                            StudentId = student.student_id,
-                            HonorId = record.honor_id
+                            if (studentsDict.TryGetValue(h.student_id, out var student))
+                                return selectedSpecialties.Contains(student.specialization_id);
+                            return false;
                         });
                     }
 
-                    // Создаем CollectionView для фильтрации
+                    var sortedRecords = filteredRecords
+                        .OrderByDescending(h => h.placement_date)
+                        .ThenBy(h =>
+                        {
+                            if (studentsDict.TryGetValue(h.student_id, out var s)) return s.last_name;
+                            return "";
+                        })
+                        .ThenBy(h =>
+                        {
+                            if (studentsDict.TryGetValue(h.student_id, out var s)) return s.first_name;
+                            return "";
+                        })
+                        .ThenBy(h =>
+                        {
+                            if (studentsDict.TryGetValue(h.student_id, out var s)) return s.middle_name;
+                            return "";
+                        })
+                        .ToList();
+
+                    allHonorItems = new List<HonorDisplayItem>();
+                    foreach (var record in sortedRecords)
+                    {
+                        if (studentsDict.TryGetValue(record.student_id, out var student))
+                        {
+                            allHonorItems.Add(new HonorDisplayItem
+                            {
+                                FullName = $"{student.last_name} {student.first_name} {student.middle_name}",
+                                LastName = student.last_name,
+                                FirstName = student.first_name,
+                                MiddleName = student.middle_name,
+                                Course = student.course_number,
+                                Group = student.group_name,
+                                AdmissionDate = student.admission_date,
+                                GraduationDate = student.graduation_date ?? student.admission_date.AddYears(4),
+                                PlacementDate = record.placement_date,
+                                StudentId = student.student_id,
+                                HonorId = record.honor_id
+                            });
+                        }
+                    }
+
                     honorItemsView = CollectionViewSource.GetDefaultView(allHonorItems);
                     honorItemsView.Filter = HonorItemFilter;
-
                     HonorBoardGrid.ItemsSource = null;
                     HonorBoardGrid.ItemsSource = honorItemsView;
-
                     ExportExcelBtn.IsEnabled = allHonorItems.Any();
+
+                    UpdateEditButtonState();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки данных доски почета: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка загрузки данных доски почета: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
+        }
+
+        private void UpdateEditButtonState()
+        {
+            EditButton.IsEnabled = selectedYear > 0;
         }
 
         private bool HonorItemFilter(object item)
         {
-            // Если поле поиска пустое или содержит текст "Поиск...", показываем все записи
             if (string.IsNullOrWhiteSpace(currentSearchText) || currentSearchText == "Поиск...")
                 return true;
 
             var honorItem = item as HonorDisplayItem;
-            if (honorItem == null)
-                return false;
+            if (honorItem == null) return false;
 
             string searchLower = currentSearchText.ToLower().Trim();
-
-            // Разделяем поисковый запрос на слова
             var searchWords = searchLower.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-            // Проверяем все комбинации поиска
             foreach (var word in searchWords)
             {
                 bool wordMatches =
-                    // Поиск по фамилии
                     honorItem.LastName.ToLower().Contains(word) ||
-                    // Поиск по имени
                     honorItem.FirstName.ToLower().Contains(word) ||
-                    // Поиск по отчеству
                     honorItem.MiddleName.ToLower().Contains(word) ||
-                    // Поиск по полному ФИО
                     honorItem.FullName.ToLower().Contains(word) ||
-                    // Поиск по группе (дополнительно)
                     honorItem.Group.ToLower().Contains(word);
 
-                if (!wordMatches)
-                    return false;
+                if (!wordMatches) return false;
             }
-
             return true;
         }
 
@@ -258,9 +261,7 @@ namespace Genio
             foreach (var kvp in specialtyCheckBoxes)
             {
                 if (kvp.Key.IsChecked == true)
-                {
                     selectedSpecialties.Add(kvp.Value);
-                }
             }
         }
 
@@ -278,7 +279,7 @@ namespace Genio
             if (SearchTextBox.Text == "Поиск...")
             {
                 SearchTextBox.Text = "";
-                SearchTextBox.Foreground = System.Windows.Media.Brushes.White;
+                SearchTextBox.Foreground = Brushes.White;
             }
         }
 
@@ -287,22 +288,15 @@ namespace Genio
             if (string.IsNullOrWhiteSpace(SearchTextBox.Text))
             {
                 SearchTextBox.Text = "Поиск...";
-                SearchTextBox.Foreground = System.Windows.Media.Brushes.Gray;
+                SearchTextBox.Foreground = Brushes.Gray;
             }
         }
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            // Обновляем текущий текст поиска
             currentSearchText = SearchTextBox.Text;
-
-            // Если поле поиска пустое или содержит "Поиск...", сбрасываем фильтр
             if (string.IsNullOrWhiteSpace(currentSearchText) || currentSearchText == "Поиск...")
-            {
                 currentSearchText = "";
-            }
-
-            // Применяем фильтр
             ApplySearchFilter();
         }
 
@@ -311,33 +305,29 @@ namespace Genio
             if (e.Key == System.Windows.Input.Key.Enter)
             {
                 ApplySearchFilter();
-                // Убираем фокус с TextBox после нажатия Enter
-                System.Windows.Input.Keyboard.ClearFocus();
+                Keyboard.ClearFocus();
             }
         }
 
         private void ApplySearchFilter()
         {
             if (honorItemsView != null)
-            {
                 honorItemsView.Refresh();
-            }
         }
 
         private void FiltersBtn_Click(object sender, RoutedEventArgs e)
         {
             filtersVisible = !filtersVisible;
-
             if (filtersVisible)
             {
                 FiltersPanel.Visibility = Visibility.Visible;
-                ActionButtonsPanel.Visibility = Visibility.Collapsed;
+                FiltersPanel.Margin = new Thickness(20, 0, 20, 15);
                 FiltersBtn.Style = (Style)FindResource("FiltersButtonActiveStyle");
             }
             else
             {
                 FiltersPanel.Visibility = Visibility.Collapsed;
-                ActionButtonsPanel.Visibility = Visibility.Visible;
+                FiltersPanel.Margin = new Thickness(20, 0, 20, 15);
                 FiltersBtn.Style = (Style)FindResource("FiltersButtonStyle");
             }
         }
@@ -345,11 +335,10 @@ namespace Genio
         private void ExportExcelBtn_Click(object sender, RoutedEventArgs e)
         {
             var itemsToExport = honorItemsView?.Cast<HonorDisplayItem>().ToList() ?? allHonorItems;
-
             if (itemsToExport.Count == 0)
             {
-                MessageBox.Show("Нет данных для экспорта", "Внимание",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Нет данных для экспорта", "Внимание",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
                 return;
             }
 
@@ -365,43 +354,33 @@ namespace Genio
                 if (saveDialog.ShowDialog() == true)
                 {
                     ExportToCSV(saveDialog.FileName, itemsToExport);
-                    MessageBox.Show($"Данные успешно экспортированы!", "Успех",
-                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.Show($"Данные успешно экспортированы!", "Успех",
+                        CustomMessageBoxButton.OK, CustomMessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при экспорте: {ex.Message}", "Ошибка",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.Show($"Ошибка при экспорте: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
 
         private void ExportToCSV(string filePath, List<HonorDisplayItem> items)
         {
-            try
+            using (var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
             {
-                using (var writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
+                writer.WriteLine("ФИО;Курс;Группа;Дата поступления;Дата окончания;Дата занесения на ДП");
+                foreach (var item in items)
                 {
-                    // Заголовки
-                    writer.WriteLine("ФИО;Курс;Группа;Дата поступления;Дата окончания;Дата занесения на ДП");
-
-                    foreach (var item in items)
-                    {
-                        writer.WriteLine($"\"{item.FullName}\";{item.Course};\"{item.Group}\";" +
-                                       $"{item.AdmissionDate:dd.MM.yyyy};{item.GraduationDate:dd.MM.yyyy};" +
-                                       $"{item.PlacementDate:dd.MM.yyyy}");
-                    }
+                    writer.WriteLine($"\"{item.FullName}\";{item.Course};\"{item.Group}\";" +
+                                   $"{item.AdmissionDate:dd.MM.yyyy};{item.GraduationDate:dd.MM.yyyy};" +
+                                   $"{item.PlacementDate:dd.MM.yyyy}");
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Ошибка сохранения CSV: {ex.Message}");
             }
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            // Переход на страницу добавления записи
             var mainWindow = Window.GetWindow(this) as MainWindow;
             if (mainWindow != null)
             {
@@ -412,55 +391,39 @@ namespace Genio
 
         private void EditButton_Click(object sender, RoutedEventArgs e)
         {
-            if (HonorBoardGrid.SelectedItem != null)
+            if (selectedYear > 0)
             {
-                var selectedItem = HonorBoardGrid.SelectedItem as HonorDisplayItem;
-                if (selectedItem != null)
+                var mainWindow = Window.GetWindow(this) as MainWindow;
+                if (mainWindow != null)
                 {
-                    // Переход на страницу редактирования записи
-                    var mainWindow = Window.GetWindow(this) as MainWindow;
-                    if (mainWindow != null)
-                    {
-                        var page = new AddHonorPage(selectedItem.HonorId);
-                        mainWindow.MainFrame.Navigate(page);
-                    }
+                    var page = new AddHonorPage(selectedYear);
+                    mainWindow.MainFrame.Navigate(page);
                 }
             }
             else
             {
-                MessageBox.Show("Выберите запись для редактирования", "Внимание",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.Show("Выберите конкретный год для редактирования", "Внимание",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
             }
         }
 
         private void ClearFiltersButton_Click(object sender, RoutedEventArgs e)
         {
-            // Сброс фильтров специальностей
             foreach (var checkBox in specialtyCheckBoxes.Keys)
-            {
                 checkBox.IsChecked = true;
-            }
 
-            // Сброс фильтров курсов
             FilterCourse1.IsChecked = true;
             FilterCourse2.IsChecked = true;
             FilterCourse3.IsChecked = true;
             FilterCourse4.IsChecked = true;
-
-            // Сброс года
             YearComboBox.SelectedIndex = 0;
-
-            // Сброс поиска
             SearchTextBox.Text = "Поиск...";
-            SearchTextBox.Foreground = System.Windows.Media.Brushes.Gray;
+            SearchTextBox.Foreground = Brushes.Gray;
             currentSearchText = "";
 
-            // Обновление фильтров
             UpdateSelectedSpecialties();
             UpdateSelectedCourses();
             selectedYear = 0;
-
-            // Перезагрузка данных
             LoadHonorBoardData();
         }
 
@@ -490,7 +453,7 @@ namespace Genio
             if (SearchTextBox.Text == "Поиск...")
             {
                 SearchTextBox.Text = "";
-                SearchTextBox.Foreground = System.Windows.Media.Brushes.White;
+                SearchTextBox.Foreground = Brushes.White;
                 SearchTextBox.Focus();
                 e.Handled = true;
             }
@@ -498,9 +461,150 @@ namespace Genio
 
         private void HonorBoardGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (HonorBoardGrid.SelectedItem != null)
+            if (HonorBoardGrid.SelectedItem is HonorDisplayItem selectedItem)
             {
-                EditButton_Click(sender, e);
+                ShowStudentInfoModal(selectedItem.StudentId);
+            }
+        }
+
+        private void ShowStudentInfoModal(int studentId)
+        {
+            try
+            {
+                using (var db = new GenioAppEntities())
+                {
+                    var student = db.Students_GetById(studentId);
+                    if (student == null)
+                    {
+                        CustomMessageBox.Show("Студент не найден", "Ошибка",
+                            CustomMessageBoxButton.OK, CustomMessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Явные цвета для тёмной темы
+                    var darkBackground = new SolidColorBrush(Color.FromRgb(38, 38, 38));
+                    var lightText = new SolidColorBrush(Color.FromRgb(255, 255, 255));
+                    var grayText = new SolidColorBrush(Color.FromRgb(200, 200, 200));
+                    var accentColor = new SolidColorBrush(Color.FromRgb(97, 85, 245));
+
+                    var infoWindow = new Window
+                    {
+                        Title = $"Информация об учащемся: {student.last_name} {student.first_name}",
+                        Width = 520,
+                        Height = 450,
+                        WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                        ResizeMode = ResizeMode.NoResize,
+                        Background = darkBackground,
+                        WindowStyle = WindowStyle.SingleBorderWindow,
+                        Owner = Application.Current.MainWindow,
+                        ShowInTaskbar = false
+                    };
+
+                    var mainGrid = new Grid { Margin = new Thickness(25) };
+                    mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                    mainGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+                    mainGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+                    // Заголовок
+                    var titleText = new TextBlock
+                    {
+                        Text = $"{student.last_name} {student.first_name} {student.middle_name}",
+                        FontSize = 19,
+                        FontWeight = FontWeights.SemiBold,
+                        Foreground = lightText,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Margin = new Thickness(0, 0, 0, 20),
+                        TextWrapping = TextWrapping.Wrap,
+                        TextAlignment = TextAlignment.Center
+                    };
+                    Grid.SetRow(titleText, 0);
+                    mainGrid.Children.Add(titleText);
+
+                    // Данные
+                    var dataGrid = new Grid { Margin = new Thickness(5, 0, 5, 20) };
+                    dataGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                    dataGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+                    // RowDefinitions для каждой строки данных
+                    var labels = new[]
+                    {
+                "Дата рождения:", "Курс:", "Группа:", "Специальность:",
+                "Дата поступления:", "Дата окончания:", "Телефон:", "Дом. телефон:"
+            };
+
+                    // RowDefinitions
+                    for (int i = 0; i < labels.Length; i++)
+                    {
+                        dataGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                    }
+
+                    var values = new[]
+                    {
+                student.birth_date.ToString("dd.MM.yyyy"),
+                student.course_number.ToString(),
+                student.group_name,
+                student.Specialization?.spec_name ?? "Не указано",
+                student.admission_date.ToString("dd.MM.yyyy"),
+                student.graduation_date?.ToString("dd.MM.yyyy") ?? "Не указано",
+                student.phone ?? "Не указано",
+                student.home_phone ?? "Не указано"
+            };
+
+                    for (int i = 0; i < labels.Length; i++)
+                    {
+                        var label = new TextBlock
+                        {
+                            Text = labels[i],
+                            FontSize = 13,
+                            FontWeight = FontWeights.SemiBold,
+                            Foreground = lightText,
+                            VerticalAlignment = VerticalAlignment.Center,
+                            Margin = new Thickness(0, 0, 20, 8)
+                        };
+                        Grid.SetRow(label, i);
+                        Grid.SetColumn(label, 0);
+                        dataGrid.Children.Add(label);
+
+                        var value = new TextBlock
+                        {
+                            Text = values[i],
+                            FontSize = 13,
+                            Foreground = grayText,
+                            VerticalAlignment = VerticalAlignment.Center,
+                            Margin = new Thickness(0, 0, 0, 8),
+                            TextWrapping = TextWrapping.Wrap
+                        };
+                        Grid.SetRow(value, i);
+                        Grid.SetColumn(value, 1);
+                        dataGrid.Children.Add(value);
+                    }
+
+                    Grid.SetRow(dataGrid, 1);
+                    mainGrid.Children.Add(dataGrid);
+
+                    // Кнопка
+                    var closeButton = new Button
+                    {
+                        Content = "Закрыть",
+                        Style = (Style)Application.Current.FindResource("AccentButtonStyle"),
+                        Width = 130,
+                        Height = 38,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        Cursor = Cursors.Hand
+                    };
+                    closeButton.Click += (s, args) => infoWindow.Close();
+
+                    Grid.SetRow(closeButton, 2);
+                    mainGrid.Children.Add(closeButton);
+
+                    infoWindow.Content = mainGrid;
+                    infoWindow.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                CustomMessageBox.Show($"Ошибка загрузки информации о студенте: {ex.Message}", "Ошибка",
+                    CustomMessageBoxButton.OK, CustomMessageBoxIcon.Error);
             }
         }
     }
